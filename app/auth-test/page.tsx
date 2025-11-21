@@ -7,10 +7,21 @@ import { Button } from "@/components/ui/button";
 import { LuShield, LuCheck, LuX, LuTriangleAlert } from "react-icons/lu";
 import Link from "next/link";
 
+interface ProfileData {
+  id: string;
+  clerk_user_id: string;
+  email: string;
+  role: string;
+  status: string;
+  created_at: string;
+}
+
 interface UserData {
   id: string;
-  clerk_id: string;
+  profile_id: string;
   name: string;
+  phone: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 
@@ -22,6 +33,7 @@ export default function AuthTestPage() {
     "idle" | "testing" | "success" | "error"
   >("idle");
   const [error, setError] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -33,20 +45,23 @@ export default function AuthTestPage() {
       setConnectionStatus("testing");
       setError(null);
 
+      console.log("🔍 [테스트] Supabase 연결 테스트 시작...");
+
       // 간단한 쿼리로 연결 테스트
-      const { error } = await supabase.from("users").select("count");
+      const { error } = await supabase.from("profiles").select("count");
 
       if (error) throw error;
 
+      console.log("✅ [테스트] Supabase 연결 성공");
       setConnectionStatus("success");
     } catch (err) {
+      console.error("❌ [테스트] Supabase 연결 실패:", err);
       setConnectionStatus("error");
       setError(err instanceof Error ? err.message : "연결 테스트 실패");
-      console.error("Connection test error:", err);
     }
   }, [supabase]);
 
-  // 사용자 데이터 가져오기 또는 생성
+  // 사용자 데이터 가져오기 (sync-user API가 생성한 데이터 조회)
   const fetchOrCreateUser = useCallback(async () => {
     if (!user) return;
 
@@ -54,44 +69,67 @@ export default function AuthTestPage() {
       setLoading(true);
       setError(null);
 
-      // 먼저 사용자 데이터 조회
-      const { data, error: fetchError } = await supabase
-        .from("users")
+      console.log("🔍 [조회] 사용자 데이터 조회 시작...");
+      console.log("  - Clerk User ID:", user.id);
+
+      // 1단계: profiles 테이블에서 조회
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
         .select("*")
-        .eq("clerk_id", user.id)
+        .eq("clerk_user_id", user.id)
         .single();
 
-      if (fetchError && fetchError.code !== "PGRST116") {
-        throw fetchError;
+      if (profileError) {
+        console.error("❌ [조회] profiles 조회 실패:", profileError);
+
+        // 사용자가 없는 경우 (PGRST116)
+        if (profileError.code === "PGRST116") {
+          throw new Error(
+            "프로필을 찾을 수 없습니다. /api/sync-user가 호출되었는지 확인하세요.",
+          );
+        }
+        throw profileError;
       }
 
-      // 사용자가 없으면 생성
-      if (!data) {
-        const userName =
-          user.fullName ||
-          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
-          user.emailAddresses[0]?.emailAddress.split("@")[0] ||
-          "익명";
+      console.log("✅ [조회] profiles 조회 성공:", profile.id);
+      setProfileData(profile);
 
-        const { data: newUser, error: createError } = await supabase
-          .from("users")
-          .insert({
-            clerk_id: user.id,
-            name: userName,
-          })
-          .select()
-          .single();
+      // 2단계: users 테이블에서 조회
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("profile_id", profile.id)
+        .single();
 
-        if (createError) throw createError;
-        setUserData(newUser);
-      } else {
-        setUserData(data);
+      if (userError) {
+        console.error("❌ [조회] users 조회 실패:", userError);
+
+        if (userError.code === "PGRST116") {
+          throw new Error(
+            "사용자 상세 정보를 찾을 수 없습니다. /api/sync-user가 호출되었는지 확인하세요.",
+          );
+        }
+        throw userError;
       }
+
+      console.log("✅ [조회] users 조회 성공:", userData.id);
+      setUserData(userData);
+
+      console.log("🎉 [조회] 사용자 데이터 조회 완료!");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "사용자 데이터 조회/생성 실패",
-      );
-      console.error("Fetch or create user error:", err);
+      console.error("❌ [조회] 사용자 데이터 조회 실패:", err);
+      setError(err instanceof Error ? err.message : "사용자 데이터 조회 실패");
+
+      // 힌트 추가
+      if (err instanceof Error && err.message.includes("찾을 수 없습니다")) {
+        setError(
+          err.message +
+            "\n\n💡 해결 방법:\n" +
+            "1. SyncUserProvider가 RootLayout에 추가되었는지 확인\n" +
+            "2. 로그인 후 자동으로 /api/sync-user가 호출되는지 확인\n" +
+            "3. 브라우저 콘솔에서 sync-user 관련 로그 확인",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -99,26 +137,33 @@ export default function AuthTestPage() {
 
   // 이름 업데이트
   const updateName = async () => {
-    if (!user || !newName.trim()) return;
+    if (!profileData || !userData || !newName.trim()) return;
 
     try {
       setError(null);
 
+      console.log("📝 [업데이트] 이름 업데이트 시작...");
+
       const { data, error: updateError } = await supabase
         .from("users")
         .update({ name: newName.trim() })
-        .eq("clerk_id", user.id)
+        .eq("profile_id", profileData.id)
         .select()
         .single();
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("❌ [업데이트] 이름 업데이트 실패:", updateError);
+        throw updateError;
+      }
+
+      console.log("✅ [업데이트] 이름 업데이트 성공:", data.name);
 
       setUserData(data);
       setEditingName(false);
       setNewName("");
     } catch (err) {
+      console.error("❌ [업데이트] 이름 업데이트 오류:", err);
       setError(err instanceof Error ? err.message : "이름 업데이트 실패");
-      console.error("Update name error:", err);
     }
   };
 
@@ -176,15 +221,19 @@ export default function AuthTestPage() {
           <div className="flex-1">
             <h3 className="font-semibold text-red-800">에러</h3>
             <p className="text-sm text-red-700">{error}</p>
-            <p className="text-xs text-red-600 mt-2">
+            <p className="text-xs text-red-600 mt-2 whitespace-pre-line">
               💡 <strong>해결 방법:</strong>
               <br />
-              1. Supabase Dashboard에서 <code>users</code> 테이블이 생성되었는지
+              1. Supabase Dashboard에서 <code>profiles</code>와{" "}
+              <code>users</code> 테이블이 생성되었는지 확인
+              <br />
+              2. RLS가 개발 환경에서 비활성화되어 있는지 확인 (ALTER TABLE
+              profiles/users DISABLE ROW LEVEL SECURITY)
+              <br />
+              3. SyncUserProvider가 RootLayout에 추가되었는지 확인
+              <br />
+              4. 로그인 후 /api/sync-user가 자동으로 호출되는지 브라우저 콘솔
               확인
-              <br />
-              2. RLS 정책이 올바르게 설정되었는지 확인
-              <br />
-              3. Clerk와 Supabase 통합이 활성화되었는지 확인
             </p>
           </div>
           <Button
@@ -272,37 +321,99 @@ export default function AuthTestPage() {
       <div className="border rounded-lg">
         <div className="p-6 border-b">
           <h2 className="text-2xl font-bold mb-2">
-            Supabase Users 테이블 데이터
+            Supabase 사용자 데이터 (2-Tier 구조)
           </h2>
           <p className="text-sm text-gray-600">
-            Supabase의 users 테이블에 저장된 데이터입니다. RLS 정책에 따라
-            자신의 데이터만 조회/수정할 수 있습니다.
+            profiles 테이블: Clerk 인증 정보 + 역할 관리
+            <br />
+            users 테이블: 상세 프로필 정보 (이름, 전화번호, 아바타 등)
           </p>
         </div>
 
         <div className="p-6">
           {loading ? (
             <div className="py-8 text-center text-gray-500">로딩 중...</div>
-          ) : userData ? (
-            <div className="space-y-4">
-              <div className="p-4 bg-white border rounded-lg">
+          ) : profileData && userData ? (
+            <div className="space-y-6">
+              {/* Profiles 테이블 데이터 */}
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-lg font-bold mb-3 text-blue-900">
+                  📋 Profiles 테이블 (인증 + 역할)
+                </h3>
                 <div className="space-y-3">
                   <div className="flex gap-2">
-                    <span className="font-semibold min-w-[120px]">DB ID:</span>
-                    <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                    <span className="font-semibold min-w-[150px]">
+                      Profile ID:
+                    </span>
+                    <code className="text-sm bg-white px-2 py-1 rounded">
+                      {profileData.id}
+                    </code>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">
+                      Clerk User ID:
+                    </span>
+                    <code className="text-sm bg-white px-2 py-1 rounded">
+                      {profileData.clerk_user_id}
+                    </code>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">Email:</span>
+                    <span>{profileData.email}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">Role:</span>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">
+                      {profileData.role}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">Status:</span>
+                    <span
+                      className={`px-2 py-1 rounded text-sm font-medium ${
+                        profileData.status === "active"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {profileData.status}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">
+                      생성 시간:
+                    </span>
+                    <span className="text-sm">
+                      {new Date(profileData.created_at).toLocaleString("ko-KR")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Users 테이블 데이터 */}
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 className="text-lg font-bold mb-3 text-green-900">
+                  👤 Users 테이블 (상세 프로필)
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">
+                      User ID:
+                    </span>
+                    <code className="text-sm bg-white px-2 py-1 rounded">
                       {userData.id}
                     </code>
                   </div>
                   <div className="flex gap-2">
-                    <span className="font-semibold min-w-[120px]">
-                      Clerk ID:
+                    <span className="font-semibold min-w-[150px]">
+                      Profile ID (FK):
                     </span>
-                    <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                      {userData.clerk_id}
+                    <code className="text-sm bg-white px-2 py-1 rounded">
+                      {userData.profile_id}
                     </code>
                   </div>
                   <div className="flex gap-2 items-center">
-                    <span className="font-semibold min-w-[120px]">이름:</span>
+                    <span className="font-semibold min-w-[150px]">이름:</span>
                     {editingName ? (
                       <div className="flex gap-2 flex-1">
                         <input
@@ -343,7 +454,25 @@ export default function AuthTestPage() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <span className="font-semibold min-w-[120px]">
+                    <span className="font-semibold min-w-[150px]">
+                      전화번호:
+                    </span>
+                    <span>{userData.phone || "미등록"}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">아바타:</span>
+                    {userData.avatar_url ? (
+                      <img
+                        src={userData.avatar_url}
+                        alt="Avatar"
+                        className="w-10 h-10 rounded-full"
+                      />
+                    ) : (
+                      <span className="text-gray-400">미등록</span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold min-w-[150px]">
                       생성 시간:
                     </span>
                     <span className="text-sm">

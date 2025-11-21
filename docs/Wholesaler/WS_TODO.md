@@ -90,8 +90,13 @@
     - [ ] 컬럼 구조 확인 (clerk_user_id, email, role, status)
     - [ ] wholesalers 테이블과의 관계 (user_id 외래키)
     - [ ] RLS 정책 확인
+  - [ ] **⚠️ 문의 관리 구조 확인 (선택 기능)**
+    - [ ] `inquiries` vs `cs_threads` 사용 결정
+    - [ ] 문의 유형 구분 (소매→도매, 도매→관리자)
+    - [ ] `user_id` 참조 확인 (`users` vs `profiles`)
+    - [ ] RLS 정책 요청
   - [ ] RLS 정책 확인 및 요청
-  - [ ] Realtime 활성화 요청 (orders, products 테이블)
+  - [ ] Realtime 활성화 요청 (orders, products, inquiries 테이블)
   - [ ] Supabase Storage 버킷 생성 요청 (product-images)
   - [ ] **⚠️ Supabase Storage RLS 정책 설정 요청 (필수)**
     - [ ] product-images 버킷 RLS 활성화
@@ -140,6 +145,7 @@
     - [ ] `MarketPrices/` 폴더
     - [ ] `Orders/` 폴더
     - [ ] `Settlements/` 폴더
+    - [ ] `Inquiries/` 폴더 (선택)
   - [ ] `src/lib/` 디렉토리 생성
     - [ ] `supabase/` 폴더
     - [ ] `clerk/` 폴더
@@ -173,6 +179,7 @@
   - [ ] `types/product.ts` - 상품 타입 정의
   - [ ] `types/order.ts` - 주문 타입 정의
   - [ ] `types/settlement.ts` - 정산 타입 정의
+  - [ ] `types/inquiry.ts` - 문의 타입 정의 (선택)
 
 - [ ] **Supabase 클라이언트 설정**
 
@@ -197,6 +204,7 @@
     - [ ] 배송 방법 정의 (`DELIVERY_METHODS` - courier/direct/quick/freight/pickup)
     - [ ] 카테고리 목록 정의 (`CATEGORIES`)
     - [ ] 단위 목록 정의 (`UNITS`)
+    - [ ] 문의 상태 정의 (`INQUIRY_STATUS` - open/answered/closed) (선택)
     - [ ] ⚠️ REGIONS는 제거 (address 필드로 통합)
 
 ### 🔐 인증 및 온보딩 구현
@@ -316,6 +324,7 @@
     - [ ] 시세 조회 (`/wholesaler/market-prices`, TrendingUp 아이콘)
     - [ ] 주문 관리 (`/wholesaler/orders`, ShoppingCart 아이콘)
     - [ ] 정산 관리 (`/wholesaler/settlements`, DollarSign 아이콘)
+    - [ ] 문의 관리 (`/wholesaler/inquiries`, MessageSquare 아이콘) - 선택
   - [ ] 현재 경로 하이라이트 (usePathname 활용)
   - [ ] hover 효과
   - [ ] Tailwind CSS 스타일링
@@ -353,6 +362,7 @@
 - [ ] `app/wholesaler/market-prices/page.tsx` 생성 (빈 페이지)
 - [ ] `app/wholesaler/orders/page.tsx` 생성 (빈 페이지)
 - [ ] `app/wholesaler/settlements/page.tsx` 생성 (빈 페이지)
+- [ ] `app/wholesaler/inquiries/page.tsx` 생성 (빈 페이지 - 선택)
 
 ### ✅ Week 1-2 완료 체크
 
@@ -1017,6 +1027,152 @@
   - [ ] 정산 예정일 D+7 확인
   - [ ] wholesaler_amount = order_amount - platform_fee 확인
 - [ ] 정산 예정/완료 데이터 표시 확인
+- [ ] 코드 리뷰 및 리팩토링
+
+---
+
+## 📬 Week 7-8: 문의 관리 (선택 기능)
+
+### 📬 문의 관리 기능
+
+#### 0. 문의 구조 결정 (필수 - Week 1-2에 협의)
+
+- [ ] **PM과 협의**
+  - [ ] `inquiries` vs `cs_threads` 사용 결정
+  - [ ] 문의 유형 구분 (소매→도매, 도매→관리자)
+  - [ ] `user_id` 참조 확인 (`users` vs `profiles`)
+  - [ ] RLS 정책 요청
+  - [ ] 문의 유형 필드 추가 여부 결정
+
+#### 1. Supabase 쿼리 함수
+
+- [ ] **`lib/supabase/queries/inquiries.ts` 작성**
+  - [ ] `getInquiries()` 함수 구현
+    - [ ] 현재 도매점 관련 문의만 조회
+    - [ ] 상태별 필터링 (open, answered, closed)
+    - [ ] 날짜 범위 필터링
+    - [ ] 페이지네이션
+    - [ ] 정렬 (최신순)
+  - [ ] `getInquiryById()` 함수 구현
+    - [ ] 문의 상세 정보 조회
+    - [ ] 문의자 정보는 익명 코드만 포함
+  - [ ] `replyToInquiry()` 함수 구현
+    - [ ] 답변 작성 (`admin_reply` 업데이트)
+    - [ ] 상태 변경 (open → answered)
+    - [ ] `replied_at` 기록
+  - [ ] `getInquiryStats()` 함수 구현 (대시보드용)
+    - [ ] 미답변 문의 카운트
+
+#### 2. 문의 목록 페이지
+
+- [ ] **`app/wholesaler/inquiries/page.tsx` 구현**
+
+  - [ ] 페이지 헤더 (제목 + "새 문의" 버튼 - 선택)
+  - [ ] 탭 UI (미답변/답변완료/종료)
+  - [ ] 필터 UI
+    - [ ] 날짜 범위 선택 (DateRangePicker)
+    - [ ] 상태 선택 (Select)
+    - [ ] 검색 입력 필드 (제목, 내용)
+  - [ ] 문의 테이블 컴포넌트 렌더링
+  - [ ] 실시간 업데이트 (Realtime 구독)
+  - [ ] 로딩 상태 (스켈레톤)
+  - [ ] 빈 상태 (EmptyState)
+  - [ ] 에러 처리
+
+- [ ] **`components/wholesaler/Inquiries/InquiryTable.tsx` 구현**
+
+  - [ ] TanStack Table 설정
+  - [ ] 테이블 컬럼
+    - [ ] 문의일 (created_at)
+    - [ ] 제목 (title)
+    - [ ] 문의자 (익명 코드만 표시)
+    - [ ] 상태 (Badge: open/answered/closed)
+    - [ ] 액션 (상세보기 버튼)
+  - [ ] 정렬 기능
+  - [ ] 페이지네이션
+  - [ ] 클릭 시 상세 페이지로 이동
+
+- [ ] **`components/wholesaler/Inquiries/InquiryFilter.tsx` 구현**
+  - [ ] 날짜 범위 선택
+  - [ ] 상태 필터
+  - [ ] 검색 입력
+  - [ ] 필터 초기화 버튼
+
+#### 3. 문의 상세 및 답변
+
+- [ ] **`app/wholesaler/inquiries/[id]/page.tsx` 구현**
+
+  - [ ] 문의 ID로 데이터 조회
+  - [ ] 페이지 헤더 (제목 + 상태 뱃지)
+  - [ ] 문의 정보 섹션
+    - [ ] 제목 (title)
+    - [ ] 내용 (content)
+    - [ ] 문의일 (created_at)
+    - [ ] 문의자 (익명 코드만 표시)
+    - [ ] ⚠️ 소매점 실명/연락처 절대 노출 금지
+  - [ ] 답변 섹션
+    - [ ] 기존 답변 표시 (있는 경우)
+      - [ ] 답변 내용 (admin_reply)
+      - [ ] 답변일 (replied_at)
+    - [ ] 답변 작성 폼 (status가 'open'인 경우만)
+      - [ ] Textarea 컴포넌트
+      - [ ] 답변 제출 버튼
+      - [ ] 유효성 검증 (최소 10자)
+  - [ ] 상태 변경 기능
+    - [ ] 답변 완료 시 'answered'로 변경
+    - [ ] 종료 버튼 (선택)
+  - [ ] 로딩 상태
+  - [ ] 에러 처리
+  - [ ] 성공 시 토스트 알림
+
+- [ ] **`components/wholesaler/Inquiries/InquiryReplyForm.tsx` 구현**
+  - [ ] react-hook-form 설정
+  - [ ] Textarea 입력 필드
+  - [ ] 유효성 검증 (zod)
+  - [ ] 제출 처리
+  - [ ] 로딩 상태
+
+#### 4. 실시간 알림
+
+- [ ] **Realtime 구독 설정**
+
+  - [ ] `lib/supabase/realtime.ts`에 `subscribeToNewInquiries()` 추가
+  - [ ] `inquiries` 테이블 INSERT 이벤트 구독
+  - [ ] 현재 도매점 관련 문의만 필터링
+  - [ ] ⚠️ Cleanup 함수 구현 (메모리 누수 방지)
+  - [ ] 구독 해제 로그 추가 (디버깅용)
+
+- [ ] **대시보드/헤더에 알림 추가**
+  - [ ] 새 문의 도착 시 Toast 알림
+  - [ ] 헤더에 알림 아이콘 (Bell)
+  - [ ] 미답변 문의 카운트 표시
+  - [ ] 알림 클릭 시 문의 목록으로 이동
+
+#### 5. 보안 확인
+
+- [ ] **RLS 정책 테스트**
+
+  - [ ] 도매 A는 자신의 문의만 조회 가능
+  - [ ] 도매 B의 문의는 조회 불가
+  - [ ] 관리자는 모든 문의 조회 가능
+  - [ ] 소매점 정보는 익명 코드만 표시
+
+- [ ] **민감 정보 노출 방지**
+  - [ ] 소매점 실명 미노출 확인
+  - [ ] 소매점 연락처 미노출 확인
+  - [ ] 소매점 이메일 미노출 확인
+  - [ ] 익명 코드만 표시 확인
+
+### ✅ 문의 관리 완료 체크
+
+- [ ] 문의 목록 조회 테스트
+- [ ] 문의 상세 조회 테스트
+- [ ] 답변 작성 테스트
+- [ ] 상태 변경 테스트
+- [ ] 실시간 알림 동작 확인
+- [ ] RLS 정책 테스트
+- [ ] 민감 정보 노출 방지 확인
+- [ ] Realtime cleanup 함수 확인
 - [ ] 코드 리뷰 및 리팩토링
 
 ---

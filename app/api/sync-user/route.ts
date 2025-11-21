@@ -3,66 +3,135 @@ import { NextResponse } from "next/server";
 import { getServiceRoleClient } from "@/lib/supabase/service-role";
 
 /**
- * Clerk 사용자를 Supabase users 테이블에 동기화하는 API
+ * Clerk 사용자를 Supabase profiles + users 테이블에 동기화하는 API
+ *
+ * 2-tier 구조:
+ * 1. profiles 테이블: Clerk 인증 정보 + 역할 (clerk_user_id, email, role, status)
+ * 2. users 테이블: 상세 프로필 정보 (profile_id, name, phone, avatar_url)
  *
  * 클라이언트에서 로그인 후 이 API를 호출하여 사용자 정보를 Supabase에 저장합니다.
  * 이미 존재하는 경우 업데이트하고, 없으면 새로 생성합니다.
  */
 export async function POST() {
   try {
+    console.log("🔄 [sync-user] 동기화 시작");
+
     // Clerk 인증 확인
     const { userId } = await auth();
 
     if (!userId) {
+      console.error("❌ [sync-user] 인증 실패: userId 없음");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    console.log("✅ [sync-user] Clerk userId:", userId);
 
     // Clerk에서 사용자 정보 가져오기
     const client = await clerkClient();
     const clerkUser = await client.users.getUser(userId);
 
     if (!clerkUser) {
+      console.error("❌ [sync-user] Clerk 사용자 없음:", userId);
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Supabase에 사용자 정보 동기화
+    console.log("✅ [sync-user] Clerk 사용자 정보:", {
+      id: clerkUser.id,
+      email: clerkUser.emailAddresses[0]?.emailAddress,
+      name: clerkUser.fullName,
+    });
+
     const supabase = getServiceRoleClient();
 
-    const { data, error } = await supabase
-      .from("users")
+    // 1단계: profiles 테이블에 upsert (Clerk 인증 정보)
+    const email = clerkUser.emailAddresses[0]?.emailAddress || "";
+
+    console.log("📝 [sync-user] profiles 테이블 upsert 시도...");
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
       .upsert(
         {
-          clerk_id: clerkUser.id,
-          name:
-            clerkUser.fullName ||
-            clerkUser.username ||
-            clerkUser.emailAddresses[0]?.emailAddress ||
-            "Unknown",
+          clerk_user_id: clerkUser.id,
+          email: email,
+          role: "retailer", // 기본값 (나중에 사용자 선택으로 변경 가능)
+          status: "active",
         },
         {
-          onConflict: "clerk_id",
-        }
+          onConflict: "clerk_user_id",
+        },
       )
       .select()
       .single();
 
-    if (error) {
-      console.error("Supabase sync error:", error);
+    if (profileError) {
+      console.error("❌ [sync-user] profiles 동기화 실패:", profileError);
       return NextResponse.json(
-        { error: "Failed to sync user", details: error.message },
-        { status: 500 }
+        {
+          error: "Failed to sync profile",
+          details: profileError.message,
+          hint: "Supabase Dashboard에서 profiles 테이블이 존재하는지 확인하세요",
+        },
+        { status: 500 },
       );
     }
 
+    console.log("✅ [sync-user] profiles 저장 완료:", profile.id);
+
+    // 2단계: users 테이블에 upsert (상세 프로필)
+    const name =
+      clerkUser.fullName ||
+      clerkUser.username ||
+      email.split("@")[0] ||
+      "Unknown";
+
+    console.log("📝 [sync-user] users 테이블 upsert 시도...");
+
+    const { data: user, error: userError } = await supabase
+      .from("users")
+      .upsert(
+        {
+          profile_id: profile.id,
+          name: name,
+          phone: clerkUser.phoneNumbers[0]?.phoneNumber || null,
+          avatar_url: clerkUser.imageUrl || null,
+        },
+        {
+          onConflict: "profile_id",
+        },
+      )
+      .select()
+      .single();
+
+    if (userError) {
+      console.error("❌ [sync-user] users 동기화 실패:", userError);
+      return NextResponse.json(
+        {
+          error: "Failed to sync user",
+          details: userError.message,
+          hint: "Supabase Dashboard에서 users 테이블이 존재하고 profile_id 컬럼이 있는지 확인하세요",
+        },
+        { status: 500 },
+      );
+    }
+
+    console.log("✅ [sync-user] users 저장 완료:", user.id);
+    console.log("🎉 [sync-user] 동기화 성공!");
+
     return NextResponse.json({
       success: true,
-      user: data,
+      profile: profile,
+      user: user,
+      message: "사용자 동기화 완료",
     });
   } catch (error) {
-    console.error("Sync user error:", error);
+    console.error("❌ [sync-user] 예상치 못한 오류:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
     );
   }
 }

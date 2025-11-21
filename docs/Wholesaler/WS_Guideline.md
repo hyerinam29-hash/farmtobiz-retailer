@@ -283,8 +283,13 @@ src/
 │       │   ├── OrderDetail.tsx   # 주문 상세
 │       │   └── OrderStatusBadge.tsx # 주문 상태 뱃지
 │       │
-│       └── Settlements/
-│           └── SettlementTable.tsx
+│       ├── Settlements/
+│       │   └── SettlementTable.tsx
+│       │
+│       └── Inquiries/            # 문의 관리 (선택)
+│           ├── InquiryTable.tsx  # 문의 테이블
+│           ├── InquiryFilter.tsx # 문의 필터
+│           └── InquiryReplyForm.tsx # 답변 작성 폼
 │
 ├── lib/
 │   ├── supabase/
@@ -295,7 +300,8 @@ src/
 │   │       ├── wholesalers.ts    # 도매점 쿼리
 │   │       ├── products.ts       # 상품 쿼리
 │   │       ├── orders.ts         # 주문 쿼리
-│   │       └── settlements.ts    # 정산 쿼리
+│   │       ├── settlements.ts    # 정산 쿼리
+│   │       └── inquiries.ts       # 문의 쿼리 (선택)
 │   │
 │   ├── clerk/
 │   │   └── auth.ts               # 인증 유틸
@@ -306,7 +312,8 @@ src/
 │   │
 │   ├── validation/
 │   │   ├── wholesaler.ts         # 도매 사업자 정보 유효성 검증
-│   │   └── product.ts            # 상품 유효성 검증
+│   │   ├── product.ts            # 상품 유효성 검증
+│   │   └── inquiry.ts            # 문의 유효성 검증 (선택)
 │   │
 │   └── utils/
 │       ├── format.ts             # 포맷 유틸 (날짜, 금액)
@@ -317,7 +324,8 @@ src/
 │   ├── wholesaler.ts             # 도매점 타입
 │   ├── product.ts                # 상품 타입
 │   ├── order.ts                  # 주문 타입
-│   └── settlement.ts             # 정산 타입
+│   ├── settlement.ts             # 정산 타입
+│   └── inquiry.ts                # 문의 타입 (선택)
 │
 └── hooks/
     ├── useWholesaler.ts          # 현재 도매점 정보
@@ -1036,7 +1044,7 @@ export const wholesalerOnboardingSchema = z.object({
     .string()
     .regex(
       /^010-\d{4}-\d{4}$/,
-      "전화번호 형식이 올바르지 않습니다 (예: 010-1234-5678)"
+      "전화번호 형식이 올바르지 않습니다 (예: 010-1234-5678)",
     ),
   address: z.string().min(5, "주소를 입력해주세요"),
   bank_account: z.string().min(5, "계좌번호를 입력해주세요 (은행명 포함)"),
@@ -1132,7 +1140,7 @@ export default function PendingApprovalPage() {
   const { user } = useUser();
   const router = useRouter();
   const [status, setStatus] = useState<"pending" | "approved" | "rejected">(
-    "pending"
+    "pending",
   );
   const [rejectionReason, setRejectionReason] = useState<string | null>(null);
 
@@ -1184,7 +1192,7 @@ export default function PendingApprovalPage() {
           } else if (newStatus === "rejected") {
             setRejectionReason(payload.new.rejection_reason);
           }
-        }
+        },
       )
       .subscribe();
 
@@ -1400,7 +1408,7 @@ export default async function WholesalerLayout({
 
 요구사항:
 - Next.js App Router 사용
-- 메뉴: 대시보드, 상품 관리, 시세 조회, 주문 관리, 정산 관리
+- 메뉴: 대시보드, 상품 관리, 시세 조회, 주문 관리, 정산 관리, 문의 관리 (선택)
 - 현재 경로 하이라이트
 - lucide-react 아이콘 사용
 - Tailwind CSS로 스타일링
@@ -1418,6 +1426,7 @@ import {
   TrendingUp,
   ShoppingCart,
   DollarSign,
+  MessageSquare,
 } from "lucide-react";
 
 const menuItems = [
@@ -1426,6 +1435,7 @@ const menuItems = [
   { href: "/wholesaler/market-prices", label: "시세 조회", icon: TrendingUp },
   { href: "/wholesaler/orders", label: "주문 관리", icon: ShoppingCart },
   { href: "/wholesaler/settlements", label: "정산 관리", icon: DollarSign },
+  { href: "/wholesaler/inquiries", label: "문의 관리", icon: MessageSquare }, // 선택 기능
 ];
 
 export function Sidebar() {
@@ -1705,7 +1715,7 @@ import { createClient } from "@/lib/supabase/client";
 export async function uploadProductImage(
   file: File,
   wholesalerId: string,
-  productId: string
+  productId: string,
 ): Promise<string> {
   const supabase = createClient();
 
@@ -1786,7 +1796,7 @@ interface StandardizeResult {
 }
 
 export async function standardizeProductName(
-  productName: string
+  productName: string,
 ): Promise<StandardizeResult> {
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -1907,7 +1917,7 @@ export async function standardizeProductName(
 
 // 여러 상품을 한 번에 표준화 (배치 처리) - ⚠️ 선택 기능
 export async function standardizeProductNamesBatch(
-  productNames: string[]
+  productNames: string[],
 ): Promise<StandardizeResult[]> {
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -2414,7 +2424,7 @@ interface PriceItem {
 }
 
 export async function getMarketPrices(
-  params: MarketPriceParams = {}
+  params: MarketPriceParams = {},
 ): Promise<PriceItem[]> {
   const serviceKey = process.env.NEXT_PUBLIC_MARKET_API_KEY;
 
@@ -2498,7 +2508,7 @@ export async function getMarketPrices(
 export async function getPriceTrend(
   itemName: string,
   marketName?: string,
-  days: number = 7
+  days: number = 7,
 ): Promise<{ date: string; price: number }[]> {
   const results = [];
   const today = new Date();
@@ -2751,7 +2761,7 @@ export function PriceFilter({ onSearch }: PriceFilterProps) {
               >
                 {item}
               </Button>
-            ))
+            )),
           )}
         </div>
       </div>
@@ -2833,7 +2843,7 @@ export async function getMarketPricesWithCache(params: MarketPriceParams) {
     JSON.stringify({
       data,
       timestamp: Date.now(),
-    })
+    }),
   );
 
   return data;
@@ -2935,7 +2945,7 @@ const order = await supabase
     products(*),
     product_variants(*),
     wholesalers(anonymous_code)
-  `
+  `,
   )
   .eq("id", orderId)
   .single();
@@ -3094,7 +3104,7 @@ import { createClient } from "@/lib/supabase/client";
 
 export function subscribeToNewOrders(
   wholesalerId: string,
-  onNewOrder: (order: any) => void
+  onNewOrder: (order: any) => void,
 ) {
   const supabase = createClient();
 
@@ -3110,7 +3120,7 @@ export function subscribeToNewOrders(
       },
       (payload) => {
         onNewOrder(payload.new);
-      }
+      },
     )
     .subscribe();
 
@@ -3194,7 +3204,7 @@ export default function DashboardPage() {
 // /api/payments/callback에서 결제 성공 시
 async function createSettlement(order: Order) {
   const platformFeeRate = parseFloat(
-    process.env.NEXT_PUBLIC_PLATFORM_FEE_RATE || "0.05"
+    process.env.NEXT_PUBLIC_PLATFORM_FEE_RATE || "0.05",
   );
   const platformFee = Math.floor(order.total_amount * platformFeeRate);
   const wholesalerAmount = order.total_amount - platformFee;
@@ -3271,6 +3281,273 @@ INSERT INTO settlements (
 // 수수료 금액: 100,000 × 0.05 = 5,000원
 // 정산 금액: 100,000 - 5,000 = 95,000원
 ```
+
+---
+
+### 7.7 문의 관리 (Inquiries) - ⚠️ 선택 기능
+
+#### 7.7.0 문의 구조 이해하기 (필수 확인)
+
+**데이터베이스 구조:**
+
+현재 데이터베이스에는 두 가지 문의 관련 테이블이 있습니다:
+
+1. **`inquiries` 테이블**: 간단한 Q&A 형태 (게시판 스타일)
+
+   - `user_id` → `users.id` 참조
+   - `status`: 'open', 'answered', 'closed'
+   - `admin_reply`: 관리자 답변 (텍스트)
+   - 구조: 1:1 문의-답변
+
+2. **`cs_threads` + `cs_messages`**: 채팅 형태 (CS 봇 통합 가능)
+   - `user_id` → `users.id` 참조
+   - `status`: 'open', 'bot_handled', 'escalated', 'closed'
+   - `sender_type`: 'user', 'bot', 'admin'
+   - 구조: 1:N 대화형 (여러 메시지)
+
+**⚠️ PM과 협의 필요:**
+
+- [ ] 도매 페이지에서 어떤 테이블 사용할지 결정
+  - Option A: `inquiries` 테이블 (간단한 Q&A)
+  - Option B: `cs_threads` + `cs_messages` (CS 봇 통합)
+  - Option C: 둘 다 지원
+- [ ] 문의 유형 구분
+  - 소매점 → 도매점 문의 (상품, 주문 관련)
+  - 도매점 → 관리자 문의 (계정, 정산, 기술 지원)
+- [ ] `user_id` 참조 확인 (`users` vs `profiles`)
+- [ ] RLS 정책 설정 요청
+
+**문의 유형 예시:**
+
+```
+소매점 → 도매점:
+- "이 상품 재고 언제 들어오나요?"
+- "주문 배송 언제 오나요?"
+- "상품 사양이 다른 것 같은데요"
+
+도매점 → 관리자:
+- "정산이 늦게 들어왔어요"
+- "계정 승인이 안 되었어요"
+- "기술 지원이 필요해요"
+```
+
+#### 7.7.1 문의 목록 페이지
+
+**커서 AI 프롬프트:**
+
+```
+문의 목록 페이지를 만들어줘.
+
+요구사항:
+- inquiries 테이블 사용 (또는 cs_threads)
+- 탭: 미답변 (open), 답변완료 (answered), 종료 (closed)
+- 테이블 컬럼: 문의일, 제목, 문의자(익명 코드), 상태, 액션
+- 필터: 날짜 범위, 상태
+- 검색: 제목, 내용
+- 페이지네이션
+- 실시간 업데이트 (새 문의 알림)
+- ⚠️ 문의자 정보는 익명 코드만 표시 (소매점 정보 노출 금지)
+
+파일: app/wholesaler/inquiries/page.tsx
+```
+
+**예상 코드 구조:**
+
+```typescript
+// app/wholesaler/inquiries/page.tsx
+import { InquiryTable } from "@/components/wholesaler/Inquiries/InquiryTable";
+import { InquiryFilter } from "@/components/wholesaler/Inquiries/InquiryFilter";
+
+export default function InquiriesPage() {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">문의 관리</h1>
+
+      {/* 필터 */}
+      <InquiryFilter />
+
+      {/* 문의 테이블 */}
+      <InquiryTable />
+    </div>
+  );
+}
+```
+
+#### 7.7.2 문의 상세 및 답변
+
+**커서 AI 프롬프트:**
+
+```
+문의 상세 페이지를 만들어줘.
+
+요구사항:
+- 문의 내용 표시 (제목, 내용, 문의일)
+- 문의자 정보는 익명 코드만 표시
+- 답변 작성 폼 (관리자 또는 도매점만)
+- 답변 완료 시 상태 변경 (open → answered)
+- 답변 시간 기록 (replied_at)
+- ⚠️ 소매점 실명/연락처 절대 노출 금지
+
+파일: app/wholesaler/inquiries/[id]/page.tsx
+```
+
+**예상 코드 구조:**
+
+```typescript
+// app/wholesaler/inquiries/[id]/page.tsx
+export default async function InquiryDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const inquiry = await getInquiryById(id);
+
+  return (
+    <div className="p-6">
+      {/* 문의 정보 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{inquiry.title}</CardTitle>
+          <CardDescription>
+            문의자: {inquiry.user.anonymous_code} {/* 익명 코드만 */}
+            문의일: {formatDate(inquiry.created_at)}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>{inquiry.content}</p>
+        </CardContent>
+      </Card>
+
+      {/* 답변 섹션 */}
+      {inquiry.status === "open" && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>답변 작성</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <InquiryReplyForm inquiryId={id} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 기존 답변 표시 */}
+      {inquiry.admin_reply && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>답변</CardTitle>
+            <CardDescription>
+              답변일: {formatDate(inquiry.replied_at)}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>{inquiry.admin_reply}</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+```
+
+#### 7.7.3 실시간 알림
+
+**커서 AI 프롬프트:**
+
+```
+문의 실시간 알림을 구현해줘.
+
+요구사항:
+- Supabase Realtime 구독 (inquiries 테이블 INSERT)
+- 현재 도매점 관련 문의만 필터링
+- Toast 알림 표시
+- 헤더에 알림 아이콘 추가
+- ⚠️ Cleanup 함수 필수 구현
+
+파일: lib/supabase/realtime.ts (확장)
+```
+
+**예상 코드:**
+
+```typescript
+// lib/supabase/realtime.ts (기존 파일에 추가)
+export function subscribeToNewInquiries(
+  wholesalerId: string,
+  onNewInquiry: (inquiry: any) => void,
+) {
+  const supabase = createClient();
+
+  const channel = supabase
+    .channel("new-inquiries")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "inquiries",
+        // 필터: 자신의 상품/주문과 관련된 문의만
+      },
+      (payload) => {
+        onNewInquiry(payload.new);
+      },
+    )
+    .subscribe();
+
+  // ⚠️ 필수: Cleanup 함수 반환
+  return () => {
+    console.log("🧹 Cleaning up inquiry subscription");
+    supabase.removeChannel(channel);
+  };
+}
+```
+
+#### 7.7.4 RLS 정책 확인
+
+**⚠️ 필수 확인 사항:**
+
+- [ ] `inquiries` 테이블 RLS 정책 설정 확인
+- [ ] 도매는 자신에게 온 문의만 조회 가능
+- [ ] 관리자는 모든 문의 조회 가능
+- [ ] 소매점 정보는 익명 코드만 표시
+
+**예상 RLS 정책:**
+
+```sql
+-- 도매는 자신에게 온 문의만 조회
+-- (문의가 자신의 상품/주문과 관련된 경우)
+CREATE POLICY "wholesalers_select_own_inquiries" ON inquiries
+FOR SELECT USING (
+  -- 문의자가 자신의 상품을 구매한 소매점인 경우
+  -- 또는 문의자가 자신인 경우 (도매 → 관리자)
+  EXISTS (
+    SELECT 1 FROM orders o
+    WHERE o.wholesaler_id = (
+      SELECT id FROM wholesalers
+      WHERE user_id = (SELECT id FROM profiles WHERE clerk_user_id = auth.jwt() ->> 'sub')
+    )
+    AND o.retailer_id = inquiries.user_id
+  )
+  OR
+  inquiries.user_id = (
+    SELECT id FROM profiles WHERE clerk_user_id = auth.jwt() ->> 'sub'
+  )
+);
+
+-- 도매는 답변 작성 가능 (자신에게 온 문의만)
+CREATE POLICY "wholesalers_reply_inquiries" ON inquiries
+FOR UPDATE USING (
+  -- 위와 동일한 조건
+) WITH CHECK (
+  -- 답변 작성 시 상태 변경
+  status IN ('answered', 'closed')
+);
+```
+
+**주의사항:**
+
+- ⚠️ **소매점 정보 노출 금지**: 문의자 정보는 익명 코드만 표시
+- ⚠️ **RLS 정책 필수**: 다른 도매점의 문의는 조회 불가
+- ⚠️ **Realtime Cleanup**: 메모리 누수 방지를 위해 반드시 cleanup 함수 구현
 
 ---
 
@@ -3641,7 +3918,7 @@ throw new Error("Database query failed");
 
 // ✅ 좋은 예
 throw new Error(
-  "상품을 불러오는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+  "상품을 불러오는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
 );
 ```
 
