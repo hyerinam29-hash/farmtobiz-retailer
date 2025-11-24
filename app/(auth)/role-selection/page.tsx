@@ -14,7 +14,7 @@
  * - @clerk/nextjs (useUser)
  * - @/lib/supabase/clerk-client (useClerkSupabaseClient)
  * - @/components/ui/card
- * - lucide-react (아이콘)
+ * - Material Symbols (Google Fonts)
  */
 
 "use client";
@@ -25,7 +25,6 @@ import { useUser } from "@clerk/nextjs";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingCart, LocalShipping } from "lucide-react";
 import { useTheme } from "next-themes";
 
 export default function RoleSelectionPage() {
@@ -151,10 +150,10 @@ export default function RoleSelectionPage() {
           <div className="flex flex-wrap justify-center gap-4 text-center mb-10">
             <div className="flex w-full flex-col gap-3">
               <h1 className="text-[var(--text-light-primary)] dark:text-[var(--text-dark-primary)] text-4xl font-black leading-tight tracking-[-0.033em]">
-                환영합니다! 소매업자로 시작하세요.
+                환영합니다! 시작할 역할을 선택해주세요.
               </h1>
               <p className="text-[var(--text-light-secondary)] dark:text-[var(--text-dark-secondary)] text-base font-normal leading-normal">
-                다양한 도매업체의 상품을 발견하고 합리적인 가격으로 주문할 수 있습니다.
+                소매업자로 시작하여 다양한 도매업체의 상품을 발견하고 합리적인 가격으로 주문하세요.
               </p>
             </div>
           </div>
@@ -172,15 +171,15 @@ export default function RoleSelectionPage() {
                 <hr className="border-gray-200 dark:border-gray-700 my-2" />
                 <ul className="flex flex-col gap-3 text-sm text-[var(--text-light-secondary)] dark:text-[var(--text-dark-secondary)]">
                   <li className="flex items-center gap-3">
-                    <Search className="text-primary text-xl" size={24} />
+                    <span className="material-symbols-outlined text-primary text-xl">search</span>
                     <span>다양한 상품 검색 및 필터링</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <ShoppingCart className="text-primary text-xl" size={24} />
+                    <span className="material-symbols-outlined text-primary text-xl">shopping_cart</span>
                     <span>간편한 주문 및 결제</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <LocalShipping className="text-primary text-xl" size={24} />
+                    <span className="material-symbols-outlined text-primary text-xl">local_shipping</span>
                     <span>거래 내역 및 배송 추적</span>
                   </li>
                 </ul>

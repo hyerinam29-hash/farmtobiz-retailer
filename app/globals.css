@@ -149,4 +149,12 @@
   main {
     @apply max-w-7xl mx-auto pt-16 px-4;
   }
+  /* Material Symbols 아이콘 스타일 */
+  .material-symbols-outlined {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+  }
 }

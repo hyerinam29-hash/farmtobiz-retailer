@@ -8,7 +8,7 @@
  *
  * 주요 기능:
  * 1. Clerk SignIn 컴포넌트를 통한 로그인 처리
- * 2. 로그인 성공 시 자동 리다이렉트
+ * 2. 로그인 성공 시 홈 페이지로 리다이렉트 (역할 확인 후 적절한 대시보드로 이동)
  * 3. Catch-all route로 Clerk 내부 라우팅 지원
  *
  * @dependencies
@@ -25,6 +25,7 @@ export default function SignInPage() {
       <SignIn
         routing="path"
         path="/sign-in"
+        afterSignInUrl="/"
       />
     </div>
   );
