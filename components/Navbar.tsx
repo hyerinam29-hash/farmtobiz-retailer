@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
@@ -11,15 +11,18 @@ import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 const Navbar = () => {
   const { isSignedIn, isLoaded, user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = useClerkSupabaseClient();
   const [isApprovedWholesaler, setIsApprovedWholesaler] = useState(false);
+  const [wholesalerStatus, setWholesalerStatus] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
-  // 승인된 도매사업자 여부 확인
+  // 승인된 도매사업자 여부 및 상태 확인
   useEffect(() => {
     const checkWholesalerStatus = async () => {
       if (!isLoaded || !isSignedIn || !user) {
         setIsApprovedWholesaler(false);
+        setWholesalerStatus(null);
         setIsChecking(false);
         return;
       }
@@ -37,6 +40,7 @@ const Navbar = () => {
         if (profileError || !profile) {
           console.log("⚠️ [navbar] 프로필 없음 또는 오류:", profileError);
           setIsApprovedWholesaler(false);
+          setWholesalerStatus(null);
           setIsChecking(false);
           return;
         }
@@ -48,20 +52,24 @@ const Navbar = () => {
 
         if (wholesalers && wholesalers.length > 0) {
           const wholesaler = wholesalers[0];
-          const isApproved = wholesaler.status === "approved";
+          const status = wholesaler.status;
+          const isApproved = status === "approved";
 
           console.log("✅ [navbar] 도매사업자 상태:", {
-            status: wholesaler.status,
+            status,
             isApproved,
           });
 
           setIsApprovedWholesaler(isApproved);
+          setWholesalerStatus(status);
         } else {
           setIsApprovedWholesaler(false);
+          setWholesalerStatus(null);
         }
       } catch (error) {
         console.error("❌ [navbar] 도매사업자 상태 확인 오류:", error);
         setIsApprovedWholesaler(false);
+        setWholesalerStatus(null);
       } finally {
         setIsChecking(false);
       }
@@ -83,6 +91,14 @@ const Navbar = () => {
       router.push("/");
     }
   };
+
+  // "로그인되지 않음" 버튼 표시 여부 결정
+  // 조건: 로그인되어 있고, 도매사업자 상태가 pending 또는 rejected이며, 도매사업자 대시보드가 아닐 때
+  const shouldShowLoginButton =
+    isLoaded &&
+    isSignedIn &&
+    (wholesalerStatus === "pending" || wholesalerStatus === "rejected") &&
+    pathname !== "/wholesaler";
 
   return (
     <header className="flex justify-between items-center p-4 gap-4 h-16 max-w-7xl mx-auto">
@@ -115,6 +131,12 @@ const Navbar = () => {
                   </span>
                 )}
               </div>
+              {/* pending 또는 rejected 상태인 도매사업자에게만 "로그인되지 않음" 버튼 표시 */}
+              {shouldShowLoginButton && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">로그인되지 않음</span>
+                </div>
+              )}
               <UserButton
                 afterSignOutUrl="/"
                 appearance={{
@@ -124,11 +146,7 @@ const Navbar = () => {
                 }}
               />
             </>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">로그인되지 않음</span>
-            </div>
-          )}
+          ) : null}
         </div>
       )}
     </header>
