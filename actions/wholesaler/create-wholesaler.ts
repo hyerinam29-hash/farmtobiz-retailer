@@ -1,0 +1,239 @@
+/**
+ * @file create-wholesaler.ts
+ * @description 도매점 생성 Server Action
+ *
+ * 도매점 회원가입 시 사업자 정보를 입력받아 `wholesalers` 테이블에 저장하고,
+ * `anonymous_code`를 자동 생성하는 Server Action입니다.
+ *
+ * 주요 기능:
+ * 1. Clerk 인증 확인
+ * 2. 현재 사용자의 `profile_id` 조회
+ * 3. `anonymous_code` 자동 생성 (VENDOR-001, VENDOR-002 형식)
+ * 4. `wholesalers` 테이블에 INSERT
+ * 5. 에러 처리 및 로깅
+ *
+ * @dependencies
+ * - lib/clerk/auth.ts (getUserProfile)
+ * - lib/supabase/service-role.ts (getServiceRoleClient)
+ * - lib/utils/format.ts (formatPhone)
+ * - types/wholesaler.ts (CreateWholesalerRequest)
+ *
+ * @example
+ * ```tsx
+ * import { createWholesaler } from '@/actions/wholesaler/create-wholesaler';
+ *
+ * const result = await createWholesaler({
+ *   business_name: "도매상사",
+ *   business_number: "1234567890",
+ *   representative: "홍길동",
+ *   phone: "01012345678",
+ *   address: "서울시 강남구",
+ *   bank_name: "KB국민은행",
+ *   bank_account_number: "123-456-789"
+ * });
+ * ```
+ */
+
+"use server";
+
+import { getUserProfile } from "@/lib/clerk/auth";
+import { getServiceRoleClient } from "@/lib/supabase/service-role";
+import { formatPhone } from "@/lib/utils/format";
+import type { WholesalerOnboardingFormData } from "@/lib/validation/wholesaler";
+
+/**
+ * 도매점 생성 결과 타입
+ */
+export interface CreateWholesalerResult {
+  success: boolean;
+  error?: string;
+  wholesalerId?: string;
+}
+
+/**
+ * 도매점 생성 Server Action
+ *
+ * 사업자 정보를 입력받아 `wholesalers` 테이블에 저장하고,
+ * `anonymous_code`를 자동 생성합니다.
+ *
+ * @param {WholesalerOnboardingFormData} formData - 폼 데이터
+ * @returns {Promise<CreateWholesalerResult>} 생성 결과
+ *
+ * @throws {Error} 인증 실패, 프로필 없음, 중복 사업자번호, anonymous_code 생성 실패 등
+ */
+export async function createWholesaler(
+  formData: WholesalerOnboardingFormData,
+): Promise<CreateWholesalerResult> {
+  try {
+    console.group("📝 [wholesaler] 도매점 생성 시작");
+    console.log("formData:", formData);
+
+    // 1. Clerk 인증 확인 및 profile_id 조회
+    const profile = await getUserProfile();
+
+    if (!profile) {
+      console.error("❌ [wholesaler] 인증되지 않은 사용자");
+      return {
+        success: false,
+        error: "인증이 필요합니다. 다시 로그인해주세요.",
+      };
+    }
+
+    if (profile.role !== "wholesaler") {
+      console.error("❌ [wholesaler] 도매점 역할이 아닌 사용자:", profile.role);
+      return {
+        success: false,
+        error: "도매점 회원만 사용할 수 있는 기능입니다.",
+      };
+    }
+
+    console.log("✅ [wholesaler] 인증 확인 완료, profile_id:", profile.id);
+
+    // 2. 이미 등록된 도매점 정보가 있는지 확인
+    const supabase = getServiceRoleClient();
+
+    const { data: existingWholesaler, error: checkError } = await supabase
+      .from("wholesalers")
+      .select("id")
+      .eq("profile_id", profile.id)
+      .single();
+
+    if (checkError && checkError.code !== "PGRST116") {
+      // PGRST116은 "no rows returned" 에러 (정상적인 경우)
+      console.error("❌ [wholesaler] 기존 도매점 조회 오류:", checkError);
+      return {
+        success: false,
+        error: "도매점 정보 조회 중 오류가 발생했습니다.",
+      };
+    }
+
+    if (existingWholesaler) {
+      console.log("⚠️ [wholesaler] 이미 등록된 도매점:", existingWholesaler.id);
+      return {
+        success: false,
+        error: "이미 등록된 도매점 정보가 있습니다.",
+      };
+    }
+
+    // 3. 사업자번호 중복 확인
+    const businessNumberDigits = formData.business_number.replace(/\D/g, "");
+
+    const { data: duplicateBusiness, error: duplicateError } = await supabase
+      .from("wholesalers")
+      .select("id")
+      .eq("business_number", businessNumberDigits)
+      .single();
+
+    if (duplicateError && duplicateError.code !== "PGRST116") {
+      console.error("❌ [wholesaler] 사업자번호 중복 확인 오류:", duplicateError);
+      return {
+        success: false,
+        error: "사업자번호 확인 중 오류가 발생했습니다.",
+      };
+    }
+
+    if (duplicateBusiness) {
+      console.log("⚠️ [wholesaler] 중복된 사업자번호:", businessNumberDigits);
+      return {
+        success: false,
+        error: "이미 등록된 사업자번호입니다.",
+      };
+    }
+
+    // 4. anonymous_code 자동 생성
+    const { data: maxCode, error: maxCodeError } = await supabase
+      .from("wholesalers")
+      .select("anonymous_code")
+      .order("anonymous_code", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (maxCodeError) {
+      console.error("❌ [wholesaler] anonymous_code 최대값 조회 오류:", maxCodeError);
+      return {
+        success: false,
+        error: "코드 생성 중 오류가 발생했습니다.",
+      };
+    }
+
+    // 다음 번호 계산
+    let nextNumber = 1;
+    if (maxCode?.anonymous_code) {
+      const match = maxCode.anonymous_code.match(/VENDOR-(\d+)/);
+      if (match) {
+        nextNumber = parseInt(match[1], 10) + 1;
+      }
+    }
+
+    // 3자리 패딩 적용
+    const anonymousCode = `VENDOR-${String(nextNumber).padStart(3, "0")}`;
+    console.log("✅ [wholesaler] anonymous_code 생성:", anonymousCode);
+
+    // 5. 전화번호 포맷팅
+    const formattedPhone = formatPhone(formData.phone);
+
+    // 6. 은행명 + 계좌번호 결합
+    const bankAccount = `${formData.bank_name} ${formData.bank_account_number}`;
+
+    // 7. wholesalers 테이블에 INSERT
+    const { data: newWholesaler, error: insertError } = await supabase
+      .from("wholesalers")
+      .insert({
+        profile_id: profile.id,
+        business_name: formData.business_name.trim(),
+        business_number: businessNumberDigits,
+        representative: formData.representative.trim(),
+        phone: formattedPhone,
+        address: formData.address.trim(),
+        bank_account: bankAccount,
+        anonymous_code: anonymousCode,
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (insertError) {
+      console.error("❌ [wholesaler] 도매점 생성 오류:", insertError);
+
+      // UNIQUE 제약 위반 에러 처리
+      if (insertError.code === "23505") {
+        if (insertError.message.includes("business_number")) {
+          return {
+            success: false,
+            error: "이미 등록된 사업자번호입니다.",
+          };
+        }
+        if (insertError.message.includes("anonymous_code")) {
+          // anonymous_code 중복 (거의 발생하지 않지만 처리)
+          return {
+            success: false,
+            error: "코드 생성 중 오류가 발생했습니다. 다시 시도해주세요.",
+          };
+        }
+      }
+
+      return {
+        success: false,
+        error: "도매점 등록 중 오류가 발생했습니다.",
+      };
+    }
+
+    console.log("✅ [wholesaler] 도매점 생성 완료:", newWholesaler.id);
+    console.groupEnd();
+
+    return {
+      success: true,
+      wholesalerId: newWholesaler.id,
+    };
+  } catch (error) {
+    console.error("❌ [wholesaler] createWholesaler 예외:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "도매점 등록 중 예상치 못한 오류가 발생했습니다.",
+    };
+  }
+}
+

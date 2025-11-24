@@ -387,46 +387,46 @@ mkdir -p hooks
 
 #### 1. 역할 선택 페이지
 
-- [ ] **`app/(auth)/role-selection/page.tsx` 구현**
-  - [ ] UI 구현 (소매점/도매점 선택 카드)
-  - [ ] Clerk `useUser()` 훅 연동
-  - [ ] 역할 선택 시 `profiles` 테이블에 저장
-  - [ ] 소매 선택 시 `/retailer/dashboard`로 리다이렉트
-  - [ ] 도매 선택 시 `/wholesaler/onboarding`으로 리다이렉트
-  - [ ] 로딩 상태 처리
-  - [ ] 에러 처리
+- [x] **`app/(auth)/role-selection/page.tsx` 구현**
+  - [x] UI 구현 (소매점/도매점 선택 카드)
+  - [x] Clerk `useUser()` 훅 연동
+  - [x] 역할 선택 시 `profiles` 테이블에 저장
+  - [x] 소매 선택 시 `/retailer/dashboard`로 리다이렉트
+  - [x] 도매 선택 시 `/wholesaler/onboarding`으로 리다이렉트
+  - [x] 로딩 상태 처리
+  - [x] 에러 처리
 
 #### 2. 사업자 정보 입력 폼
 
-- [ ] **유효성 검증 스키마 작성**
+- [x] **유효성 검증 스키마 작성**
 
-  - [ ] `lib/validation/wholesaler.ts` 작성
-  - [ ] `wholesalerOnboardingSchema` 정의
-    - [ ] 사업자명 검증 (2글자 이상)
-    - [ ] 사업자번호 검증 (10자리 숫자)
-    - [ ] 대표자명 검증 (2글자 이상) - ⚠️ contact_name → representative
-    - [ ] 연락처 검증 (010-####-#### 형식) - ⚠️ contact_phone → phone
-    - [ ] 주소 검증 (5글자 이상) - ⚠️ region → address
-    - [ ] 계좌번호 검증 (5글자 이상, 은행명 포함)
-    - [ ] ⚠️ 이메일 검증 제거 (profiles.email 사용)
+  - [x] `lib/validation/wholesaler.ts` 작성
+  - [x] `wholesalerOnboardingSchema` 정의
+    - [x] 사업자명 검증 (2글자 이상)
+    - [x] 사업자번호 검증 (10자리 숫자)
+    - [x] 대표자명 검증 (2글자 이상) - ⚠️ contact_name → representative
+    - [x] 연락처 검증 (010-####-#### 형식) - ⚠️ contact_phone → phone
+    - [x] 주소 검증 (5글자 이상) - ⚠️ region → address
+    - [x] 계좌번호 검증 (5글자 이상, 은행명 포함)
+    - [x] ⚠️ 이메일 검증 제거 (profiles.email 사용)
 
-- [ ] **`app/(auth)/wholesaler-onboarding/page.tsx` 구현**
-  - [ ] react-hook-form 설정
-  - [ ] zod 스키마 연동
-  - [ ] 폼 UI 구현
-    - [ ] 사업자명 입력 필드
-    - [ ] 사업자번호 입력 필드
-    - [ ] 대표자명 입력 필드 (representative)
-    - [ ] 연락처 입력 필드 (phone, 하이픈 자동 추가)
-    - [ ] 주소 입력 필드 (address, 우편번호 검색 기능 선택)
-    - [ ] 계좌번호 입력 필드 (은행명 포함, 예: "국민은행 123-456-789")
-  - [ ] 폼 제출 처리
-    - [ ] `wholesalers` 테이블에 INSERT
-    - [ ] `status` = 'pending' 자동 설정
-    - [ ] `anonymous_code` 서버에서 자동 생성 (예: VENDOR-001)
-  - [ ] 제출 후 `/wholesaler/pending-approval`로 리다이렉트
-  - [ ] 진행 표시 (1/3, 2/3, 3/3 단계)
-  - [ ] 에러 처리 및 토스트 알림
+- [x] **`app/(auth)/wholesaler-onboarding/page.tsx` 구현**
+  - [x] react-hook-form 설정
+  - [x] zod 스키마 연동
+  - [x] 폼 UI 구현
+    - [x] 사업자명 입력 필드
+    - [x] 사업자번호 입력 필드
+    - [x] 대표자명 입력 필드 (representative)
+    - [x] 연락처 입력 필드 (phone, 하이픈 자동 추가)
+    - [x] 주소 입력 필드 (address, 우편번호 검색 기능 선택)
+    - [x] 계좌번호 입력 필드 (은행명 포함, 예: "국민은행 123-456-789")
+  - [x] 폼 제출 처리
+    - [x] `wholesalers` 테이블에 INSERT
+    - [x] `status` = 'pending' 자동 설정
+    - [x] `anonymous_code` 서버에서 자동 생성 (예: VENDOR-001)
+  - [x] 제출 후 `/wholesaler/pending-approval`로 리다이렉트
+  - [x] 진행 표시 (1/3, 2/3, 3/3 단계)
+  - [x] 에러 처리 및 토스트 알림
 
 #### 3. 승인 대기 페이지
 

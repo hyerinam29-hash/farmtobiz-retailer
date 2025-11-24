@@ -17,7 +17,7 @@ import type { WholesalerStatus } from "./database";
  */
 export interface Wholesaler {
   id: string;
-  user_id: string; // profiles 테이블 참조
+  profile_id: string; // profiles 테이블 참조
   business_name: string;
   business_number: string;
   representative: string; // 대표자명
@@ -35,7 +35,7 @@ export interface Wholesaler {
  * 도매점 생성 요청 타입 (회원가입 시 사용)
  */
 export interface CreateWholesalerRequest {
-  user_id: string;
+  profile_id: string;
   business_name: string;
   business_number: string;
   representative: string;
