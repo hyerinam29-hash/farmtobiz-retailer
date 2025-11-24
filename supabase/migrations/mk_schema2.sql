@@ -1,5 +1,5 @@
 -- ============================================
--- 도매-소매 중개 플랫폼 DB 스키마
+-- 도매-소매 중개 플랫폼 DB 스키마 (통합 버전)
 -- ============================================
 -- 
 -- 📌 테이블 구조 개요:
@@ -38,7 +38,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE TABLE "retailers" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "user_id" UUID NOT NULL,
+    "profile_id" UUID NOT NULL,
     "business_name" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE "retailers" (
 
 CREATE TABLE "wholesalers" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "user_id" UUID NOT NULL,
+    "profile_id" UUID NOT NULL,
     "business_name" TEXT NOT NULL,
     "business_number" TEXT NOT NULL UNIQUE,
     "representative" TEXT NOT NULL,
@@ -153,7 +153,7 @@ CREATE TABLE "cs_threads" (
     "status" TEXT DEFAULT 'open' NOT NULL,
     "created_at" TIMESTAMPTZ DEFAULT now() NOT NULL,
     "closed_at" TIMESTAMPTZ,
-    "updated_at" TIMESTAMPTZ DEFAULT now() NOT NULL -- 추가됨 (트리거 작동을 위해 필요)
+    "updated_at" TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 COMMENT ON COLUMN "cs_threads"."status" IS 'open, bot_handled, escalated, closed';
 
@@ -169,7 +169,7 @@ CREATE TABLE "payments" (
     "created_at" TIMESTAMPTZ DEFAULT now() NOT NULL,
     "updated_at" TIMESTAMPTZ DEFAULT now() NOT NULL
 );
-COMMENT ON COLUMN "payments"."status" IS 'pending';
+COMMENT ON COLUMN "payments"."status" IS 'pending(결제대기), processing(결제진행중), paid(결제완료), failed(결제실패), cancelled(결제취소), refund_pending(환불진행중), refunded(환불완료)';
 
 CREATE TABLE "audit_logs" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -278,7 +278,7 @@ ALTER TABLE "payments" ADD CONSTRAINT fk_payments_settlement FOREIGN KEY ("settl
 
 ALTER TABLE "product_variants" ADD CONSTRAINT fk_product_variants_product FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE CASCADE;
 
-ALTER TABLE "retailers" ADD CONSTRAINT fk_retailers_profile FOREIGN KEY ("user_id") REFERENCES "profiles"("id") ON DELETE CASCADE;
+ALTER TABLE "retailers" ADD CONSTRAINT fk_retailers_profile FOREIGN KEY ("profile_id") REFERENCES "profiles"("id") ON DELETE CASCADE;
 
 ALTER TABLE "audit_logs" ADD CONSTRAINT fk_audit_logs_profile FOREIGN KEY ("user_id") REFERENCES "profiles"("id") ON DELETE CASCADE;
 
@@ -287,7 +287,7 @@ ALTER TABLE "ai_product_suggestions" ADD CONSTRAINT fk_ai_products_wholesaler FO
 
 ALTER TABLE "cs_messages" ADD CONSTRAINT fk_cs_messages_thread FOREIGN KEY ("cs_thread_id") REFERENCES "cs_threads"("id") ON DELETE CASCADE;
 
-ALTER TABLE "wholesalers" ADD CONSTRAINT fk_wholesalers_profile FOREIGN KEY ("user_id") REFERENCES "profiles"("id") ON DELETE CASCADE;
+ALTER TABLE "wholesalers" ADD CONSTRAINT fk_wholesalers_profile FOREIGN KEY ("profile_id") REFERENCES "profiles"("id") ON DELETE CASCADE;
 
 ALTER TABLE "inquiries" ADD CONSTRAINT fk_inquiries_profile FOREIGN KEY ("user_id") REFERENCES "profiles"("id") ON DELETE CASCADE;
 
@@ -318,7 +318,7 @@ CREATE INDEX idx_payments_settlement_id ON "payments" ("settlement_id");
 
 CREATE INDEX idx_product_variants_product_id ON "product_variants" ("product_id");
 
-CREATE INDEX idx_retailers_user_id ON "retailers" ("user_id");
+CREATE INDEX idx_retailers_profile_id ON "retailers" ("profile_id");
 
 CREATE INDEX idx_audit_logs_user_id ON "audit_logs" ("user_id");
 
@@ -327,7 +327,7 @@ CREATE INDEX idx_ai_product_suggestions_wholesaler_id ON "ai_product_suggestions
 
 CREATE INDEX idx_cs_messages_cs_thread_id ON "cs_messages" ("cs_thread_id");
 
-CREATE INDEX idx_wholesalers_user_id ON "wholesalers" ("user_id");
+CREATE INDEX idx_wholesalers_profile_id ON "wholesalers" ("profile_id");
 CREATE INDEX idx_wholesalers_status ON "wholesalers" ("status");
 
 CREATE INDEX idx_inquiries_user_id ON "inquiries" ("user_id");
@@ -410,7 +410,10 @@ ALTER TABLE "inquiries" ADD CONSTRAINT chk_inquiries_status
 -- payments 테이블
 ALTER TABLE "payments" ADD CONSTRAINT chk_payments_amount 
   CHECK (amount >= 0);
+ALTER TABLE "payments" ADD CONSTRAINT chk_payments_status 
+  CHECK (status IN ('pending', 'processing', 'paid', 'failed', 'cancelled', 'refund_pending', 'refunded'));
 
 -- ai_product_suggestions 테이블
 ALTER TABLE "ai_product_suggestions" ADD CONSTRAINT chk_ai_suggestions_confidence 
   CHECK (confidence_score IS NULL OR (confidence_score >= 0 AND confidence_score <= 1));
+
