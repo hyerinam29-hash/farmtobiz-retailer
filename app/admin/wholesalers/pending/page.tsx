@@ -23,6 +23,8 @@ import { requireAdmin } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import WholesalerTableRow from "@/components/admin/WholesalerTableRow";
 
+export const dynamic = "force-dynamic";
+
 interface PendingWholesaler {
   id: string;
   business_name: string;

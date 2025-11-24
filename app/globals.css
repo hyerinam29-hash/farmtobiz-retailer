@@ -60,7 +60,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: #137fec; /* 디자인 파일의 primary 색상 */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -148,5 +148,13 @@
   }
   main {
     @apply max-w-7xl mx-auto pt-16 px-4;
+  }
+  /* Material Symbols 아이콘 스타일 */
+  .material-symbols-outlined {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
   }
 }
