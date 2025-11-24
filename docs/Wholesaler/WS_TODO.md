@@ -430,24 +430,24 @@ mkdir -p hooks
 
 #### 3. 승인 대기 페이지
 
-- [ ] **`app/wholesaler/pending-approval/page.tsx` 구현**
-  - [ ] 승인 대기 UI 구현
-    - [ ] 로딩 애니메이션 (Clock 아이콘)
-    - [ ] 안내 메시지 표시
-    - [ ] 예상 승인 시간 안내 (1-2 영업일)
-  - [ ] 현재 승인 상태 조회
-    - [ ] Supabase에서 `wholesalers` 테이블 조회
-    - [ ] `status`, `rejection_reason` 확인
-  - [ ] 실시간 승인 상태 확인 (Supabase Realtime)
-    - [ ] `wholesalers` 테이블 UPDATE 이벤트 구독
-    - [ ] `status` 변경 감지
-  - [ ] 승인 완료 시 (`status` = 'approved')
-    - [ ] 축하 메시지 표시
-    - [ ] 2초 후 `/wholesaler/dashboard`로 자동 이동
-  - [ ] 승인 반려 시 (`status` = 'rejected')
-    - [ ] 반려 사유 표시
-    - [ ] 재신청 버튼 (온보딩 페이지로 이동)
-  - [ ] 로딩 스피너 및 에러 처리
+- [x] **`app/wholesaler/pending-approval/page.tsx` 구현**
+  - [x] 승인 대기 UI 구현
+    - [x] 로딩 애니메이션 (Hourglass 아이콘)
+    - [x] 안내 메시지 표시
+    - [x] 예상 승인 시간 안내 (1-2 영업일)
+  - [x] 현재 승인 상태 조회
+    - [x] Supabase에서 `wholesalers` 테이블 조회
+    - [x] `status`, `rejection_reason` 확인
+  - [x] 실시간 승인 상태 확인 (Supabase Realtime)
+    - [x] `wholesalers` 테이블 UPDATE 이벤트 구독
+    - [x] `status` 변경 감지
+  - [x] 승인 완료 시 (`status` = 'approved')
+    - [x] 축하 메시지 표시
+    - [x] 즉시 `/wholesaler/dashboard`로 자동 이동 (2초 대기 없이)
+  - [x] 승인 반려 시 (`status` = 'rejected')
+    - [x] 반려 사유 표시
+    - [x] 재신청 버튼 (온보딩 페이지로 이동)
+  - [x] 로딩 스피너 및 에러 처리
 
 #### 4. 도매 레이아웃에서 승인 상태 확인
 
