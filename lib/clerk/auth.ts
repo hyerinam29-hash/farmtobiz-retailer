@@ -208,6 +208,40 @@ export function redirectByRole(role: UserRole): never {
 }
 
 /**
+ * 관리자 권한 필수 검증
+ *
+ * 관리자 페이지에서 사용합니다.
+ * 인증되지 않은 경우 `/sign-in`으로 리다이렉트합니다.
+ * 관리자가 아닌 경우 홈(`/`)으로 리다이렉트합니다.
+ *
+ * @returns {Promise<ProfileWithDetails>} 관리자 프로필 정보 (항상 반환됨, 권한 실패 시 리다이렉트)
+ *
+ * @throws {never} 권한 실패 시 리다이렉트하므로 예외를 던지지 않음
+ *
+ * @example
+ * ```tsx
+ * export default async function AdminPage() {
+ *   const profile = await requireAdmin();
+ *   // 여기서는 항상 관리자 권한이 있는 사용자
+ *   return <div>관리자 페이지</div>;
+ * }
+ * ```
+ */
+export async function requireAdmin(): Promise<ProfileWithDetails> {
+  // 먼저 인증 확인
+  const profile = await requireAuth();
+
+  // 관리자 권한 확인
+  if (profile.role !== "admin") {
+    console.log("🚫 [auth] requireAdmin: 관리자 권한 없음, 홈으로 리다이렉트");
+    redirect("/");
+  }
+
+  console.log("✅ [auth] requireAdmin: 관리자 권한 확인됨");
+  return profile;
+}
+
+/**
  * 역할 확인 및 리다이렉트
  *
  * 현재 사용자의 역할을 확인하고 적절한 대시보드로 리다이렉트합니다.
