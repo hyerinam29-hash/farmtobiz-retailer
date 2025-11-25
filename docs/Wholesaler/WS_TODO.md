@@ -602,12 +602,12 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 ### 📄 빈 페이지 생성
 
-- [ ] `app/wholesaler/dashboard/page.tsx` 생성 (빈 페이지)
-- [ ] `app/wholesaler/products/page.tsx` 생성 (빈 페이지)
-- [ ] `app/wholesaler/market-prices/page.tsx` 생성 (빈 페이지)
-- [ ] `app/wholesaler/orders/page.tsx` 생성 (빈 페이지)
-- [ ] `app/wholesaler/settlements/page.tsx` 생성 (빈 페이지)
-- [ ] `app/wholesaler/inquiries/page.tsx` 생성 (빈 페이지 - 선택)
+- [x] `app/wholesaler/dashboard/page.tsx` 생성 (빈 페이지)
+- [x] `app/wholesaler/products/page.tsx` 생성 (빈 페이지)
+- [x] `app/wholesaler/market-prices/page.tsx` 생성 (빈 페이지)
+- [x] `app/wholesaler/orders/page.tsx` 생성 (빈 페이지)
+- [x] `app/wholesaler/settlements/page.tsx` 생성 (빈 페이지)
+- [x] `app/wholesaler/inquiries/page.tsx` 생성 (빈 페이지)
 
 ### ✅ Week 1-2 완료 체크
 
@@ -618,6 +618,8 @@ Anonymous Code 자동 생성 로직을 구현해줘.
   - [ ] ⚠️ 정지된 계정 페이지 구현 완료
 - [ ] 전체 네비게이션이 작동하는지 확인
 - [ ] 모든 페이지로 이동 가능한지 확인
+- [ ] 각 페이지의 레이아웃이 올바르게 표시되는지 확인
+- [ ] 빈 페이지에서 사이드바 네비게이션 테스트
 - [ ] 인증 플로우 테스트 (역할 선택 → 온보딩 → 승인 대기)
 - [ ] 실시간 승인 알림 테스트
 - [ ] 코드 리뷰 및 리팩토링
