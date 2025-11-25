@@ -671,61 +671,61 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 2. 상품 등록 폼
 
-- [ ] **유효성 검증 스키마 작성**
+- [x] **유효성 검증 스키마 작성**
 
-  - [ ] `lib/validation/product.ts` 작성
-  - [ ] `productSchema` 정의
-    - [ ] 상품명 (2글자 이상)
-    - [ ] 카테고리 (필수)
-    - [ ] 가격 (0 이상)
-    - [ ] 최소주문수량 (1 이상)
-    - [ ] 재고 (0 이상)
-    - [ ] 단위 (기본값: ea)
-    - [ ] 배송비 (0 이상)
-    - [ ] 배송 방법 (enum: courier/direct/quick/freight/pickup, 기본값: courier)
-    - [ ] 납기 (선택)
-    - [ ] 규격 정보 (무게, 크기, 원산지, 보관방법)
+  - [x] `lib/validation/product.ts` 작성
+  - [x] `productSchema` 정의
+    - [x] 상품명 (2글자 이상)
+    - [x] 카테고리 (필수)
+    - [x] 가격 (0 이상)
+    - [x] 최소주문수량 (1 이상)
+    - [x] 재고 (0 이상)
+    - [x] 단위 (기본값: ea)
+    - [x] 배송비 (0 이상)
+    - [x] 배송 방법 (enum: courier/direct/quick/freight/pickup, 기본값: courier)
+    - [x] 납기 (선택)
+    - [x] 규격 정보 (무게, 크기, 원산지, 보관방법)
 
-- [ ] **이미지 업로드 함수 작성**
+- [x] **이미지 업로드 함수 작성**
 
-  - [ ] `lib/supabase/storage.ts` 작성
-  - [ ] `uploadProductImage()` 함수 구현
-    - [ ] 파일 타입 검증 (jpg, jpeg, png, webp)
-    - [ ] 파일 크기 검증 (최대 5MB)
-    - [ ] Supabase Storage에 업로드
-    - [ ] Public URL 반환
-  - [ ] `deleteProductImage()` 함수 구현
+  - [x] `lib/supabase/storage.ts` 작성
+  - [x] `uploadProductImage()` 함수 구현
+    - [x] 파일 타입 검증 (jpg, jpeg, png, webp)
+    - [x] 파일 크기 검증 (최대 5MB)
+    - [x] Supabase Storage에 업로드
+    - [x] Public URL 반환
+  - [x] `deleteProductImage()` 함수 구현
 
-- [ ] **`app/wholesaler/products/new/page.tsx` 구현**
+- [x] **`app/wholesaler/products/new/page.tsx` 구현**
 
-  - [ ] react-hook-form 설정
-  - [ ] zod 스키마 연동
-  - [ ] 폼 UI 구현
-    - [ ] 상품명 입력 필드 + AI 표준화 버튼
-    - [ ] 카테고리 선택 (Select)
-    - [ ] 가격 입력 필드 + 시세 참고 버튼
-    - [ ] 최소주문수량 입력 필드
-    - [ ] 재고 입력 필드
-    - [ ] 단위 선택 (Select: ea, kg, box 등)
-    - [ ] 배송비 입력 필드
-    - [ ] 배송 방법 선택 (Select: 택배/직배송/퀵서비스/화물/픽업)
-    - [ ] 납기 입력 필드
-    - [ ] 상품 설명 (Textarea)
-    - [ ] 이미지 업로드 (최대 5개)
-      - [ ] 드래그 앤 드롭 지원
-      - [ ] 미리보기 표시
-      - [ ] 삭제 버튼
-    - [ ] 규격 정보 입력 (무게, 크기, 원산지, 보관방법)
-  - [ ] 폼 제출 처리
-    - [ ] 이미지 업로드
-    - [ ] `products` 테이블에 INSERT
-    - [ ] 성공 시 상품 목록으로 이동 + 토스트 알림
-  - [ ] 로딩 상태 처리
-  - [ ] 에러 처리 및 토스트 알림
+  - [x] react-hook-form 설정
+  - [x] zod 스키마 연동
+  - [x] 폼 UI 구현
+    - [x] 상품명 입력 필드 + AI 표준화 버튼
+    - [x] 카테고리 선택 (Select)
+    - [x] 가격 입력 필드 + 시세 참고 버튼
+    - [x] 최소주문수량 입력 필드
+    - [x] 재고 입력 필드
+    - [x] 단위 선택 (Select: ea, kg, box 등)
+    - [x] 배송비 입력 필드
+    - [x] 배송 방법 선택 (Select: 택배/직배송/퀵서비스/화물/픽업)
+    - [x] 납기 입력 필드
+    - [x] 상품 설명 (Textarea)
+    - [x] 이미지 업로드 (최대 5개)
+      - [x] 드래그 앤 드롭 지원
+      - [x] 미리보기 표시
+      - [x] 삭제 버튼
+    - [x] 규격 정보 입력 (무게, 크기, 원산지, 보관방법)
+  - [x] 폼 제출 처리
+    - [x] 이미지 업로드
+    - [x] `products` 테이블에 INSERT
+    - [x] 성공 시 상품 목록으로 이동 + 토스트 알림
+  - [x] 로딩 상태 처리
+  - [x] 에러 처리 및 토스트 알림
 
-- [ ] **`components/wholesaler/Products/ProductForm.tsx` 구현**
-  - [ ] 재사용 가능한 폼 컴포넌트
-  - [ ] mode prop으로 등록/수정 모드 구분
+- [x] **`components/wholesaler/Products/ProductForm.tsx` 구현**
+  - [x] 재사용 가능한 폼 컴포넌트
+  - [x] mode prop으로 등록/수정 모드 구분
 
 **커서 AI 프롬프트:**
 

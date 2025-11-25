@@ -167,9 +167,7 @@ export async function deleteProductImage(
   console.log("📁 [storage] 삭제할 파일 경로:", filePath);
 
   // 삭제
-  const { error } = await supabase.storage
-    .from(BUCKET_NAME)
-    .remove([filePath]);
+  const { error } = await supabase.storage.from(BUCKET_NAME).remove([filePath]);
 
   if (error) {
     console.error("❌ [storage] 이미지 삭제 실패:", error);
@@ -178,4 +176,3 @@ export async function deleteProductImage(
 
   console.log("✅ [storage] 이미지 삭제 성공:", filePath);
 }
-

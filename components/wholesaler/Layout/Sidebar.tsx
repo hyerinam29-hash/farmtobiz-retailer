@@ -82,6 +82,12 @@ export default function WholesalerSidebar() {
   const { user, isLoaded } = useUser();
   const supabase = useClerkSupabaseClient();
   const [businessName, setBusinessName] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 도매회원사 상호명 조회
   useEffect(() => {
@@ -204,12 +210,14 @@ export default function WholesalerSidebar() {
         <div className="flex flex-col gap-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            // 마운트되지 않았으면 모두 비활성화 (서버 사이드 렌더링 시 Hydration 오류 방지)
             // 대시보드는 정확히 일치만 체크, 다른 메뉴는 경로가 시작하는지 체크
-            const isActive =
-              item.href === "/wholesaler/dashboard"
+            const isActive = mounted
+              ? item.href === "/wholesaler/dashboard"
                 ? pathname === item.href
                 : pathname === item.href ||
-                  pathname.startsWith(item.href + "/");
+                  pathname.startsWith(item.href + "/")
+              : false;
 
             return (
               <Link

@@ -64,10 +64,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  productSchema,
-  type ProductFormData,
-} from "@/lib/validation/product";
+import { productSchema, type ProductFormData } from "@/lib/validation/product";
 import { CATEGORIES, DELIVERY_METHODS, UNITS } from "@/lib/utils/constants";
 import { uploadProductImage, deleteProductImage } from "@/lib/supabase/storage";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
@@ -86,9 +83,10 @@ interface ProductFormProps {
  * 예: "10kg" → { value: "10", unit: "kg" }
  * 예: "1박스 (10kg)" → { value: "1박스 (10kg)", unit: "ea" } (복잡한 경우 그대로 유지)
  */
-function parseSpecification(
-  specification: string | null,
-): { value: string; unit: string } {
+function parseSpecification(specification: string | null): {
+  value: string;
+  unit: string;
+} {
   if (!specification) {
     return { value: "", unit: "ea" };
   }
@@ -127,7 +125,9 @@ export default function ProductForm({
   const { user } = useUser();
   const supabase = useClerkSupabaseClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadingImages, setUploadingImages] = useState<Set<number>>(new Set());
+  const [uploadingImages, setUploadingImages] = useState<Set<number>>(
+    new Set(),
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // specification 파싱 (수정 모드)
@@ -136,9 +136,7 @@ export default function ProductForm({
     : { value: "", unit: "ea" };
 
   // 이미지 URL 배열 (수정 모드: 기존 이미지, 등록 모드: 빈 배열)
-  const initialImages = initialData?.image_url
-    ? [initialData.image_url]
-    : [];
+  const initialImages = initialData?.image_url ? [initialData.image_url] : [];
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -296,9 +294,7 @@ export default function ProductForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          {mode === "create" ? "상품 등록" : "상품 수정"}
-        </CardTitle>
+        <CardTitle>{mode === "create" ? "상품 등록" : "상품 수정"}</CardTitle>
         <CardDescription>
           {mode === "create"
             ? "새로운 상품 정보를 입력해주세요."
@@ -412,8 +408,8 @@ export default function ProductForm({
                     </Button>
                   </div>
                   <FormDescription>
-                    상품 가격을 입력하세요. 시세 참고 버튼을 클릭하면 현재
-                    시장 가격을 확인할 수 있습니다.
+                    상품 가격을 입력하세요. 시세 참고 버튼을 클릭하면 현재 시장
+                    가격을 확인할 수 있습니다.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -466,7 +462,9 @@ export default function ProductForm({
                       disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormDescription>현재 재고 수량을 입력하세요.</FormDescription>
+                  <FormDescription>
+                    현재 재고 수량을 입력하세요.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -823,4 +821,3 @@ export default function ProductForm({
     </Card>
   );
 }
-

@@ -51,12 +51,9 @@ export const productSchema = z.object({
   category: z
     .string()
     .min(1, "카테고리를 선택해주세요")
-    .refine(
-      (val) => CATEGORIES.includes(val as (typeof CATEGORIES)[number]),
-      {
-        message: "올바른 카테고리를 선택해주세요",
-      },
-    ),
+    .refine((val) => CATEGORIES.includes(val as (typeof CATEGORIES)[number]), {
+      message: "올바른 카테고리를 선택해주세요",
+    }),
 
   description: z.string().optional(),
 
@@ -87,12 +84,9 @@ export const productSchema = z.object({
   unit: z
     .string()
     .default("ea")
-    .refine(
-      (val) => UNITS.includes(val as (typeof UNITS)[number]),
-      {
-        message: "올바른 단위를 선택해주세요",
-      },
-    ),
+    .refine((val) => UNITS.includes(val as (typeof UNITS)[number]), {
+      message: "올바른 단위를 선택해주세요",
+    }),
 
   specification_value: z.string().optional(), // 단위와 함께 저장될 값
 
@@ -132,4 +126,3 @@ export const productSchema = z.object({
  * 상품 폼 데이터 타입
  */
 export type ProductFormData = z.infer<typeof productSchema>;
-

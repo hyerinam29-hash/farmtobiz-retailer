@@ -19,9 +19,10 @@
 
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { Bell } from "lucide-react";
+import { useState, useEffect } from "react";
 
 // 경로별 페이지 제목 매핑 (Sidebar의 menuItems와 일관성 유지)
 const pageTitleMap: Record<string, string> = {
@@ -36,9 +37,21 @@ const pageTitleMap: Record<string, string> = {
 
 export default function WholesalerHeader() {
   const pathname = usePathname();
+  const { isLoaded } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 현재 경로에 따른 페이지 제목 결정
   const getPageTitle = (): string => {
+    // 마운트되지 않았으면 기본값 반환 (서버 사이드 렌더링 시 Hydration 오류 방지)
+    if (!mounted) {
+      return "도매 관리";
+    }
+
     // 대시보드는 정확히 일치해야 함
     if (pathname === "/wholesaler/dashboard") {
       return pageTitleMap["/wholesaler/dashboard"] || "도매 관리";
@@ -87,15 +100,17 @@ export default function WholesalerHeader() {
           )}
         </button>
 
-        {/* 사용자 드롭다운 메뉴 */}
-        <UserButton
-          afterSignOutUrl="/"
-          appearance={{
-            elements: {
-              avatarBox: "w-8 h-8",
-            },
-          }}
-        />
+        {/* 사용자 드롭다운 메뉴 - 클라이언트 사이드에서만 렌더링 */}
+        {mounted && isLoaded && (
+          <UserButton
+            afterSignOutUrl="/"
+            appearance={{
+              elements: {
+                avatarBox: "w-8 h-8",
+              },
+            }}
+          />
+        )}
       </div>
     </header>
   );
