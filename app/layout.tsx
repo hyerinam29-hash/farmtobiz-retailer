@@ -30,7 +30,10 @@ export const metadata: Metadata = {
   description:
     "도매의 민감 정보를 노출하지 않으면서 소매가 여러 도매의 상품을 비교하고 주문할 수 있는 B2B 플랫폼",
   icons: {
-    icon: "/logo.png",
+    icon: [
+      { url: "/logo.png", sizes: "any" },
+      { url: "/icon.png", sizes: "any", type: "image/png" },
+    ],
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
