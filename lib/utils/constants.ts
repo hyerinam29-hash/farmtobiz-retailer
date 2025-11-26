@@ -98,13 +98,9 @@ export const DELIVERY_METHODS = {
 export const CATEGORIES = [
   "과일",
   "채소",
-  "육류",
   "수산물",
   "곡물",
   "견과류",
-  "건조식품",
-  "냉동식품",
-  "조미료",
   "기타",
 ] as const;
 
