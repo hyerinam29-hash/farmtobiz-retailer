@@ -420,6 +420,7 @@ export default function ProductForm({
                       type="button"
                       variant="outline"
                       size="icon"
+                      className="md:size-auto md:px-3 md:gap-2"
                       onClick={handleStandardize}
                       disabled={isSubmitting || isStandardizing}
                       title="AI 표준화"
@@ -429,11 +430,12 @@ export default function ProductForm({
                       ) : (
                         <Sparkles className="h-4 w-4" />
                       )}
+                      <span className="hidden md:inline">AI 표준화</span>
                     </Button>
                   </div>
                   <FormDescription>
-                    상품명을 입력하세요. AI 표준화 버튼을 클릭하면 표준화된
-                    이름을 제안받을 수 있습니다.
+                    💡 AI 표준화를 사용하면 검색 최적화된 상품명으로 자동
+                    변환됩니다
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -494,6 +496,7 @@ export default function ProductForm({
                       type="button"
                       variant="outline"
                       size="icon"
+                      className="md:size-auto md:px-3 md:gap-2"
                       onClick={() => {
                         toast.info("시세 참고 기능은 준비 중입니다.");
                       }}
@@ -501,6 +504,7 @@ export default function ProductForm({
                       title="시세 참고"
                     >
                       <TrendingUp className="h-4 w-4" />
+                      <span className="hidden md:inline">시세조회</span>
                     </Button>
                   </div>
                   <FormDescription>
@@ -915,7 +919,10 @@ export default function ProductForm({
         </Form>
 
         {/* AI 표준화 결과 모달 */}
-        <Dialog open={standardizeDialogOpen} onOpenChange={setStandardizeDialogOpen}>
+        <Dialog
+          open={standardizeDialogOpen}
+          onOpenChange={setStandardizeDialogOpen}
+        >
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>AI 표준화 결과</DialogTitle>
@@ -966,7 +973,11 @@ export default function ProductForm({
                     </label>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {standardizeResult.keywords.map((keyword, index) => (
-                        <Badge key={index} variant="outline" className="text-sm">
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="text-sm"
+                        >
                           {keyword}
                         </Badge>
                       ))}
@@ -999,8 +1010,8 @@ export default function ProductForm({
                           standardizeResult.confidence >= 0.8
                             ? "bg-green-500"
                             : standardizeResult.confidence >= 0.6
-                              ? "bg-yellow-500"
-                              : "bg-red-500"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
                         }`}
                         style={{
                           width: `${standardizeResult.confidence * 100}%`,
