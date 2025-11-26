@@ -77,6 +77,7 @@ export interface OrderFilter {
   status?: OrderStatus;
   start_date?: string; // ISO 8601 형식
   end_date?: string; // ISO 8601 형식
+  order_number?: string; // 주문번호 (정확 일치)
 }
 
 /**

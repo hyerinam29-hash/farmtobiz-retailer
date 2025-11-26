@@ -6,6 +6,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import Navbar from "@/components/Navbar";
 import { SyncUserProvider } from "@/components/providers/sync-user-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
 // FarmToBiz 브랜딩을 위한 커스텀 localization
@@ -41,10 +42,12 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <SyncUserProvider>
-            <Navbar />
-            {children}
-          </SyncUserProvider>
+          <QueryProvider>
+            <SyncUserProvider>
+              <Navbar />
+              {children}
+            </SyncUserProvider>
+          </QueryProvider>
         </body>
       </html>
     </ClerkProvider>

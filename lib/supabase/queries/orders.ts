@@ -1,0 +1,436 @@
+/**
+ * @file lib/supabase/queries/orders.ts
+ * @description 주문 조회 쿼리 함수
+ *
+ * 도매점의 주문을 조회하는 Supabase 쿼리 함수들을 제공합니다.
+ * RLS 정책을 통해 현재 도매점의 주문만 조회됩니다.
+ *
+ * ⚠️ 중요: orders 테이블 구조
+ * - order_items 테이블 없음
+ * - 1개 orders 레코드 = 1개 상품
+ * - products, product_variants 조인 필요
+ *
+ * @dependencies
+ * - lib/supabase/server.ts
+ * - types/order.ts
+ * - types/product.ts
+ */
+
+import { createClerkSupabaseClient } from "@/lib/supabase/server";
+import { getUserProfile } from "@/lib/clerk/auth";
+import type {
+  Order,
+  OrderDetail,
+  OrderFilter,
+  OrderStatus,
+} from "@/types/order";
+
+/**
+ * 주문 목록 조회 옵션
+ */
+export interface GetOrdersOptions {
+  page?: number; // 페이지 번호 (1부터 시작)
+  pageSize?: number; // 페이지당 항목 수
+  sortBy?: "created_at" | "total_amount"; // 정렬 기준
+  sortOrder?: "asc" | "desc"; // 정렬 방향
+  filter?: OrderFilter; // 필터 옵션
+}
+
+/**
+ * 주문 목록 조회 결과
+ */
+export interface GetOrdersResult {
+  orders: OrderDetail[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
+ * 주문 통계 정보
+ */
+export interface OrderStats {
+  // 전체 통계
+  totalOrders: number;
+  totalAmount: number;
+
+  // 상태별 통계
+  pendingCount: number;
+  confirmedCount: number;
+  shippedCount: number;
+  completedCount: number;
+  cancelledCount: number;
+
+  // 금액별 통계
+  pendingAmount: number;
+  confirmedAmount: number;
+  shippedAmount: number;
+  completedAmount: number;
+
+  // 기간별 통계
+  todayOrders: number;
+  todayAmount: number;
+}
+
+/**
+ * 현재 도매점의 주문 목록 조회
+ *
+ * RLS 정책을 통해 현재 로그인한 도매점의 주문만 조회됩니다.
+ * products, product_variants와 조인하여 상품 정보를 포함합니다.
+ *
+ * @param options 조회 옵션
+ * @returns 주문 목록 및 페이지네이션 정보
+ */
+export async function getOrders(
+  options: GetOrdersOptions = {},
+): Promise<GetOrdersResult> {
+  const {
+    page = 1,
+    pageSize = 10,
+    sortBy = "created_at",
+    sortOrder = "desc",
+    filter = {},
+  } = options;
+
+  console.log("🔍 [orders-query] 주문 목록 조회 시작", {
+    page,
+    pageSize,
+    sortBy,
+    sortOrder,
+    filter,
+  });
+
+  // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 가져오기
+  console.log("🔍 [orders-query] 사용자 프로필 조회 시작");
+  const profile = await getUserProfile();
+
+  console.log("🔍 [orders-query] 프로필 조회 결과:", {
+    hasProfile: !!profile,
+    role: profile?.role,
+    hasWholesalers: !!profile?.wholesalers,
+    wholesalersLength: profile?.wholesalers?.length ?? 0,
+    wholesalers: profile?.wholesalers,
+  });
+
+  if (!profile) {
+    console.error(
+      "❌ [orders-query] 프로필 없음 - 인증되지 않았거나 프로필이 생성되지 않음",
+    );
+    throw new Error(
+      "사용자 프로필을 찾을 수 없습니다. 로그인 상태를 확인해주세요.",
+    );
+  }
+
+  if (profile.role !== "wholesaler") {
+    console.error("❌ [orders-query] 도매점 권한 없음", { role: profile.role });
+    throw new Error("도매점 권한이 없습니다.");
+  }
+
+  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+  if (!wholesalers || wholesalers.length === 0) {
+    console.error("❌ [orders-query] 도매점 정보 없음", {
+      wholesalers,
+      profileId: profile.id,
+      role: profile.role,
+    });
+    throw new Error(
+      "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
+    );
+  }
+
+  const currentWholesalerId = wholesalers[0].id;
+  console.log("✅ [orders-query] 현재 도매점 ID:", currentWholesalerId);
+
+  const supabase = createClerkSupabaseClient();
+
+  // 기본 쿼리 생성 (products, product_variants 조인)
+  // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
+  // ⚠️ retailers 테이블에는 anonymous_code가 없으므로 제거
+  let query = supabase
+    .from("orders")
+    .select(
+      `
+      *,
+      products(*),
+      product_variants(*),
+      retailers(id, business_name)
+    `,
+      { count: "exact" },
+    )
+    .eq("wholesaler_id", currentWholesalerId);
+
+  // 필터 적용
+  if (filter.status) {
+    query = query.eq("status", filter.status);
+  }
+
+  if (filter.start_date) {
+    query = query.gte("created_at", filter.start_date);
+  }
+
+  if (filter.end_date) {
+    // 종료일은 하루 끝까지 포함
+    const endDate = new Date(filter.end_date);
+    endDate.setHours(23, 59, 59, 999);
+    query = query.lte("created_at", endDate.toISOString());
+  }
+
+  if (filter.order_number) {
+    // 주문번호 정확 일치 검색
+    query = query.eq("order_number", filter.order_number);
+  }
+
+  // 정렬 적용
+  query = query.order(sortBy, { ascending: sortOrder === "asc" });
+
+  // 페이지네이션 적용
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  query = query.range(from, to);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("❌ [orders-query] 주문 목록 조회 오류:", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+    throw new Error(`주문 목록 조회 실패: ${error.message}`);
+  }
+
+  const total = count ?? 0;
+  const totalPages = Math.ceil(total / pageSize);
+
+  console.log("✅ [orders-query] 주문 목록 조회 완료", {
+    count: data?.length ?? 0,
+    total,
+    page,
+    totalPages,
+  });
+
+  // 타입 변환 (products, product_variants 조인 결과)
+  const orders: OrderDetail[] = (data ?? []).map((order: any) => ({
+    ...order,
+    product: order.products,
+    variant: order.product_variants,
+  }));
+
+  return {
+    orders,
+    total,
+    page,
+    pageSize,
+    totalPages,
+  };
+}
+
+/**
+ * 주문 ID로 단일 주문 조회
+ *
+ * @param orderId 주문 ID
+ * @returns 주문 상세 정보 또는 null
+ */
+export async function getOrderById(
+  orderId: string,
+): Promise<OrderDetail | null> {
+  console.log("🔍 [orders-query] 주문 조회 시작", { orderId });
+
+  // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 확인
+  const profile = await getUserProfile();
+
+  if (!profile || profile.role !== "wholesaler") {
+    throw new Error("도매점 권한이 없습니다.");
+  }
+
+  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+  if (!wholesalers || wholesalers.length === 0) {
+    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  }
+
+  const currentWholesalerId = wholesalers[0].id;
+
+  const supabase = createClerkSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      `
+      *,
+      products(*),
+      product_variants(*),
+      retailers(id, business_name)
+    `,
+    )
+    .eq("id", orderId)
+    .eq("wholesaler_id", currentWholesalerId)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      // 주문이 없는 경우
+      console.log("⚠️ [orders-query] 주문 없음", { orderId });
+      return null;
+    }
+
+    console.error("❌ [orders-query] 주문 조회 오류:", error);
+    throw new Error(`주문 조회 실패: ${error.message}`);
+  }
+
+  console.log("✅ [orders-query] 주문 조회 완료", { orderId });
+
+  // 타입 변환
+  return {
+    ...data,
+    product: data.products,
+    variant: data.product_variants,
+  } as OrderDetail;
+}
+
+/**
+ * 주문 상태 변경
+ *
+ * @param orderId 주문 ID
+ * @param status 새로운 상태
+ * @returns 업데이트된 주문 정보
+ */
+export async function updateOrderStatus(
+  orderId: string,
+  status: OrderStatus,
+): Promise<Order> {
+  console.log("🔄 [orders-query] 주문 상태 변경 시작", { orderId, status });
+
+  const supabase = createClerkSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("orders")
+    .update({ status })
+    .eq("id", orderId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("❌ [orders-query] 주문 상태 변경 오류:", error);
+    throw new Error(`주문 상태 변경 실패: ${error.message}`);
+  }
+
+  console.log("✅ [orders-query] 주문 상태 변경 완료", { orderId, status });
+
+  return data as Order;
+}
+
+/**
+ * 주문 통계 조회
+ *
+ * 현재 도매점의 주문 통계를 조회합니다.
+ *
+ * @param startDate 시작 날짜 (선택)
+ * @param endDate 종료 날짜 (선택)
+ * @returns 주문 통계 정보
+ */
+export async function getOrderStats(
+  startDate?: string,
+  endDate?: string,
+): Promise<OrderStats> {
+  console.log("📊 [orders-query] 주문 통계 조회 시작", { startDate, endDate });
+
+  // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 확인
+  const profile = await getUserProfile();
+
+  if (!profile || profile.role !== "wholesaler") {
+    throw new Error("도매점 권한이 없습니다.");
+  }
+
+  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+  if (!wholesalers || wholesalers.length === 0) {
+    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  }
+
+  const currentWholesalerId = wholesalers[0].id;
+
+  const supabase = createClerkSupabaseClient();
+
+  let query = supabase
+    .from("orders")
+    .select("status, total_amount, created_at")
+    .eq("wholesaler_id", currentWholesalerId);
+
+  // 날짜 필터 적용
+  if (startDate) {
+    query = query.gte("created_at", startDate);
+  }
+
+  if (endDate) {
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    query = query.lte("created_at", end.toISOString());
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("❌ [orders-query] 주문 통계 조회 오류:", error);
+    throw new Error(`주문 통계 조회 실패: ${error.message}`);
+  }
+
+  const orders = (data ?? []) as Order[];
+
+  // 통계 계산
+  const stats: OrderStats = {
+    totalOrders: orders.length,
+    totalAmount: orders.reduce((sum, order) => sum + order.total_amount, 0),
+    pendingCount: 0,
+    confirmedCount: 0,
+    shippedCount: 0,
+    completedCount: 0,
+    cancelledCount: 0,
+    pendingAmount: 0,
+    confirmedAmount: 0,
+    shippedAmount: 0,
+    completedAmount: 0,
+    todayOrders: 0,
+    todayAmount: 0,
+  };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  orders.forEach((order) => {
+    // 상태별 카운트 및 금액
+    switch (order.status) {
+      case "pending":
+        stats.pendingCount++;
+        stats.pendingAmount += order.total_amount;
+        break;
+      case "confirmed":
+        stats.confirmedCount++;
+        stats.confirmedAmount += order.total_amount;
+        break;
+      case "shipped":
+        stats.shippedCount++;
+        stats.shippedAmount += order.total_amount;
+        break;
+      case "completed":
+        stats.completedCount++;
+        stats.completedAmount += order.total_amount;
+        break;
+      case "cancelled":
+        stats.cancelledCount++;
+        break;
+    }
+
+    // 오늘 주문 확인
+    const orderDate = new Date(order.created_at);
+    orderDate.setHours(0, 0, 0, 0);
+    if (orderDate.getTime() === today.getTime()) {
+      stats.todayOrders++;
+      stats.todayAmount += order.total_amount;
+    }
+  });
+
+  console.log("✅ [orders-query] 주문 통계 조회 완료", stats);
+
+  return stats;
+}

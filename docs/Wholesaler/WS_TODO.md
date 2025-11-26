@@ -940,12 +940,12 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 0. ⚠️ 주문 구조 이해 (필수 확인!)
 
-- [ ] **주문 구조 확인**
-  - [ ] ❌ order_items 테이블 **없음**
-  - [ ] ✅ orders 테이블에 product_id, variant_id 직접 포함
-  - [ ] ✅ 1개 orders 레코드 = 1개 상품
-  - [ ] ✅ 장바구니에서 여러 상품 주문 시 → 여러 orders 레코드 생성
-- [ ] **주문 조회 예시 확인**
+- [x] **주문 구조 확인** ✅
+  - [x] ❌ order_items 테이블 **없음** ✅
+  - [x] ✅ orders 테이블에 product_id, variant_id 직접 포함 ✅
+  - [x] ✅ 1개 orders 레코드 = 1개 상품 ✅
+  - [x] ✅ 장바구니에서 여러 상품 주문 시 → 여러 orders 레코드 생성 ✅
+- [x] **주문 조회 예시 확인** ✅
 
   ```typescript
   // ❌ 잘못된 예시
@@ -971,67 +971,79 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 1. Supabase 쿼리 함수
 
-- [ ] **`lib/supabase/queries/orders.ts` 작성**
-  - [ ] `getOrders()` 함수 구현
-    - [ ] 현재 도매점의 주문만 조회 (RLS 정책)
-    - [ ] 상태별 필터링
-    - [ ] 날짜 범위 필터링
-    - [ ] 페이지네이션
-    - [ ] 정렬 (최신순, 금액순)
-    - [ ] ⚠️ products, product_variants 조인 (order_items 아님!)
-  - [ ] `getOrderById()` 함수 구현
-    - [ ] 주문 상세 정보 조회
-    - [ ] ⚠️ product_id, variant_id로 상품 정보 조인
-  - [ ] `updateOrderStatus()` 함수 구현
-    - [ ] 주문 상태 변경
-    - [ ] ⚠️ updated_at은 트리거가 자동 업데이트
-  - [ ] `getOrderStats()` 함수 구현 (대시보드용)
+- [x] **`lib/supabase/queries/orders.ts` 작성** ✅
+  - [x] `getOrders()` 함수 구현 ✅
+    - [x] 현재 도매점의 주문만 조회 (wholesaler_id 필터링, RLS 비활성화 환경 대응) ✅
+    - [x] 상태별 필터링 ✅
+    - [x] 날짜 범위 필터링 ✅
+    - [x] 페이지네이션 ✅
+    - [x] 정렬 (최신순, 금액순) ✅
+    - [x] ⚠️ products, product_variants 조인 (order_items 아님!) ✅
+  - [x] `getOrderById()` 함수 구현 ✅
+    - [x] 주문 상세 정보 조회 ✅
+    - [x] ⚠️ product_id, variant_id로 상품 정보 조인 ✅
+  - [x] `updateOrderStatus()` 함수 구현 ✅
+    - [x] 주문 상태 변경 ✅
+    - [x] ⚠️ updated_at은 트리거가 자동 업데이트 ✅
+  - [x] `getOrderStats()` 함수 구현 (대시보드용) ✅
 
 #### 2. 주문 목록 페이지
 
-- [ ] **`app/wholesaler/orders/page.tsx` 구현**
+- [x] **`app/wholesaler/orders/page.tsx` 구현** ✅
 
-  - [ ] 페이지 헤더 (제목)
-  - [ ] 탭 UI
-    - [ ] 신규 (pending)
-    - [ ] 처리중 (confirmed, shipped) - ⚠️ preparing 제거됨
-    - [ ] 완료 (completed)
-  - [ ] 필터 UI
-    - [ ] 날짜 범위 선택 (DateRangePicker)
-    - [ ] 상태 선택 (Select)
-    - [ ] 검색 (주문번호)
-  - [ ] 주문 테이블 컴포넌트 렌더링
-  - [ ] 실시간 업데이트 (Realtime 구독)
-  - [ ] 로딩 상태
-  - [ ] 빈 상태
-  - [ ] 에러 처리
+  - [x] 페이지 헤더 (제목) ✅
+  - [x] 탭 UI ✅
+    - [x] 신규 (pending) ✅
+    - [x] 처리중 (confirmed, shipped) - ⚠️ preparing 제거됨 ✅
+    - [x] 완료 (completed) ✅
+  - [x] 필터 UI ✅
+    - [x] 날짜 범위 선택 (DateRangePicker) ✅
+    - [x] 상태 선택 (Select) ✅
+    - [x] 검색 (주문번호, 정확 일치) ✅
+  - [x] 주문 테이블 컴포넌트 렌더링 ✅
+  - [x] 실시간 업데이트 (Realtime 구독) ✅
+  - [x] 로딩 상태 ✅
+  - [x] 빈 상태 ✅
+  - [x] 에러 처리 ✅
+  - [x] 도매점 ID 자동 조회 ✅
 
-- [ ] **`components/wholesaler/Orders/OrderTable.tsx` 구현**
+- [x] **`components/wholesaler/Orders/OrderTable.tsx` 구현** ✅
 
-  - [ ] TanStack Table 설정
-  - [ ] 테이블 컬럼
-    - [ ] 체크박스 (일괄 처리용)
-    - [ ] 주문번호
-    - [ ] 주문일
-    - [ ] 상품명 (1 주문 = 1 상품)
-    - [ ] 옵션 (variant_id 있으면 표시)
-    - [ ] 수량
-    - [ ] 금액
-    - [ ] 상태 (OrderStatusBadge)
-    - [ ] 액션 (상세보기 버튼)
-    - [ ] ⚠️ 같은 시간에 여러 주문 생성될 수 있음 (장바구니 → 주문)
-  - [ ] 정렬 기능
-  - [ ] 페이지네이션
-  - [ ] 일괄 상태 변경 버튼
+  - [x] TanStack Table 설정 ✅
+  - [x] 테이블 컬럼 ✅
+    - [ ] 체크박스 (일괄 처리용) - 추후 구현
+    - [x] 주문번호 ✅
+    - [x] 주문일 ✅
+    - [x] 상품명 (1 주문 = 1 상품) ✅
+    - [x] 옵션 (variant_id 있으면 표시) ✅
+    - [x] 수량 ✅
+    - [x] 금액 ✅
+    - [x] 상태 (OrderStatusBadge) ✅
+    - [x] 액션 (상세보기 버튼) ✅
+    - [x] ⚠️ 같은 시간에 여러 주문 생성될 수 있음 (장바구니 → 주문) ✅
+  - [x] 정렬 기능 ✅
+  - [x] 페이지네이션 ✅
+  - [ ] 일괄 상태 변경 버튼 - 추후 구현
 
-- [ ] **`components/wholesaler/Orders/OrderStatusBadge.tsx` 구현**
-  - [ ] 상태별 뱃지 색상
-    - [ ] pending: 노란색 (신규 주문)
-    - [ ] confirmed: 파란색 (접수 확인)
-    - [ ] shipped: 초록색 (출고 완료)
-    - [ ] completed: 회색 (배송 완료)
-    - [ ] cancelled: 빨간색 (취소)
-    - [ ] ⚠️ preparing 제거됨
+- [x] **`components/wholesaler/Orders/OrderStatusBadge.tsx` 구현** ✅
+
+  - [x] 상태별 뱃지 색상 ✅
+    - [x] pending: 노란색 (신규 주문) ✅
+    - [x] confirmed: 파란색 (접수 확인) ✅
+    - [x] shipped: 초록색 (출고 완료) ✅
+    - [x] completed: 회색 (배송 완료) ✅
+    - [x] cancelled: 빨간색 (취소) ✅
+    - [x] ⚠️ preparing 제거됨 ✅
+
+- [x] **`components/wholesaler/Orders/OrderDateRangePicker.tsx` 구현** ✅
+
+  - [x] react-day-picker 사용 ✅
+  - [x] 날짜 범위 선택 UI ✅
+  - [x] 한국어 locale 지원 ✅
+
+- [x] **`app/api/wholesaler/orders/route.ts` 구현** ✅
+  - [x] 주문 목록 조회 API 엔드포인트 ✅
+  - [x] 에러 처리 및 로깅 ✅
 
 #### 3. 주문 상세 페이지
 
@@ -1081,18 +1093,18 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 1. Realtime 구독 설정
 
-- [ ] **`lib/supabase/realtime.ts` 구현**
-  - [ ] `subscribeToNewOrders()` 함수 구현
-    - [ ] `orders` 테이블 INSERT 이벤트 구독
-    - [ ] 현재 도매점의 주문만 필터링
-    - [ ] 콜백 함수 실행
-    - [ ] 구독 해제 함수 반환
-  - [ ] `subscribeToOrderUpdates()` 함수 구현
-    - [ ] `orders` 테이블 UPDATE 이벤트 구독
-  - [ ] **⚠️ Cleanup 로직 필수 포함**
-    - [ ] 모든 구독 함수에서 unsubscribe 함수 반환
-    - [ ] 주석으로 cleanup 중요성 명시
-    - [ ] 예시 코드:
+- [x] **`lib/supabase/realtime.ts` 구현** ✅ (이미 존재)
+  - [x] `subscribeToNewOrders()` 함수 구현 ✅
+    - [x] `orders` 테이블 INSERT 이벤트 구독 ✅
+    - [x] 현재 도매점의 주문만 필터링 ✅
+    - [x] 콜백 함수 실행 ✅
+    - [x] 구독 해제 함수 반환 ✅
+  - [x] `subscribeToOrderUpdates()` 함수 구현 ✅
+    - [x] `orders` 테이블 UPDATE 이벤트 구독 ✅
+  - [x] **⚠️ Cleanup 로직 필수 포함** ✅
+    - [x] 모든 구독 함수에서 unsubscribe 함수 반환 ✅
+    - [x] 주석으로 cleanup 중요성 명시 ✅
+    - [x] 예시 코드: ✅
       ```typescript
       // 반드시 cleanup 함수 반환 (메모리 누수 방지)
       return () => {
@@ -1102,18 +1114,17 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 2. 새 주문 알림
 
-- [ ] **대시보드에서 Realtime 구독 설정**
+- [x] **주문 목록 페이지에서 Realtime 구독 설정** ✅
 
-  - [ ] `useEffect`로 구독 시작
-  - [ ] 새 주문 도착 시 토스트 알림 표시
-  - [ ] 주문 카운트 실시간 업데이트
-  - [ ] 알림 클릭 시 주문 상세 페이지로 이동
-  - [ ] **⚠️ 컴포넌트 언마운트 시 구독 해제 (필수)**
+  - [x] `useEffect`로 구독 시작 ✅
+  - [x] 새 주문 도착 시 토스트 알림 표시 ✅
+  - [x] 주문 목록 실시간 업데이트 (queryClient.invalidateQueries) ✅
+  - [x] **⚠️ 컴포넌트 언마운트 시 구독 해제 (필수)** ✅
 
-    - [ ] useEffect의 return 함수에서 unsubscribe 호출
-    - [ ] 메모리 누수 방지
-    - [ ] 디버그 로그 추가 (개발 환경)
-    - [ ] 예시:
+    - [x] useEffect의 return 함수에서 unsubscribe 호출 ✅
+    - [x] 메모리 누수 방지 ✅
+    - [x] 디버그 로그 추가 (개발 환경) ✅
+    - [x] 예시: ✅
 
       ```typescript
       useEffect(() => {
@@ -2108,6 +2119,240 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 - [ ] 50분 작업 → 10분 휴식
 - [ ] 하루 8시간 이상 작업 지양
 - [ ] 주말 휴식 필수
+
+---
+
+## 🔒 프로젝트 마지막 단계: RLS 정책 일괄 적용
+
+⚠️ **중요**: 개발 단계에서는 RLS가 비활성화되어 있으나, 프로덕션 배포 전에 반드시 모든 테이블에 RLS 정책을 적용해야 합니다.
+
+현재 구현 상태:
+
+- ✅ 개발 환경: RLS 비활성화, `wholesaler_id` 필터를 명시적으로 추가하여 동일한 보안 효과 보장
+- ⚠️ 프로덕션 전환 시: 아래 RLS 정책을 일괄 적용 필요
+
+### 📋 RLS 정책 적용 체크리스트
+
+#### 1. `orders` 테이블 RLS 정책
+
+- [ ] **RLS 활성화**
+
+  ```sql
+  ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+  ```
+
+- [ ] **도매점 주문 조회 정책 (SELECT)**
+
+  ```sql
+  CREATE POLICY "orders_select_own" ON orders
+  FOR SELECT
+  USING (
+    wholesaler_id IN (
+      SELECT id FROM wholesalers
+      WHERE user_id = auth.jwt() ->> 'sub'
+    )
+  );
+  ```
+
+- [ ] **도매점 주문 상태 변경 정책 (UPDATE)**
+
+  ```sql
+  CREATE POLICY "orders_update_own" ON orders
+  FOR UPDATE
+  USING (
+    wholesaler_id IN (
+      SELECT id FROM wholesalers
+      WHERE user_id = auth.jwt() ->> 'sub'
+    )
+  )
+  WITH CHECK (
+    wholesaler_id IN (
+      SELECT id FROM wholesalers
+      WHERE user_id = auth.jwt() ->> 'sub'
+    )
+  );
+  ```
+
+- [ ] **소매점 주문 조회 정책 (SELECT)**
+  ```sql
+  CREATE POLICY "orders_select_retailer" ON orders
+  FOR SELECT
+  USING (
+    retailer_id IN (
+      SELECT id FROM retailers
+      WHERE user_id = auth.jwt() ->> 'sub'
+    )
+  );
+  ```
+
+#### 2. `products` 테이블 RLS 정책
+
+- [ ] **RLS 활성화**
+
+  ```sql
+  ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+  ```
+
+- [ ] **도매점 상품 조회/수정 정책**
+
+  ```sql
+  CREATE POLICY "products_select_own" ON products
+  FOR SELECT
+  USING (
+    wholesaler_id IN (
+      SELECT id FROM wholesalers
+      WHERE user_id = auth.jwt() ->> 'sub'
+    )
+  );
+
+  CREATE POLICY "products_update_own" ON products
+  FOR UPDATE
+  USING (
+    wholesaler_id IN (
+      SELECT id FROM wholesalers
+      WHERE user_id = auth.jwt() ->> 'sub'
+    )
+  );
+  ```
+
+- [ ] **공개 상품 조회 정책 (소매점용)**
+  ```sql
+  CREATE POLICY "products_select_public" ON products
+  FOR SELECT
+  USING (is_active = true);
+  ```
+
+#### 3. `product_variants` 테이블 RLS 정책
+
+- [ ] **RLS 활성화**
+
+  ```sql
+  ALTER TABLE product_variants ENABLE ROW LEVEL SECURITY;
+  ```
+
+- [ ] **도매점 옵션 조회/수정 정책**
+
+  ```sql
+  CREATE POLICY "product_variants_select_own" ON product_variants
+  FOR SELECT
+  USING (
+    product_id IN (
+      SELECT id FROM products
+      WHERE wholesaler_id IN (
+        SELECT id FROM wholesalers
+        WHERE user_id = auth.jwt() ->> 'sub'
+      )
+    )
+  );
+  ```
+
+- [ ] **공개 옵션 조회 정책 (소매점용)**
+  ```sql
+  CREATE POLICY "product_variants_select_public" ON product_variants
+  FOR SELECT
+  USING (
+    product_id IN (
+      SELECT id FROM products WHERE is_active = true
+    )
+    AND is_active = true
+  );
+  ```
+
+#### 4. `wholesalers` 테이블 RLS 정책
+
+- [ ] **RLS 활성화**
+
+  ```sql
+  ALTER TABLE wholesalers ENABLE ROW LEVEL SECURITY;
+  ```
+
+- [ ] **자신의 도매점 정보 조회 정책**
+  ```sql
+  CREATE POLICY "wholesalers_select_own" ON wholesalers
+  FOR SELECT
+  USING (
+    user_id = auth.jwt() ->> 'sub'
+  );
+  ```
+
+#### 5. `retailers` 테이블 RLS 정책
+
+- [ ] **RLS 활성화**
+
+  ```sql
+  ALTER TABLE retailers ENABLE ROW LEVEL SECURITY;
+  ```
+
+- [ ] **자신의 소매점 정보 조회 정책**
+
+  ```sql
+  CREATE POLICY "retailers_select_own" ON retailers
+  FOR SELECT
+  USING (
+    user_id = auth.jwt() ->> 'sub'
+  );
+  ```
+
+- [ ] **도매점이 소매점 익명 코드 조회 정책**
+  ```sql
+  CREATE POLICY "retailers_select_anonymous_code" ON retailers
+  FOR SELECT (anonymous_code)
+  USING (true); -- 익명 코드는 공개 가능
+  ```
+
+#### 6. `settlements` 테이블 RLS 정책
+
+- [ ] **RLS 활성화**
+
+  ```sql
+  ALTER TABLE settlements ENABLE ROW LEVEL SECURITY;
+  ```
+
+- [ ] **도매점 정산 조회 정책**
+  ```sql
+  CREATE POLICY "settlements_select_own" ON settlements
+  FOR SELECT
+  USING (
+    wholesaler_id IN (
+      SELECT id FROM wholesalers
+      WHERE user_id = auth.jwt() ->> 'sub'
+    )
+  );
+  ```
+
+#### 7. 테스트 및 검증
+
+- [ ] **RLS 정책 테스트**
+
+  - [ ] 도매점 A가 도매점 B의 주문 조회 불가 확인
+  - [ ] 도매점이 자신의 주문만 조회 가능 확인
+  - [ ] 소매점이 자신의 주문만 조회 가능 확인
+  - [ ] 공개 상품은 모든 사용자 조회 가능 확인
+  - [ ] 익명 코드는 공개되지만 실명은 비공개 확인
+
+- [ ] **성능 테스트**
+
+  - [ ] RLS 정책 적용 후 쿼리 성능 확인
+  - [ ] 인덱스 최적화 확인 (필요시)
+
+- [ ] **마이그레이션 파일 생성**
+  - [ ] 모든 RLS 정책을 마이그레이션 파일로 생성
+  - [ ] `supabase/migrations/YYYYMMDDHHmmss_enable_rls_policies.sql` 형식
+
+### 📝 참고사항
+
+1. **개발 환경**: 현재 RLS가 비활성화되어 있으므로, 코드에서는 `wholesaler_id` 필터를 명시적으로 추가하여 동일한 결과를 보장합니다.
+
+2. **프로덕션 전환**:
+
+   - RLS 정책 적용 전에 충분한 테스트 수행
+   - 단계적으로 적용 (테스트 환경 → 스테이징 → 프로덕션)
+   - 롤백 계획 수립
+
+3. **성능 고려사항**:
+   - RLS 정책은 쿼리 성능에 영향을 줄 수 있음
+   - 필요한 인덱스가 있는지 확인
+   - 정책 조건이 복잡한 경우 성능 모니터링 필요
 
 ---
 

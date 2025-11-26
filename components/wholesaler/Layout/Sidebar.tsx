@@ -172,7 +172,8 @@ export default function WholesalerSidebar() {
       </div>
 
       {/* 사용자 프로필 영역 */}
-      {isLoaded && user && (
+      {/* Hydration 오류 방지: mounted 상태 확인 후 렌더링 */}
+      {mounted && isLoaded && user && (
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
             {/* 아바타 */}
@@ -215,8 +216,7 @@ export default function WholesalerSidebar() {
             const isActive = mounted
               ? item.href === "/wholesaler/dashboard"
                 ? pathname === item.href
-                : pathname === item.href ||
-                  pathname.startsWith(item.href + "/")
+                : pathname === item.href || pathname.startsWith(item.href + "/")
               : false;
 
             return (
