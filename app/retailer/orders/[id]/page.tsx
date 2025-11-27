@@ -9,6 +9,7 @@
  *
  * @dependencies
  * - app/retailer/layout.tsx (레이아웃)
+ * - components/retailer/confirm-purchase-modal.tsx
  *
  * @see {@link PRD.md} - R.MY.01~03 요구사항
  */
@@ -24,6 +25,7 @@ import {
   CreditCard,
   Phone,
 } from "lucide-react";
+import OrderDetailActions from "@/components/retailer/order-detail-actions";
 
 // 각 주문 ID에 맞는 목 데이터 (추후 API로 교체 예정)
 const mockOrderDetails: Record<string, {
@@ -313,6 +315,9 @@ export default async function OrderDetailPage({
 
   console.log("📦 [order-detail] 주문 상세 조회:", { orderId: id });
 
+  // 구매 확정 모달 상태 관리를 위한 클라이언트 컴포넌트로 분리 필요
+  // 현재는 Server Component이므로 클라이언트 래퍼 컴포넌트 생성
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* 뒤로가기 버튼 */}
@@ -525,22 +530,12 @@ export default async function OrderDetailPage({
       </div>
 
       {/* 액션 버튼 (R.MY.03) */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {order.status === "delivered" && (
-          <button className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
-            구매 확정
-          </button>
-        )}
-        <button className="flex-1 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors">
-          재주문
-        </button>
-        <Link
-          href="/retailer/orders"
-          className="flex-1 py-3 text-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors"
-        >
-          목록으로
-        </Link>
-      </div>
+      <OrderDetailActions
+        orderId={order.id}
+        orderNumber={order.order_number}
+        status={order.status}
+        totalAmount={order.price_info.total}
+      />
     </div>
   );
 }

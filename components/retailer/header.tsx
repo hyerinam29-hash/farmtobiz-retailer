@@ -156,7 +156,7 @@ export default function RetailerHeader({ onMenuClick, role }: RetailerHeaderProp
                     title={link.label}
                   >
                     <Icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="hidden lg:inline">{link.label}</span>
+                    <span className="hidden md:inline">{link.label}</span>
                   </Link>
                 );
               })}

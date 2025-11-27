@@ -15,6 +15,7 @@
 
 import Link from "next/link";
 import { Search, Calendar, Package, Truck, CheckCircle } from "lucide-react";
+import OrderListItemActions from "@/components/retailer/order-list-item-actions";
 
 // 임시 목 데이터
 const mockOrders = [
@@ -202,20 +203,12 @@ export default function OrdersPage() {
                 </span>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                {order.status === "delivered" ? (
-                  <button className="w-full sm:w-auto px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg font-medium rounded-lg transition-colors">
-                    구매 확정
-                  </button>
-                ) : order.status === "preparing" ? (
-                  <button className="w-full sm:w-auto px-8 py-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 text-base sm:text-lg font-medium rounded-lg transition-colors">
-                    주문 취소
-                  </button>
-                ) : null}
-                <button className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-base sm:text-lg font-medium rounded-lg transition-colors">
-                  재주문
-                </button>
-              </div>
+              <OrderListItemActions
+                orderId={order.id}
+                orderNumber={order.order_number}
+                status={order.status}
+                totalPrice={order.total_price}
+              />
             </div>
           </div>
         ))}

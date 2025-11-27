@@ -1,7 +1,7 @@
 # TODO - 소매점(Retailer) 기능 개발
 
 > **프로젝트:** MarketLink 소매점 사이트
-> **업데이트:** 2024-11-26 (주문 검증 구현 완료: 최소 주문 수량 체크, 재고 확인, Validation 에러 메시지 표시, 주문하기 버튼 활성화/비활성화 로직, Zustand 무한 루프 에러 해결)
+> **업데이트:** 2024-11-26 (구매 확정 기능 구현 완료: 구매 확정 모달, Server Action, 정산 로직 트리거, 주문 상세/목록 페이지 통합)
 > **참조:** PRD.md (Section 3)
 
 ---
@@ -53,7 +53,7 @@ Phase 5: AI 기능 & 최적화 (2-3주)
     - [X] 로고 클릭 시 홈페이지(`/`)로 이동
     - [X] 사용자 메뉴 (Clerk UserButton)
     - [X] 로그아웃 버튼 (UserButton 내장 기능)
-    - [X] 반응형 디자인 적용
+    - [X] 반응형 디자인 적용 (모바일/태블릿/데스크톱, 1024px Laptop 버전 포함)
     - [X] 주요 페이지 네비게이션 링크 추가 (대시보드, 상품, 장바구니, 주문내역)
     - [X] 현재 페이지 하이라이트 기능
     - [X] 모바일 하단 네비게이션 바
@@ -373,13 +373,15 @@ Phase 5: AI 기능 & 최적화 (2-3주)
 
 ### 4.2 구매 확정 (R.MY.03)
 
-- [ ] **구매 확정 기능**
+- [X] **구매 확정 기능**
 
   - [X] '배송 완료' 상태 주문에 구매 확정 버튼 표시 (주문 상세 페이지)
-  - [ ] 구매 확정 확인 모달 (`components/retailer/confirm-purchase-modal.tsx`)
-  - [ ] 구매 확정 Server Action (`actions/confirm-purchase.ts`)
-  - [ ] 정산 로직 트리거 (도매상에게 정산 시작)
-  - [ ] Supabase Edge Function으로 정산 알림 전송
+  - [X] 구매 확정 확인 모달 (`components/retailer/confirm-purchase-modal.tsx`)
+  - [X] 구매 확정 Server Action (`actions/retailer/confirm-purchase.ts`)
+  - [X] 정산 로직 트리거 (settlements 테이블에 정산 데이터 생성)
+  - [X] 주문 상세 페이지에 모달 통합 (`components/retailer/order-detail-actions.tsx`)
+  - [X] 주문 목록 페이지에 모달 통합 (`components/retailer/order-list-item-actions.tsx`)
+  - [ ] Supabase Edge Function으로 정산 알림 전송 (선택사항)
 - [ ] **구매 확정 후 처리**
 
   - [ ] 주문 상태를 '구매 확정'으로 업데이트
@@ -521,7 +523,7 @@ Phase 5: AI 기능 & 최적화 (2-3주)
 | Phase 1: 인증 & 기본 구조       | 80%    | 진행 중 | 2024-11-24 | -           | 2024-11-25    |
 | Phase 2: 상품 탐색 & 장바구니   | 95%    | 진행 중 | 2024-11-24 | -           | 2024-11-26    |
 | Phase 3: 주문 & 결제            | 50%    | 진행 중 | 2024-11-25 | -           | 2024-11-25    |
-| Phase 4: 마이페이지 & 거래 관리 | 65%    | 진행 중 | 2024-11-25 | -           | 2024-11-25    |
+| Phase 4: 마이페이지 & 거래 관리 | 80%    | 진행 중 | 2024-11-25 | -           | 2024-11-26    |
 | Phase 5: AI 기능 & 최적화       | 0%     | 대기 중 | -          | -           | -             |
 
 ---
