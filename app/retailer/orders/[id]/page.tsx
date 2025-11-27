@@ -25,76 +25,269 @@ import {
   Phone,
 } from "lucide-react";
 
-// 임시 목 데이터 (추후 API로 교체 예정)
-const mockOrderDetail = {
-  id: "1",
-  order_number: "20241125-0001",
-  order_date: "2024-11-25",
-  status: "delivered",
-  status_label: "배송 완료",
-  delivery_method: "새벽 배송",
-  delivery_scheduled_time: "2024-11-26 오전 7시",
-  products: [
-    {
-      id: "p1",
-      name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
-      image_url: "/strawberry.jpg",
-      quantity: 2,
-      unit_price: 15900,
-      subtotal: 31800,
-      anonymous_seller_id: "Partner #F2B-01",
-      seller_region: "경기도 양평군",
-    },
-  ],
+// 각 주문 ID에 맞는 목 데이터 (추후 API로 교체 예정)
+const mockOrderDetails: Record<string, {
+  id: string;
+  order_number: string;
+  order_date: string;
+  status: "preparing" | "shipping" | "delivered" | "cancelled";
+  status_label: string;
+  delivery_method: string;
+  delivery_scheduled_time: string;
+  products: Array<{
+    id: string;
+    name: string;
+    image_url: string;
+    quantity: number;
+    unit_price: number;
+    subtotal: number;
+    anonymous_seller_id: string;
+    seller_region: string;
+  }>;
   delivery_info: {
-    recipient_name: "홍길동",
-    phone: "010-1234-5678",
-    address: "서울시 강남구 테헤란로 123",
-    address_detail: "1층 과일가게",
-    request: "문 앞에 놓아주세요",
-  },
+    recipient_name: string;
+    phone: string;
+    address: string;
+    address_detail: string;
+    request: string;
+  };
   payment_info: {
-    method: "신용카드",
-    card_name: "삼성카드",
-    card_number: "1234-****-****-5678",
-    paid_at: "2024-11-25 10:30",
-  },
+    method: string;
+    card_name: string;
+    card_number: string;
+    paid_at: string;
+  };
   price_info: {
-    product_total: 31800,
-    total: 31800,
+    product_total: number;
+    total: number;
+  };
+  timeline: Array<{
+    status: string;
+    label: string;
+    timestamp: string | null;
+    completed: boolean;
+  }>;
+}> = {
+  "1": {
+    id: "1",
+    order_number: "20241125-0001",
+    order_date: "2024-11-25",
+    status: "delivered",
+    status_label: "배송 완료",
+    delivery_method: "새벽 배송",
+    delivery_scheduled_time: "2024-11-26 오전 7시",
+    products: [
+      {
+        id: "p1",
+        name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
+        image_url: "/strawberry.jpg",
+        quantity: 2,
+        unit_price: 15900,
+        subtotal: 31800,
+        anonymous_seller_id: "Partner #F2B-01",
+        seller_region: "경기도 양평군",
+      },
+    ],
+    delivery_info: {
+      recipient_name: "홍길동",
+      phone: "010-1234-5678",
+      address: "서울시 강남구 테헤란로 123",
+      address_detail: "1층 과일가게",
+      request: "문 앞에 놓아주세요",
+    },
+    payment_info: {
+      method: "신용카드",
+      card_name: "삼성카드",
+      card_number: "1234-****-****-5678",
+      paid_at: "2024-11-25 10:30",
+    },
+    price_info: {
+      product_total: 31800,
+      total: 35800,
+    },
+    timeline: [
+      {
+        status: "ordered",
+        label: "주문 접수",
+        timestamp: "2024-11-25 10:30",
+        completed: true,
+      },
+      {
+        status: "confirmed",
+        label: "주문 확인",
+        timestamp: "2024-11-25 11:00",
+        completed: true,
+      },
+      {
+        status: "preparing",
+        label: "상품 준비 중",
+        timestamp: "2024-11-25 14:00",
+        completed: true,
+      },
+      {
+        status: "shipping",
+        label: "배송 중",
+        timestamp: "2024-11-26 04:00",
+        completed: true,
+      },
+      {
+        status: "delivered",
+        label: "배송 완료",
+        timestamp: "2024-11-26 06:45",
+        completed: true,
+      },
+    ],
   },
-  timeline: [
-    {
-      status: "ordered",
-      label: "주문 접수",
-      timestamp: "2024-11-25 10:30",
-      completed: true,
+  "2": {
+    id: "2",
+    order_number: "20241124-0003",
+    order_date: "2024-11-24",
+    status: "shipping",
+    status_label: "배송 중",
+    delivery_method: "일반 배송",
+    delivery_scheduled_time: "2024-11-26 오전 9시",
+    products: [
+      {
+        id: "p2",
+        name: "노르웨이 생연어 필렛 500g",
+        image_url: "/salmon.jpg",
+        quantity: 1,
+        unit_price: 22000,
+        subtotal: 22000,
+        anonymous_seller_id: "Partner #F2B-02",
+        seller_region: "부산시 해운대구",
+      },
+    ],
+    delivery_info: {
+      recipient_name: "홍길동",
+      phone: "010-1234-5678",
+      address: "서울시 강남구 테헤란로 123",
+      address_detail: "1층 과일가게",
+      request: "부재 시 경비실에 맡겨주세요",
     },
-    {
-      status: "confirmed",
-      label: "주문 확인",
-      timestamp: "2024-11-25 11:00",
-      completed: true,
+    payment_info: {
+      method: "신용카드",
+      card_name: "신한카드",
+      card_number: "5678-****-****-9012",
+      paid_at: "2024-11-24 15:20",
     },
-    {
-      status: "preparing",
-      label: "상품 준비 중",
-      timestamp: "2024-11-25 14:00",
-      completed: true,
+    price_info: {
+      product_total: 22000,
+      total: 27000,
     },
-    {
-      status: "shipping",
-      label: "배송 중",
-      timestamp: "2024-11-26 04:00",
-      completed: true,
+    timeline: [
+      {
+        status: "ordered",
+        label: "주문 접수",
+        timestamp: "2024-11-24 15:20",
+        completed: true,
+      },
+      {
+        status: "confirmed",
+        label: "주문 확인",
+        timestamp: "2024-11-24 16:00",
+        completed: true,
+      },
+      {
+        status: "preparing",
+        label: "상품 준비 중",
+        timestamp: "2024-11-25 09:00",
+        completed: true,
+      },
+      {
+        status: "shipping",
+        label: "배송 중",
+        timestamp: "2024-11-26 08:00",
+        completed: true,
+      },
+      {
+        status: "delivered",
+        label: "배송 완료",
+        timestamp: null,
+        completed: false,
+      },
+    ],
+  },
+  "3": {
+    id: "3",
+    order_number: "20241123-0007",
+    order_date: "2024-11-23",
+    status: "preparing",
+    status_label: "준비 중",
+    delivery_method: "새벽 배송",
+    delivery_scheduled_time: "2024-11-26 오전 7시",
+    products: [
+      {
+        id: "p3",
+        name: "무농약 아스파라거스 1단",
+        image_url: "/asparagus.png",
+        quantity: 2,
+        unit_price: 4500,
+        subtotal: 9000,
+        anonymous_seller_id: "Partner #F2B-03",
+        seller_region: "충청남도 논산시",
+      },
+      {
+        id: "p4",
+        name: "유기농 동물복지 유정란 10구",
+        image_url: "/eggs.jpg",
+        quantity: 1,
+        unit_price: 7800,
+        subtotal: 7800,
+        anonymous_seller_id: "Partner #F2B-04",
+        seller_region: "경기도 안산시",
+      },
+    ],
+    delivery_info: {
+      recipient_name: "홍길동",
+      phone: "010-1234-5678",
+      address: "서울시 강남구 테헤란로 123",
+      address_detail: "1층 과일가게",
+      request: "문 앞에 놓아주세요",
     },
-    {
-      status: "delivered",
-      label: "배송 완료",
-      timestamp: "2024-11-26 06:45",
-      completed: true,
+    payment_info: {
+      method: "계좌이체",
+      card_name: "",
+      card_number: "",
+      paid_at: "2024-11-23 14:15",
     },
-  ],
+    price_info: {
+      product_total: 16800,
+      total: 33600,
+    },
+    timeline: [
+      {
+        status: "ordered",
+        label: "주문 접수",
+        timestamp: "2024-11-23 14:15",
+        completed: true,
+      },
+      {
+        status: "confirmed",
+        label: "주문 확인",
+        timestamp: "2024-11-23 15:00",
+        completed: true,
+      },
+      {
+        status: "preparing",
+        label: "상품 준비 중",
+        timestamp: "2024-11-25 16:00",
+        completed: true,
+      },
+      {
+        status: "shipping",
+        label: "배송 중",
+        timestamp: null,
+        completed: false,
+      },
+      {
+        status: "delivered",
+        label: "배송 완료",
+        timestamp: null,
+        completed: false,
+      },
+    ],
+  },
 };
 
 const statusColors = {
@@ -115,8 +308,8 @@ export default async function OrderDetailPage({
 }) {
   const { id } = await params;
 
-  // 실제 구현 시 API에서 주문 정보를 가져옴
-  const order = mockOrderDetail;
+  // URL 파라미터 id에 따라 해당 주문 데이터 가져오기
+  const order = mockOrderDetails[id] || mockOrderDetails["1"]; // 기본값으로 첫 번째 주문 사용
 
   console.log("📦 [order-detail] 주문 상세 조회:", { orderId: id });
 
@@ -304,11 +497,14 @@ export default async function OrderDetailPage({
             <CreditCard className="w-5 h-5 text-gray-400" />
             <div>
               <p className="text-gray-600 dark:text-gray-400">
-                {order.payment_info.method} ({order.payment_info.card_name})
+                {order.payment_info.method}
+                {order.payment_info.card_name && ` (${order.payment_info.card_name})`}
               </p>
-              <p className="text-gray-500 dark:text-gray-500">
-                {order.payment_info.card_number}
-              </p>
+              {order.payment_info.card_number && (
+                <p className="text-gray-500 dark:text-gray-500">
+                  {order.payment_info.card_number}
+                </p>
+              )}
             </div>
           </div>
           <div className="pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">

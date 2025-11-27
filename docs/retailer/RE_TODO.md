@@ -60,12 +60,12 @@ Phase 5: AI 기능 & 최적화 (2-3주)
   - [X] **Navbar 숨김 처리**
     - [X] 소매점 페이지(`/retailer/*`)에서 Navbar 숨김 처리
     - [X] `components/Navbar.tsx` 수정
-  - [ ] 사이드바 네비게이션 (`components/retailer/sidebar.tsx`)
-    - 대시보드 링크
-    - 상품 검색 링크
-    - 주문 내역 링크
-    - 마이페이지 링크
-  - [ ] 모바일 반응형 네비게이션 (햄버거 메뉴)
+  - [X] 사이드바 네비게이션 (`components/retailer/sidebar.tsx`)
+    - [X] 대시보드 링크
+    - [X] 상품 검색 링크
+    - [X] 주문 내역 링크
+    - [X] 마이페이지 링크
+  - [X] 모바일 반응형 네비게이션 (햄버거 메뉴)
 - [ ] **다크 모드 지원**
 
   - [ ] next-themes 설정 확인 (이미 설치됨)

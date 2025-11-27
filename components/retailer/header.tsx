@@ -129,8 +129,8 @@ export default function RetailerHeader({ onMenuClick, role }: RetailerHeaderProp
               )}
             </div>
 
-          {/* 네비게이션 링크 + 사용자 메뉴 - 데스크톱 */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* 네비게이션 링크 + 사용자 메뉴 - 태블릿/데스크톱 */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-4">
             {/* 네비게이션 링크 */}
             <nav className="flex items-center gap-1">
               {navLinks.map((link) => {
@@ -140,14 +140,15 @@ export default function RetailerHeader({ onMenuClick, role }: RetailerHeaderProp
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       active
                         ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
                     }`}
+                    title={link.label}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{link.label}</span>
+                    <Icon className="w-4 h-4 lg:w-4 lg:h-4 flex-shrink-0" />
+                    <span className="hidden lg:inline">{link.label}</span>
                   </Link>
                 );
               })}
