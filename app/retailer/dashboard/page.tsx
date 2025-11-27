@@ -217,12 +217,12 @@ const mockMarketPrices = [
 
 export default function RetailerDashboardPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">
+    <div className="px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">
       {/* 헤더 섹션 */}
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="mb-6 md:mb-8 pt-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
           실시간 시세와 재고, 주문 알림을 한눈에!
-        </h1>
+        </h2>
         <p className="mt-2 text-base md:text-lg text-gray-600 dark:text-gray-400">
           AI가 똑똑하게 알려드립니다.
         </p>

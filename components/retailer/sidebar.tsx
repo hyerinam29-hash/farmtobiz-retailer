@@ -99,7 +99,7 @@ export default function RetailerSidebar({
       {/* 모바일 오버레이 */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 xl:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -108,8 +108,8 @@ export default function RetailerSidebar({
       {/* 사이드바 */}
       <aside
         className={cn(
-          "fixed lg:sticky top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          "fixed xl:sticky top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-transform duration-300 ease-in-out",
+          isOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0",
           "w-64"
         )}
       >
@@ -119,8 +119,8 @@ export default function RetailerSidebar({
             href="/retailer/dashboard"
             className="flex items-center gap-2"
             onClick={() => {
-              // 모바일에서 링크 클릭 시 사이드바 닫기
-              if (window.innerWidth < 1024) {
+              // 모바일/태블릿/랩탑에서 링크 클릭 시 사이드바 닫기
+              if (window.innerWidth < 1280) {
                 onClose();
               }
             }}
@@ -140,7 +140,7 @@ export default function RetailerSidebar({
           {/* 모바일 닫기 버튼 */}
           <button
             onClick={onClose}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+            className="xl:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
             aria-label="사이드바 닫기"
           >
             <X className="w-5 h-5" />

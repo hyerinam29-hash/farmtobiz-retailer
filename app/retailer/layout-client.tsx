@@ -14,7 +14,7 @@
 "use client";
 
 import { useState } from "react";
-import RetailerHeader from "@/components/retailer/header";
+import PageHeader from "@/components/retailer/page-header";
 import RetailerSidebar from "@/components/retailer/sidebar";
 
 interface RetailerLayoutClientProps {
@@ -35,9 +35,9 @@ export default function RetailerLayoutClient({
       />
 
       {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
-        {/* 헤더 */}
-        <RetailerHeader onMenuClick={() => setSidebarOpen(true)} />
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* 페이지 제목 헤더 */}
+        <PageHeader onMenuClick={() => setSidebarOpen(true)} />
 
         {/* 메인 컨텐츠 */}
         <main className="flex-1">{children}</main>
