@@ -58,7 +58,7 @@ export default function AIRecommendationList({
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
           지금 구매해야 할 상품
         </h3>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
+        <span className="text-base text-gray-500 dark:text-gray-400">
           {products.length}개
         </span>
       </div>

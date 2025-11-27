@@ -69,8 +69,8 @@ export default function UrgentAlerts({ alerts }: UrgentAlertsProps) {
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <Bell className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <Bell className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+            <p className="text-base text-gray-500 dark:text-gray-400">
               새로운 알림이 없습니다
             </p>
           </div>
@@ -86,7 +86,7 @@ export default function UrgentAlerts({ alerts }: UrgentAlertsProps) {
         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
           긴급 알림
         </h2>
-        <span className="flex items-center justify-center w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full">
+        <span className="flex items-center justify-center w-6 h-6 bg-red-500 text-white text-sm font-bold rounded-full">
           {alerts.length}
         </span>
       </div>
@@ -104,17 +104,17 @@ export default function UrgentAlerts({ alerts }: UrgentAlertsProps) {
             >
               <div className="flex items-start gap-3">
                 {/* 아이콘 */}
-                <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${config.iconColor}`} />
+                <Icon className={`w-6 h-6 flex-shrink-0 mt-0.5 ${config.iconColor}`} />
 
                 {/* 내용 */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${config.titleColor}`}>
+                  <p className={`text-base font-medium ${config.titleColor}`}>
                     {alert.title}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {alert.message}
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
                     {alert.created_at}
                   </p>
                 </div>
@@ -124,7 +124,7 @@ export default function UrgentAlerts({ alerts }: UrgentAlertsProps) {
                   className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   aria-label="알림 닫기"
                 >
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-5 h-5 text-gray-400" />
                 </button>
               </div>
             </div>

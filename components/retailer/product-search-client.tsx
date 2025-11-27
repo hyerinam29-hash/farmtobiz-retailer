@@ -111,13 +111,13 @@ export function ProductSearchClient({
   ];
 
   return (
-    <div className="space-y-4 mb-6">
+    <div className="space-y-6 mb-9">
       {/* 검색 및 필터 영역 */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* 검색창 */}
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-[1.125rem] top-1/2 -translate-y-1/2 w-[1.875rem] h-[1.875rem] text-gray-400" />
             <input
               type="text"
               placeholder="상품명, 카테고리 검색 (Cmd+K)"
@@ -130,22 +130,22 @@ export function ProductSearchClient({
                 }
                 // Cmd+K 또는 Ctrl+K는 Command Palette에서 처리됨
               }}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full pl-[3.75rem] pr-6 py-[1.125rem] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary text-base"
               disabled={isPending}
             />
             {search && (
               <button
                 onClick={() => handleSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-[1.125rem] top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                <X className="w-4 h-4" />
+                <X className="w-6 h-6" />
               </button>
             )}
           </div>
         </div>
 
         {/* 정렬 선택 */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <select
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
@@ -154,7 +154,7 @@ export function ProductSearchClient({
               setSortOrder(newSortOrder as "asc" | "desc");
               updateURL({ sortBy: newSortBy, sortOrder: newSortOrder as "asc" | "desc" });
             }}
-            className="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="px-6 py-[1.125rem] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary text-base"
             disabled={isPending}
           >
             <option value="created_at-desc">최신순</option>
@@ -166,7 +166,7 @@ export function ProductSearchClient({
       </div>
 
       {/* 필터 칩 */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-3">
         {/* 카테고리 필터 */}
         {categories.map((category) => (
           <button
@@ -177,7 +177,7 @@ export function ProductSearchClient({
                 category: category.value === "all" ? undefined : category.value,
               });
             }}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-6 py-3 rounded-full text-base font-medium whitespace-nowrap transition-colors ${
               selectedCategory === category.value
                 ? "bg-primary text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -192,10 +192,10 @@ export function ProductSearchClient({
         {(search || selectedCategory !== "all") && (
           <button
             onClick={resetFilters}
-            className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="px-6 py-3 rounded-full text-base font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             disabled={isPending}
           >
-            <Filter className="w-4 h-4 inline mr-1" />
+            <Filter className="w-6 h-6 inline mr-1.5" />
             필터 초기화
           </button>
         )}

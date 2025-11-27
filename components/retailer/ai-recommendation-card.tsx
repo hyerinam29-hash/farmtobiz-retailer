@@ -65,22 +65,22 @@ export default function AIRecommendationCard({
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
         {/* 배지 오버레이 */}
-        <div className="absolute top-2 left-2 flex flex-col gap-2">
+        <div className="absolute top-3 left-3 flex flex-col gap-3">
           {product.is_seasonal && (
             <Badge
               variant="default"
-              className="bg-green-500 hover:bg-green-600 text-white border-0"
+              className="bg-green-500 hover:bg-green-600 text-white border-0 text-base"
             >
-              <Sparkles className="w-3 h-3" />
+              <Sparkles className="w-5 h-5" />
               제철
             </Badge>
           )}
           {product.stock_warning && (
             <Badge
               variant="destructive"
-              className="bg-red-500 hover:bg-red-600 text-white border-0"
+              className="bg-red-500 hover:bg-red-600 text-white border-0 text-base"
             >
-              <AlertTriangle className="w-3 h-3" />
+              <AlertTriangle className="w-5 h-5" />
               재고 부족 예상
             </Badge>
           )}
@@ -88,24 +88,24 @@ export default function AIRecommendationCard({
       </div>
 
       {/* 상품 정보 영역 */}
-      <div className="flex flex-1 flex-col justify-between p-4 gap-3">
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-1 flex-col justify-between p-5 md:p-6 gap-4">
+        <div className="flex flex-col gap-2">
           {/* 판매자 정보 */}
           {product.anonymous_seller_id && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-base text-gray-500 dark:text-gray-400">
               {product.anonymous_seller_id}
               {product.seller_region && ` · ${product.seller_region}`}
             </p>
           )}
 
           {/* 상품명 */}
-          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 line-clamp-2">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 line-clamp-2">
             {displayName}
           </h3>
 
           {/* 규격 정보 */}
           {product.specification && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-base text-gray-500 dark:text-gray-400">
               {product.specification}
             </p>
           )}
@@ -113,11 +113,11 @@ export default function AIRecommendationCard({
 
         {/* 가격 */}
         <div className="flex items-center justify-between">
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
             {product.price.toLocaleString()}원
           </p>
           {product.moq && product.moq > 1 && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-base text-gray-500 dark:text-gray-400">
               최소 {product.moq}개
             </p>
           )}

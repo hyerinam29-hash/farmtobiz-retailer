@@ -45,11 +45,11 @@ export default function MonthlyPurchaseChart({
           <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
           <XAxis
             dataKey="month"
-            className="text-xs text-gray-600 dark:text-gray-400"
+            className="text-sm text-gray-600 dark:text-gray-400"
             tick={{ fill: "currentColor" }}
           />
           <YAxis
-            className="text-xs text-gray-600 dark:text-gray-400"
+            className="text-sm text-gray-600 dark:text-gray-400"
             tick={{ fill: "currentColor" }}
             tickFormatter={(value) => `${(value / 10000).toFixed(0)}만`}
           />

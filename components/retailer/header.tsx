@@ -21,6 +21,7 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -62,9 +63,16 @@ interface RetailerHeaderProps {
 
 export default function RetailerHeader({ onMenuClick, role }: RetailerHeaderProps) {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 현재 경로가 네비게이션 링크와 일치하는지 확인
   const isActive = (href: string) => {
+    if (!mounted) return false; // 서버 사이드에서는 항상 false
     if (href === "/retailer/dashboard") {
       return pathname === href;
     }
@@ -147,7 +155,7 @@ export default function RetailerHeader({ onMenuClick, role }: RetailerHeaderProp
                     }`}
                     title={link.label}
                   >
-                    <Icon className="w-4 h-4 lg:w-4 lg:h-4 flex-shrink-0" />
+                    <Icon className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">{link.label}</span>
                   </Link>
                 );

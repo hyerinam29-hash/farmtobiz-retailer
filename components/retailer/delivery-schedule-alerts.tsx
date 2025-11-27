@@ -39,7 +39,7 @@ export default function DeliveryScheduleAlerts({
           배송 예정 알림
         </h3>
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-base text-gray-500 dark:text-gray-400">
             배송 예정인 주문이 없습니다.
           </p>
         </div>
@@ -53,7 +53,7 @@ export default function DeliveryScheduleAlerts({
         <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100">
           배송 예정 알림
         </h3>
-        <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+        <span className="text-sm md:text-base text-gray-500 dark:text-gray-400">
           {schedules.length}건
         </span>
       </div>
@@ -65,27 +65,27 @@ export default function DeliveryScheduleAlerts({
             className="block p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <div className="flex items-start gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex-shrink-0">
-                <Truck className="w-4 h-4" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex-shrink-0">
+                <Truck className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                   {schedule.order_number}
                 </p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 mb-2">
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 mb-2">
                   {schedule.product_name}
                 </p>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                   <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
+                    <Calendar className="w-4 h-4" />
                     <span>{schedule.delivery_date}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                    <Clock className="w-4 h-4" />
                     <span>{schedule.delivery_time}</span>
                   </div>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    className={`px-2 py-0.5 rounded-full text-sm font-medium ${
                       schedule.delivery_method === "새벽 배송"
                         ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
                         : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"

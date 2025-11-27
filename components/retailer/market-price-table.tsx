@@ -34,11 +34,11 @@ export default function MarketPriceTable({ prices }: MarketPriceTableProps) {
 
   const getChangeIcon = (changeRate: number) => {
     if (changeRate > 0) {
-      return <TrendingUp className="w-4 h-4 text-red-500" />;
+      return <TrendingUp className="w-5 h-5 text-red-500" />;
     } else if (changeRate < 0) {
-      return <TrendingDown className="w-4 h-4 text-blue-500" />;
+      return <TrendingDown className="w-5 h-5 text-blue-500" />;
     } else {
-      return <Minus className="w-4 h-4 text-gray-400" />;
+      return <Minus className="w-5 h-5 text-gray-400" />;
     }
   };
 
@@ -65,22 +65,22 @@ export default function MarketPriceTable({ prices }: MarketPriceTableProps) {
               className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
                   {price.product_name}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {price.unit}
                 </p>
               </div>
               <div className="flex items-center gap-3 ml-4">
                 <div className="text-right">
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                  <p className="text-base font-bold text-gray-900 dark:text-gray-100">
                     {formatPrice(price.current_price)}
                   </p>
                   <div className="flex items-center gap-1 mt-1">
                     {getChangeIcon(price.change_rate)}
                     <span
-                      className={`text-xs font-medium ${getChangeColor(
+                      className={`text-sm font-medium ${getChangeColor(
                         price.change_rate
                       )}`}
                     >
