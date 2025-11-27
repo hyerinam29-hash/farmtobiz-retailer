@@ -31,13 +31,12 @@ const Navbar = () => {
         className="flex items-center gap-2"
       >
         <Image
-          src="/logo.png"
+          src="/farmtobiz_logo.png"
           alt="FarmToBiz"
-          width={32}
-          height={32}
+          width={180}
+          height={69}
           className="object-contain"
         />
-        <span className="text-2xl font-bold text-green-600">FarmToBiz</span>
       </Link>
 
       {/* 우측 영역: 테마 토글 및 사용자 정보 */}

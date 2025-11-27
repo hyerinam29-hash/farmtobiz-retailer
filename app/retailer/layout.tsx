@@ -26,10 +26,10 @@ export default async function RetailerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 소매점 권한 확인
+  // 소매점 또는 관리자 권한 확인
   const profile = await requireRetailer();
 
-  console.log("✅ [retailer] 레이아웃: 소매점 권한 확인됨", {
+  console.log("✅ [retailer] 레이아웃: 권한 확인됨", {
     email: profile.email,
     role: profile.role,
   });

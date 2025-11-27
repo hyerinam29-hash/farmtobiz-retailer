@@ -25,8 +25,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { Home, Search, ShoppingCart, ClipboardList } from "lucide-react";
+import { Home, Search, ShoppingCart, ClipboardList, Shield } from "lucide-react";
 import { CommandPalette } from "./command-palette";
+import type { UserRole } from "@/types/database";
 
 // 네비게이션 링크 정의
 const navLinks = [
@@ -55,9 +56,11 @@ const navLinks = [
 interface RetailerHeaderProps {
   /** 사이드바 열기 함수 (모바일용) */
   onMenuClick?: () => void;
+  /** 사용자 역할 (관리자 배지 표시용) */
+  role?: UserRole;
 }
 
-export default function RetailerHeader({ onMenuClick }: RetailerHeaderProps) {
+export default function RetailerHeader({ onMenuClick, role }: RetailerHeaderProps) {
   const pathname = usePathname();
 
   // 현재 경로가 네비게이션 링크와 일치하는지 확인
@@ -74,42 +77,57 @@ export default function RetailerHeader({ onMenuClick }: RetailerHeaderProps) {
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* 햄버거 메뉴 버튼 (모바일) */}
-            {onMenuClick && (
-              <button
-                onClick={onMenuClick}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                aria-label="메뉴 열기"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <div className="flex items-center gap-3">
+              {/* 햄버거 메뉴 버튼 (모바일) */}
+              {onMenuClick && (
+                <button
+                  onClick={onMenuClick}
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+                  aria-label="메뉴 열기"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              </button>
-            )}
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </button>
+              )}
 
-            {/* 로고 */}
-            <Link href="/retailer/dashboard" className="flex items-center gap-2">
-              <Image
-                src="/logo.png"
-                alt="FarmToBiz"
-                width={32}
-                height={32}
-                className="object-contain"
-              />
-              <span className="text-xl font-bold text-green-600 dark:text-green-400 hidden sm:inline">
-                FarmToBiz
-              </span>
-            </Link>
+              {/* 로고 */}
+              <Link href="/retailer/dashboard" className="flex items-center gap-2">
+                <Image
+                  src="/logo.png"
+                  alt="FarmToBiz"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
+                <span className="text-xl font-bold text-green-600 dark:text-green-400 hidden sm:inline">
+                  FarmToBiz
+                </span>
+              </Link>
+
+              {/* 관리자 배지 - 클릭 가능 */}
+              {role === "admin" && (
+                <Link
+                  href="/admin/dashboard"
+                  className="flex items-center gap-1.5 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-semibold transition-colors cursor-pointer"
+                  title="관리자 페이지로 돌아가기"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">관리자 모드</span>
+                  <span className="sm:hidden">관리자</span>
+                </Link>
+              )}
+            </div>
 
           {/* 네비게이션 링크 + 사용자 메뉴 - 데스크톱 */}
           <div className="hidden md:flex items-center gap-4">
