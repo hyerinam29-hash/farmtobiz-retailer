@@ -1,8 +1,8 @@
 # 소매 플랫폼 MVP 개발 TODO
 
-> **프로젝트명**: 소매 플랫폼 (MVP)  
-> **개발 기간**: 8주 (2개월)  
-> **기준 문서**: [retailer/RE_PRD.md](./retailer/RE_PRD.md)  
+> **프로젝트명**: 소매 플랫폼 (MVP)
+> **개발 기간**: 8주 (2개월)
+> **기준 문서**: [retailer/RE_PRD.md](./retailer/RE_PRD.md)
 > **최종 업데이트**: 2025-01-XX
 
 ---
@@ -77,21 +77,19 @@
 
   - [ ] Google AI Studio에서 API 키 발급
   - [ ] `GEMINI_API_KEY` 환경 변수 설정
-
 - [ ] **공공데이터포털 API** (2순위)
 
   - [ ] 공공데이터포털 회원가입
   - [ ] 농수산물 시세 API 활용신청
   - [ ] `NEXT_PUBLIC_MARKET_API_KEY` 환경 변수 설정
-
 - [ ] **TossPayments** (7순위)
 
   - [ ] TossPayments 개발자센터 계정 생성
   - [ ] 테스트 키 발급
   - [ ] `NEXT_PUBLIC_TOSS_CLIENT_KEY` 환경 변수 설정
   - [ ] `TOSS_SECRET_KEY` 환경 변수 설정
-
 - [ ] **LLM API** (5순위 - CS 봇)
+
   - [ ] OpenAI 또는 Gemini API 키 발급
   - [ ] `LLM_API_KEY` 환경 변수 설정
   - [ ] `LLM_PROVIDER` 환경 변수 설정 (openai 또는 gemini)
@@ -115,7 +113,6 @@
   - [ ] `sign-up/` 폴더
   - [ ] `role-selection/` 폴더
   - [ ] `retailer-onboarding/` 폴더
-
 - [ ] `app/retailer/` 디렉토리 생성
 
   - [ ] `dashboard/` 폴더
@@ -126,15 +123,14 @@
   - [ ] `orders/` 폴더
   - [ ] `orders/[id]/` 폴더
   - [ ] `cs/` 폴더
-
 - [ ] `app/admin/` 디렉토리 생성
 
   - [ ] `dashboard/` 폴더
   - [ ] `users/` 폴더
   - [ ] `cs/` 폴더
   - [ ] `audit-logs/` 폴더
-
 - [ ] `app/api/` 디렉토리 생성
+
   - [ ] `payments/callback/` 폴더 (7순위)
   - [ ] `cs/chat/` 폴더 (5순위)
 
@@ -160,22 +156,19 @@
     - [ ] `products.ts`
     - [ ] `orders.ts` (소매 주문)
     - [ ] `retailer-products.ts` (소매 전용)
-
 - [ ] `lib/clerk/` 디렉토리
 
   - [ ] `auth.ts` 파일
-
 - [ ] `lib/api/` 디렉토리
 
   - [ ] (필요 시 추가)
-
 - [ ] `lib/validation/` 디렉토리
 
   - [ ] `product.ts`
   - [ ] `order.ts`
   - [ ] `retailer.ts`
-
 - [ ] `lib/utils/` 디렉토리
+
   - [ ] `format.ts` (날짜, 금액 포맷)
   - [ ] `constants.ts` (상수)
 
@@ -188,8 +181,8 @@
   - [ ] `order.ts`
   - [ ] `retailer.ts`
   - [ ] `cart.ts`
-
 - [ ] `hooks/` 디렉토리 생성
+
   - [ ] `useProducts.ts`
   - [ ] `useOrders.ts` (소매 주문)
   - [ ] `useRetailer.ts`
@@ -249,15 +242,14 @@
 
   - [ ] `app/(auth)/retailer-onboarding/page.tsx`
   - [ ] 기본 정보 입력 폼
-
 - [ ] 상품 목록 조회
 
   - [ ] `app/retailer/products/page.tsx`
   - [ ] 카테고리 필터
   - [ ] 지역 필터
   - [ ] 검색 기능 (상품명, 키워드)
-
 - [ ] 상품 상세 조회
+
   - [ ] `app/retailer/products/[id]/page.tsx`
   - [ ] 도매 정보 익명 처리 (anonymous_code만 표시)
   - [ ] 상품 정보 표시
@@ -269,12 +261,10 @@
 
   - [ ] 마이그레이션 파일 확인
   - [ ] RLS 정책 확인
-
 - [ ] 상품 상세에 "장바구니 담기" 버튼
 
   - [ ] 버튼 UI 구현
   - [ ] 장바구니 추가 로직
-
 - [ ] 장바구니 페이지
 
   - [ ] `app/retailer/cart/page.tsx`
@@ -282,8 +272,8 @@
   - [ ] 수량 수정 기능
   - [ ] 상품 삭제 기능
   - [ ] 총 금액 계산 (상품금액 + 배송비)
-
 - [ ] "주문하기" 버튼
+
   - [ ] 장바구니에서 주문 생성 (결제 연동 전까지는 주문 생성만)
   - [ ] 여러 상품 → 여러 주문 생성 로직
 
@@ -297,14 +287,13 @@
 
   - [ ] 주문 생성 로직
   - [ ] 주문번호 생성 (예: "ORD-20251119-001")
-
 - [ ] 소매 주문 내역 조회
 
   - [ ] `app/retailer/orders/page.tsx` (주문 목록)
   - [ ] `app/retailer/orders/[id]/page.tsx` (주문 상세)
   - [ ] 주문 상태 표시
-
 - [ ] 소매 주문 상세 페이지
+
   - [ ] 주문 정보 표시
   - [ ] 상품 정보 표시
   - [ ] 배송지 정보 표시
@@ -315,14 +304,13 @@
 
   - [ ] 마이그레이션 파일 확인
   - [ ] RLS 정책 확인
-
 - [ ] 소매: 상품 상세에서 옵션 선택
 
   - [ ] 옵션 드롭다운 구현
   - [ ] 옵션 선택 시 가격 업데이트
   - [ ] 옵션 선택 시 재고 확인
-
 - [ ] 장바구니/주문에 variant_id 포함
+
   - [ ] 장바구니에 variant_id 저장
   - [ ] 주문에 variant_id 저장
 
@@ -336,20 +324,17 @@
 
   - [ ] 패키지 설치
   - [ ] SDK 초기화
-
 - [ ] 결제 요청 페이지
 
   - [ ] `app/retailer/checkout/page.tsx`
   - [ ] 배송지 확인/수정
   - [ ] 결제 금액 표시
   - [ ] TossPayments 결제 위젯
-
 - [ ] 결제 성공/실패 콜백
 
   - [ ] `app/api/payments/callback/route.ts`
   - [ ] 결제 성공 처리
   - [ ] 결제 실패 처리
-
 - [ ] 결제 성공 시 처리
 
   - [ ] orders 테이블에 주문 생성
@@ -361,39 +346,33 @@
 
   - [ ] 마이그레이션 파일 확인
   - [ ] RLS 정책 확인
-
 - [ ] CS 위젯 또는 페이지
 
   - [ ] `app/retailer/cs/page.tsx`
-
 - [ ] 새 문의 작성 폼
 
   - [ ] 문의 제목 입력
   - [ ] 문의 내용 입력
-
 - [ ] LLM API 연동
 
   - [ ] `app/api/cs/chat/route.ts` 구현
   - [ ] OpenAI 또는 Gemini API 호출
   - [ ] FAQ/정책 기반 1차 자동 응답
-
 - [ ] 주문 조회 기능
 
   - [ ] 주문번호 입력
   - [ ] 내부 API로 주문 조회
   - [ ] LLM에 주문 정보 전달
-
 - [ ] "사람 상담 연결" 버튼
 
   - [ ] 버튼 UI 구현
   - [ ] 티켓 상태 변경 (escalated)
-
 - [ ] 관리자: 티켓 목록 조회
 
   - [ ] `app/admin/cs/tickets/page.tsx`
   - [ ] escalated 상태 티켓만 표시
-
 - [ ] 관리자: 답변 작성 및 티켓 종료
+
   - [ ] `app/admin/cs/tickets/[id]/page.tsx`
   - [ ] 답변 작성 폼
   - [ ] 티켓 종료 기능
@@ -409,7 +388,6 @@
   - [ ] 반응형 디자인 확인
   - [ ] 스타일링 일관성 확인
   - [ ] 접근성 확인
-
 - [ ] 통합 테스트 시나리오 실행
 
   - [ ] **TC-001**: 소매 상품 주문 (장바구니 → 결제 → 주문 조회)
@@ -417,13 +395,12 @@
   - [ ] **TC-003**: RLS 검증
   - [ ] **TC-004**: CS 봇 (AI 응답 → 사람 상담 전환)
   - [ ] **TC-005**: 결제 처리
-
 - [ ] 버그 수정
 
   - [ ] 발견된 버그 수정
   - [ ] 에러 처리 개선
-
 - [ ] 성능 최적화
+
   - [ ] 이미지 최적화
   - [ ] 쿼리 최적화
   - [ ] 번들 크기 최적화
@@ -436,8 +413,8 @@
   - [ ] 환경 변수 설정
   - [ ] 빌드 확인
   - [ ] 배포 완료
-
 - [ ] 최종 점검
+
   - [ ] 프로덕션 환경 테스트
   - [ ] 모든 기능 동작 확인
   - [ ] 문서화 완료
@@ -471,5 +448,5 @@
 
 ---
 
-**문서 작성일**: 2025-11-20  
+**문서 작성일**: 2025-11-20
 **최종 업데이트**: 2025-11-20
