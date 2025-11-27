@@ -14,11 +14,29 @@
  */
 
 import Link from "next/link";
-import { Search, Calendar, Package, Truck, CheckCircle } from "lucide-react";
+import { Search, Calendar } from "lucide-react";
 import OrderListItemActions from "@/components/retailer/order-list-item-actions";
 
+// 타입 정의
+type OrderStatus = "preparing" | "shipping" | "delivered" | "cancelled";
+
+interface MockOrder {
+  id: string;
+  order_number: string;
+  order_date: string;
+  products: Array<{
+    name: string;
+    quantity: number;
+  }>;
+  total_price: number;
+  status: OrderStatus;
+  status_label: string;
+  delivery_method: string;
+  delivery_scheduled_time: string;
+}
+
 // 임시 목 데이터
-const mockOrders = [
+const mockOrders: MockOrder[] = [
   {
     id: "1",
     order_number: "20241125-0001",
