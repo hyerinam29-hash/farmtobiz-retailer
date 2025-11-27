@@ -6,10 +6,10 @@ import type { UserRole } from "@/types/database";
 /**
  * 사용자 역할 업데이트 API
  *
- * 역할 선택 페이지에서 사용자가 소매점 또는 도매점을 선택했을 때
+ * 역할 선택 페이지에서 사용자가 소매점을 선택했을 때
  * profiles 테이블의 role을 업데이트합니다.
  *
- * @body { role: 'retailer' | 'wholesaler' }
+ * @body { role: 'retailer' }
  *
  * @returns { success: boolean, redirectUrl: string }
  */
@@ -37,11 +37,11 @@ export async function POST(request: Request) {
     }
 
     // role 유효성 검증
-    const validRoles: UserRole[] = ["retailer", "wholesaler", "admin"];
+    const validRoles: UserRole[] = ["retailer", "admin"];
     if (!validRoles.includes(role as UserRole)) {
       console.error("❌ [update-role] 유효하지 않은 role:", role);
       return NextResponse.json(
-        { error: "Invalid role. Must be 'retailer' or 'wholesaler'" },
+        { error: "Invalid role. Must be 'retailer'" },
         { status: 400 },
       );
     }
@@ -156,8 +156,6 @@ function getRedirectUrl(role: UserRole): string {
   switch (role) {
     case "retailer":
       return "/retailer/dashboard";
-    case "wholesaler":
-      return "/wholesaler-onboarding"; // 하이픈 추가 (올바른 경로)
     case "admin":
       return "/admin/dashboard";
     default:

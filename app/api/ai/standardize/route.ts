@@ -27,7 +27,6 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { standardizeProductName } from "@/lib/api/ai-standardize";
 import { getUserProfile } from "@/lib/clerk/auth";
-import { createClerkSupabaseClient } from "@/lib/supabase/server";
 
 /**
  * AI 상품명 표준화 API 엔드포인트
@@ -51,7 +50,7 @@ export async function POST(request: Request) {
 
     console.log("✅ [api/ai/standardize] Clerk userId:", userId);
 
-    // 2. 도매점 역할 확인
+    // 2. 프로필 확인 (소매점도 사용 가능하도록 변경)
     const profile = await getUserProfile();
 
     if (!profile) {
@@ -62,31 +61,8 @@ export async function POST(request: Request) {
       );
     }
 
-    if (profile.role !== "wholesaler") {
-      console.error("❌ [api/ai/standardize] 도매점 역할 아님:", profile.role);
-      return NextResponse.json(
-        { success: false, error: "도매점 회원만 사용할 수 있는 기능입니다." },
-        { status: 403 },
-      );
-    }
-
-    // 3. 도매점 ID 조회
-    const supabase = createClerkSupabaseClient();
-    const { data: wholesaler, error: wholesalerError } = await supabase
-      .from("wholesalers")
-      .select("id")
-      .eq("profile_id", profile.id)
-      .maybeSingle();
-
-    if (wholesalerError || !wholesaler) {
-      console.error("❌ [api/ai/standardize] 도매점 정보 조회 실패:", wholesalerError);
-      return NextResponse.json(
-        { success: false, error: "도매점 정보를 찾을 수 없습니다." },
-        { status: 404 },
-      );
-    }
-
-    console.log("✅ [api/ai/standardize] 도매점 ID:", wholesaler.id);
+    // 소매점도 사용 가능하도록 변경 (wholesalerId는 선택적)
+    console.log("✅ [api/ai/standardize] 프로필 역할:", profile.role);
 
     // 4. 요청 본문 파싱
     const body = await request.json();
@@ -102,9 +78,9 @@ export async function POST(request: Request) {
 
     console.log("📝 [api/ai/standardize] 상품명:", productName);
 
-    // 5. 표준화 함수 호출
+    // 5. 표준화 함수 호출 (wholesalerId는 선택적)
     try {
-      const result = await standardizeProductName(productName, wholesaler.id);
+      const result = await standardizeProductName(productName);
 
       console.log("✅ [api/ai/standardize] 표준화 완료");
       console.groupEnd();

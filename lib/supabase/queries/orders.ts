@@ -1,9 +1,9 @@
 /**
  * @file lib/supabase/queries/orders.ts
- * @description 주문 조회 쿼리 함수
+ * @description 소매점 주문 조회 쿼리 함수
  *
- * 도매점의 주문을 조회하는 Supabase 쿼리 함수들을 제공합니다.
- * RLS 정책을 통해 현재 도매점의 주문만 조회됩니다.
+ * 소매점의 주문을 조회하는 Supabase 쿼리 함수들을 제공합니다.
+ * RLS 정책을 통해 현재 소매점의 주문만 조회됩니다.
  *
  * ⚠️ 중요: orders 테이블 구조
  * - order_items 테이블 없음
@@ -74,9 +74,9 @@ export interface OrderStats {
 }
 
 /**
- * 현재 도매점의 주문 목록 조회
+ * 현재 소매점의 주문 목록 조회
  *
- * RLS 정책을 통해 현재 로그인한 도매점의 주문만 조회됩니다.
+ * RLS 정책을 통해 현재 로그인한 소매점의 주문만 조회됩니다.
  * products, product_variants와 조인하여 상품 정보를 포함합니다.
  *
  * @param options 조회 옵션
@@ -101,16 +101,15 @@ export async function getOrders(
     filter,
   });
 
-  // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 가져오기
+  // ⚠️ RLS 비활성화 환경 대응: 현재 소매점 ID 가져오기
   console.log("🔍 [orders-query] 사용자 프로필 조회 시작");
   const profile = await getUserProfile();
 
   console.log("🔍 [orders-query] 프로필 조회 결과:", {
     hasProfile: !!profile,
     role: profile?.role,
-    hasWholesalers: !!profile?.wholesalers,
-    wholesalersLength: profile?.wholesalers?.length ?? 0,
-    wholesalers: profile?.wholesalers,
+    hasRetailers: !!profile?.retailers,
+    retailersLength: profile?.retailers?.length ?? 0,
   });
 
   if (!profile) {
@@ -122,31 +121,30 @@ export async function getOrders(
     );
   }
 
-  if (profile.role !== "wholesaler") {
-    console.error("❌ [orders-query] 도매점 권한 없음", { role: profile.role });
-    throw new Error("도매점 권한이 없습니다.");
+  if (profile.role !== "retailer") {
+    console.error("❌ [orders-query] 소매점 권한 없음", { role: profile.role });
+    throw new Error("소매점 권한이 없습니다.");
   }
 
-  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    console.error("❌ [orders-query] 도매점 정보 없음", {
-      wholesalers,
+  const retailers = profile.retailers as Array<{ id: string }> | null;
+  if (!retailers || retailers.length === 0) {
+    console.error("❌ [orders-query] 소매점 정보 없음", {
+      retailers,
       profileId: profile.id,
       role: profile.role,
     });
     throw new Error(
-      "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
+      "소매점 정보를 찾을 수 없습니다. 소매점 등록이 필요합니다.",
     );
   }
 
-  const currentWholesalerId = wholesalers[0].id;
-  console.log("✅ [orders-query] 현재 도매점 ID:", currentWholesalerId);
+  const currentRetailerId = retailers[0].id;
+  console.log("✅ [orders-query] 현재 소매점 ID:", currentRetailerId);
 
   const supabase = createClerkSupabaseClient();
 
   // 기본 쿼리 생성 (products, product_variants 조인)
-  // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
-  // ⚠️ retailers 테이블에는 anonymous_code가 없으므로 제거
+  // ⚠️ RLS 비활성화 환경 대응: 명시적으로 retailer_id 필터 추가
   let query = supabase
     .from("orders")
     .select(
@@ -154,11 +152,11 @@ export async function getOrders(
       *,
       products(*),
       product_variants(*),
-      retailers(id, business_name)
+      wholesalers(id, anonymous_code, anonymous_id, region)
     `,
       { count: "exact" },
     )
-    .eq("wholesaler_id", currentWholesalerId);
+    .eq("retailer_id", currentRetailerId);
 
   // 필터 적용
   if (filter.status) {
@@ -238,19 +236,19 @@ export async function getOrderById(
 ): Promise<OrderDetail | null> {
   console.log("🔍 [orders-query] 주문 조회 시작", { orderId });
 
-  // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 확인
+  // ⚠️ RLS 비활성화 환경 대응: 현재 소매점 ID 확인
   const profile = await getUserProfile();
 
-  if (!profile || profile.role !== "wholesaler") {
-    throw new Error("도매점 권한이 없습니다.");
+  if (!profile || profile.role !== "retailer") {
+    throw new Error("소매점 권한이 없습니다.");
   }
 
-  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  const retailers = profile.retailers as Array<{ id: string }> | null;
+  if (!retailers || retailers.length === 0) {
+    throw new Error("소매점 정보를 찾을 수 없습니다.");
   }
 
-  const currentWholesalerId = wholesalers[0].id;
+  const currentRetailerId = retailers[0].id;
 
   const supabase = createClerkSupabaseClient();
 
@@ -261,11 +259,11 @@ export async function getOrderById(
       *,
       products(*),
       product_variants(*),
-      retailers(id, business_name)
+      wholesalers(id, anonymous_code, anonymous_id, region)
     `,
     )
     .eq("id", orderId)
-    .eq("wholesaler_id", currentWholesalerId)
+    .eq("retailer_id", currentRetailerId)
     .single();
 
   if (error) {
@@ -324,7 +322,7 @@ export async function updateOrderStatus(
 /**
  * 주문 통계 조회
  *
- * 현재 도매점의 주문 통계를 조회합니다.
+ * 현재 소매점의 주문 통계를 조회합니다.
  *
  * @param startDate 시작 날짜 (선택)
  * @param endDate 종료 날짜 (선택)
@@ -336,26 +334,26 @@ export async function getOrderStats(
 ): Promise<OrderStats> {
   console.log("📊 [orders-query] 주문 통계 조회 시작", { startDate, endDate });
 
-  // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 확인
+  // ⚠️ RLS 비활성화 환경 대응: 현재 소매점 ID 확인
   const profile = await getUserProfile();
 
-  if (!profile || profile.role !== "wholesaler") {
-    throw new Error("도매점 권한이 없습니다.");
+  if (!profile || profile.role !== "retailer") {
+    throw new Error("소매점 권한이 없습니다.");
   }
 
-  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  const retailers = profile.retailers as Array<{ id: string }> | null;
+  if (!retailers || retailers.length === 0) {
+    throw new Error("소매점 정보를 찾을 수 없습니다.");
   }
 
-  const currentWholesalerId = wholesalers[0].id;
+  const currentRetailerId = retailers[0].id;
 
   const supabase = createClerkSupabaseClient();
 
   let query = supabase
     .from("orders")
     .select("status, total_amount, created_at")
-    .eq("wholesaler_id", currentWholesalerId);
+    .eq("retailer_id", currentRetailerId);
 
   // 날짜 필터 적용
   if (startDate) {

@@ -21,7 +21,7 @@
 "use client";
 
 import { SignIn } from "@clerk/nextjs";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 // 🚨 파일 로드 확인 및 전역 에러 감지 리스너 등록
@@ -209,7 +209,6 @@ export default function SignInWithRedirect({
     onboardingUrl,
   });
 
-  const router = useRouter();
   const pathname = usePathname();
   const [showSignUpModal, setShowSignUpModal] = useState(false);
 
@@ -544,49 +543,23 @@ export default function SignInWithRedirect({
     }
   }, [showSignUpModal]);
 
-  // 소매사업자/도매사업자 구분 로직 개선
-  // path, redirectToSignUpUrl, signUpUrl, fallbackRedirectUrl 등을 종합적으로 확인
-  const isRetailer =
-    path.includes("/retailer") ||
-    redirectToSignUpUrl.includes("type=retailer") ||
-    signUpUrl.includes("type=retailer") ||
-    fallbackRedirectUrl?.includes("/retailer") ||
-    forceRedirectUrl?.includes("/retailer");
+  // 소매사업자 확인 로직 (사용하지 않지만 타입 호환성을 위해 유지)
 
   // 모달 확인 핸들러
   const handleSignUpConfirm = () => {
     console.log("=".repeat(60));
     console.log("📝 [Modal] 확인 버튼 클릭!");
 
-    // 모달 확인 후 현재 로그인 페이지로 리다이렉트
-    // isRetailer 플래그를 사용하여 정확한 경로 결정
-    // pathname이 /sign-in/wholesaler 또는 /sign-in/retailer인지 확인
-    let redirectUrl: string;
-
-    if (
-      pathname &&
-      (pathname.includes("/wholesaler") || pathname.includes("/retailer"))
-    ) {
-      // pathname이 이미 올바른 경로를 포함하고 있으면 사용
-      redirectUrl = pathname;
-    } else if (
-      path &&
-      (path.includes("/wholesaler") || path.includes("/retailer"))
-    ) {
-      // path prop이 올바른 경로를 포함하고 있으면 사용
-      redirectUrl = path;
-    } else {
-      // 그 외의 경우 isRetailer 플래그로 직접 구성
-      redirectUrl = isRetailer ? "/sign-in/retailer" : "/sign-in/wholesaler";
-    }
+    // 모달 확인 후 소매 로그인 페이지로 리다이렉트
+    const redirectUrl = pathname?.includes("/retailer") 
+      ? pathname 
+      : path?.includes("/retailer")
+      ? path
+      : "/sign-in/retailer";
 
     console.log("📝 [Modal] 리다이렉트 대상:", redirectUrl);
     console.log("📝 [Modal] pathname (현재 경로):", pathname);
     console.log("📝 [Modal] path prop:", path);
-    console.log(
-      "📝 [Modal] 사용자 유형:",
-      isRetailer ? "소매사업자" : "도매사업자",
-    );
     console.log("=".repeat(60));
 
     setShowSignUpModal(false);
@@ -596,9 +569,7 @@ export default function SignInWithRedirect({
     window.location.href = redirectUrl;
   };
 
-  const userTypeMessage = isRetailer
-    ? "소매사업자로 시작하려면 먼저 회원가입을 진행해주세요."
-    : "도매사업자로 시작하려면 먼저 회원가입을 진행해주세요.";
+  const userTypeMessage = "소매사업자로 시작하려면 먼저 회원가입을 진행해주세요.";
 
   return (
     <>

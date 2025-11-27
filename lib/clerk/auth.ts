@@ -34,14 +34,12 @@ import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/database";
 import type { Profile } from "@/types/database";
 import type { Retailer } from "@/types/database";
-import type { Wholesaler } from "@/types/wholesaler";
 
 /**
- * 프로필 정보 타입 (retailers/wholesalers 포함)
+ * 프로필 정보 타입 (retailers 포함)
  */
 export interface ProfileWithDetails extends Profile {
   retailers?: Retailer[];
-  wholesalers?: Wholesaler[];
 }
 
 /**
@@ -86,8 +84,8 @@ export async function getCurrentUser() {
  * }
  *
  * // 역할 확인
- * if (profile.role === 'wholesaler') {
- *   const wholesaler = profile.wholesalers?.[0];
+ * if (profile.role === 'retailer') {
+ *   const retailer = profile.retailers?.[0];
  * }
  * ```
  */
@@ -102,10 +100,10 @@ export async function getUserProfile(): Promise<ProfileWithDetails | null> {
 
     const supabase = createClerkSupabaseClient();
 
-    // clerk_user_id로 프로필 조회 (retailers, wholesalers 포함)
+    // clerk_user_id로 프로필 조회 (retailers 포함)
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("*, retailers(*), wholesalers(*)")
+      .select("*, retailers(*)")
       .eq("clerk_user_id", user.id)
       .single();
 
@@ -184,8 +182,8 @@ export async function requireAuth(): Promise<ProfileWithDetails> {
  * @example
  * ```tsx
  * const role = await getUserRole();
- * if (role === 'wholesaler') {
- *   // 도매 전용 로직
+ * if (role === 'retailer') {
+ *   // 소매 전용 로직
  * }
  * ```
  */
@@ -221,9 +219,6 @@ export function redirectByRole(role: UserRole | null | undefined): never {
   switch (role) {
     case "retailer":
       redirect("/retailer/dashboard");
-      break;
-    case "wholesaler":
-      redirect("/wholesaler/dashboard");
       break;
     case "admin":
       redirect("/admin/dashboard");

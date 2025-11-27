@@ -9,7 +9,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,9 +22,6 @@ import {
   Search,
   ShoppingCart,
   Truck,
-  Package,
-  ClipboardList,
-  BarChart3,
   Sparkles,
   TrendingUp,
   Shield,
@@ -39,39 +35,9 @@ export default async function Home() {
   // 로그인한 사용자는 역할에 따라 대시보드로 리다이렉트
   const profile = await getUserProfile();
 
-  // pending 상태인 도매업자인지 확인 (버튼 링크 동적 변경용)
-  let isPendingWholesaler = false;
-  if (
-    profile &&
-    profile.role === "wholesaler" &&
-    profile.wholesalers &&
-    profile.wholesalers.length > 0
-  ) {
-    const wholesaler = profile.wholesalers[0];
-    if (wholesaler && wholesaler.status === "pending") {
-      isPendingWholesaler = true;
-    }
-  }
-
   if (profile && profile.role) {
-    // 도매업자이고 pending 상태인 경우 리다이렉트하지 않음 (승인 대기 중)
-    if (
-      profile.role === "wholesaler" &&
-      profile.wholesalers &&
-      profile.wholesalers.length > 0
-    ) {
-      const wholesaler = profile.wholesalers[0];
-      if (wholesaler && wholesaler.status === "pending") {
-        console.log("⚠️ [home] 도매업자 승인 대기 중, 메인페이지 유지");
-        // pending 상태인 경우 리다이렉트하지 않고 메인페이지 표시
-      } else {
-        // 승인된 도매업자는 대시보드로 리다이렉트
-        redirectByRole(profile.role);
-      }
-    } else {
-      // 다른 역할(소매업자, 관리자)은 대시보드로 리다이렉트
-      redirectByRole(profile.role);
-    }
+    // 소매업자 또는 관리자는 대시보드로 리다이렉트
+    redirectByRole(profile.role);
   }
   // 역할이 없는 사용자는 메인 페이지에서 역할 선택 가능
 
@@ -144,16 +110,16 @@ export default async function Home() {
         <div className="w-full max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              환영합니다! 시작할 역할을 선택해주세요.
+              환영합니다!
             </h1>
             <p className="text-lg md:text-xl text-gray-600">
-              소매업자 또는 도매업자 중 하나를 선택하여 대시보드로 이동하세요.
+              소매업자로 시작하여 다양한 도매업체의 상품을 발견하고 합리적인 가격으로 주문하세요.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="flex justify-center max-w-4xl mx-auto">
             {/* 소매점 카드 */}
-            <Card className="flex flex-col shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="flex flex-col shadow-lg hover:shadow-xl transition-shadow w-full max-w-2xl">
               <CardHeader>
                 <CardTitle className="text-2xl mb-2">소매업자</CardTitle>
                 <CardDescription className="text-base">
@@ -183,59 +149,11 @@ export default async function Home() {
                   </div>
                 </div>
                 <Link
-                  href={
-                    isPendingWholesaler
-                      ? "/pending-approval"
-                      : "/sign-in/retailer"
-                  }
+                  href="/sign-in/retailer"
                   className="mt-auto"
                 >
                   <Button className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-lg">
                     소매업자로 시작하기
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* 도매점 카드 */}
-            <Card className="flex flex-col shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-2xl mb-2">도매업자</CardTitle>
-                <CardDescription className="text-base">
-                  전국의 소매업체에게 상품을 판매하고 비즈니스를 확장하세요.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col gap-4">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <Package className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">
-                      상품 등록 및 재고 관리
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <ClipboardList className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">
-                      주문 접수 및 처리
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <BarChart3 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">
-                      판매 데이터 및 정산 관리
-                    </span>
-                  </div>
-                </div>
-                <Link
-                  href={
-                    isPendingWholesaler
-                      ? "/pending-approval"
-                      : "/sign-in/wholesaler"
-                  }
-                  className="mt-auto"
-                >
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-lg">
-                    도매업자로 시작하기
                   </Button>
                 </Link>
               </CardContent>
@@ -380,8 +298,8 @@ export default async function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
             타깃 사용자
           </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="p-6">
+          <div className="flex justify-center">
+            <Card className="p-6 max-w-2xl">
               <CardTitle className="text-2xl mb-4">소매점 (Retailer)</CardTitle>
               <CardDescription className="text-base space-y-2">
                 <p className="font-semibold text-gray-900 mb-2">대상:</p>
@@ -392,24 +310,6 @@ export default async function Home() {
                   페인 포인트:
                 </p>
                 <p>도매 가격 비교가 어렵고, 전화로 일일이 문의해야 함</p>
-              </CardDescription>
-            </Card>
-            <Card className="p-6">
-              <CardTitle className="text-2xl mb-4">
-                도매점 (Wholesaler)
-              </CardTitle>
-              <CardDescription className="text-base space-y-2">
-                <p className="font-semibold text-gray-900 mb-2">대상:</p>
-                <p>전통시장, 지역 도매상</p>
-                <p className="font-semibold text-gray-900 mb-2 mt-4">니즈:</p>
-                <p>
-                  &quot;새로운 거래처를 찾고, 주문을 온라인으로 관리하고
-                  싶다&quot;
-                </p>
-                <p className="font-semibold text-gray-900 mb-2 mt-4">
-                  페인 포인트:
-                </p>
-                <p>거래처 발굴이 어렵고, 주문 관리가 수기</p>
               </CardDescription>
             </Card>
           </div>

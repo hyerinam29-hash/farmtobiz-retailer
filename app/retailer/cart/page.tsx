@@ -36,8 +36,8 @@ export default function CartPage() {
   const summary = useMemo(() => {
     const totalProductPrice = items.reduce(
       (sum, item) => sum + item.unit_price * item.quantity,
-      0
-    );
+    0
+  );
     const totalPrice = totalProductPrice;
     const itemCount = items.length;
 
@@ -238,13 +238,13 @@ export default function CartPage() {
             </div>
 
             {canCheckout ? (
-              <Link
-                href="/retailer/checkout"
-                className="flex items-center justify-center gap-2 w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                <span>주문하기</span>
-              </Link>
+            <Link
+              href="/retailer/checkout"
+              className="flex items-center justify-center gap-2 w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>주문하기</span>
+            </Link>
             ) : (
               <button
                 disabled

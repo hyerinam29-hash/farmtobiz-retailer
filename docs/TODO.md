@@ -1,9 +1,9 @@
-# 도매-소매 중개 플랫폼 MVP 개발 TODO
+# 소매 플랫폼 MVP 개발 TODO
 
-> **프로젝트명**: 도매-소매 중개 플랫폼 (MVP)  
+> **프로젝트명**: 소매 플랫폼 (MVP)  
 > **개발 기간**: 8주 (2개월)  
-> **기준 문서**: [PRD.md](./PRD.md)  
-> **최종 업데이트**: 2025-11-20
+> **기준 문서**: [retailer/RE_PRD.md](./retailer/RE_PRD.md)  
+> **최종 업데이트**: 2025-01-XX
 
 ---
 
@@ -13,12 +13,10 @@
 2. [환경 설정](#-2-환경-설정)
 3. [폴더 구조 생성](#-3-폴더-구조-생성)
 4. [Week 1-2: 인프라 및 인증](#-4-week-1-2-인프라-및-인증)
-5. [Week 3: 도매 기능 + 🥇 AI 표준화](#-5-week-3-도매-기능--ai-표준화)
-6. [Week 4: 도매 상품 관리 + 🥈 시세 조회](#-6-week-4-도매-상품-관리--시세-조회)
-7. [Week 5: 소매 기능 + 🥉 장바구니](#-7-week-5-소매-기능-장바구니)
-8. [Week 6: 주문 관리 + 4순위 ProductVariant](#-8-week-6-주문-관리-4순위-productvariant)
-9. [Week 7: 7순위 결제 + 5순위 CS 봇](#-9-week-7-7순위-결제-5순위-cs-봇)
-10. [Week 8: 6순위 감사로그 + 통합 테스트 + 배포](#-10-week-8-6순위-감사로그-통합-테스트-배포)
+5. [Week 3-4: 소매 기능 + 🥉 장바구니](#-5-week-3-4-소매-기능-장바구니)
+6. [Week 5: 주문 관리 + 4순위 ProductVariant](#-6-week-5-주문-관리-4순위-productvariant)
+7. [Week 6: 7순위 결제 + 5순위 CS 봇](#-7-week-6-7순위-결제-5순위-cs-봇)
+8. [Week 7-8: 통합 테스트 + 배포](#-8-week-7-8-통합-테스트-배포)
 
 ---
 
@@ -107,7 +105,7 @@
 
 ## 📁 3. 폴더 구조 생성
 
-> **⚠️ 중요**: 프로젝트 초기에 소매/도매/관리자를 모두 고려한 통합 폴더 구조를 생성합니다.
+> **⚠️ 중요**: 프로젝트 초기에 소매 기능을 고려한 폴더 구조를 생성합니다.
 
 ### 3.1 app 폴더 구조
 
@@ -116,7 +114,6 @@
   - [ ] `sign-in/` 폴더
   - [ ] `sign-up/` 폴더
   - [ ] `role-selection/` 폴더
-  - [ ] `wholesaler-onboarding/` 폴더
   - [ ] `retailer-onboarding/` 폴더
 
 - [ ] `app/retailer/` 디렉토리 생성
@@ -130,29 +127,14 @@
   - [ ] `orders/[id]/` 폴더
   - [ ] `cs/` 폴더
 
-- [ ] `app/wholesaler/` 디렉토리 생성
-
-  - [ ] `pending-approval/` 폴더
-  - [ ] `dashboard/` 폴더
-  - [ ] `products/` 폴더
-  - [ ] `products/new/` 폴더
-  - [ ] `products/[id]/edit/` 폴더
-  - [ ] `market-prices/` 폴더
-  - [ ] `orders/` 폴더
-  - [ ] `orders/[id]/` 폴더
-  - [ ] `settlements/` 폴더
-
 - [ ] `app/admin/` 디렉토리 생성
 
   - [ ] `dashboard/` 폴더
-  - [ ] `wholesalers/` 폴더
   - [ ] `users/` 폴더
   - [ ] `cs/` 폴더
   - [ ] `audit-logs/` 폴더
 
 - [ ] `app/api/` 디렉토리 생성
-  - [ ] `ai/standardize/` 폴더 (1순위)
-  - [ ] `ai/market-price/` 폴더 (2순위)
   - [ ] `payments/callback/` 폴더 (7순위)
   - [ ] `cs/chat/` 폴더 (5순위)
 
@@ -160,20 +142,12 @@
 
 - [ ] `components/ui/` 디렉토리 (shadcn/ui)
 - [ ] `components/common/` 디렉토리
-- [ ] `components/shared/` 디렉토리 (소매/도매 공통)
 - [ ] `components/retailer/` 디렉토리
   - [ ] `Layout/` 폴더
   - [ ] `Products/` 폴더
   - [ ] `Cart/` 폴더
   - [ ] `Checkout/` 폴더
   - [ ] `Orders/` 폴더
-- [ ] `components/wholesaler/` 디렉토리
-  - [ ] `Layout/` 폴더
-  - [ ] `Dashboard/` 폴더
-  - [ ] `Products/` 폴더
-  - [ ] `MarketPrices/` 폴더
-  - [ ] `Orders/` 폴더
-  - [ ] `Settlements/` 폴더
 
 ### 3.3 lib 폴더 구조
 
@@ -183,11 +157,9 @@
   - [ ] `server.ts` 파일
   - [ ] `realtime.ts` 파일
   - [ ] `queries/` 폴더
-    - [ ] `products.ts` (공통)
-    - [ ] `orders.ts` (공통)
-    - [ ] `wholesalers.ts` (도매 전용)
-    - [ ] `retailers.ts` (소매 전용)
-    - [ ] `settlements.ts` (도매 전용)
+    - [ ] `products.ts`
+    - [ ] `orders.ts` (소매 주문)
+    - [ ] `retailer-products.ts` (소매 전용)
 
 - [ ] `lib/clerk/` 디렉토리
 
@@ -195,14 +167,12 @@
 
 - [ ] `lib/api/` 디렉토리
 
-  - [ ] `ai-standardize.ts` (1순위)
-  - [ ] `market-prices.ts` (2순위)
+  - [ ] (필요 시 추가)
 
 - [ ] `lib/validation/` 디렉토리
 
-  - [ ] `product.ts` (공통)
-  - [ ] `order.ts` (공통)
-  - [ ] `wholesaler.ts`
+  - [ ] `product.ts`
+  - [ ] `order.ts`
   - [ ] `retailer.ts`
 
 - [ ] `lib/utils/` 디렉토리
@@ -214,18 +184,16 @@
 - [ ] `types/` 디렉토리 생성
 
   - [ ] `database.ts` (Supabase 타입)
-  - [ ] `product.ts` (공통)
-  - [ ] `order.ts` (공통)
-  - [ ] `wholesaler.ts`
+  - [ ] `product.ts`
+  - [ ] `order.ts`
   - [ ] `retailer.ts`
-  - [ ] `settlement.ts`
+  - [ ] `cart.ts`
 
 - [ ] `hooks/` 디렉토리 생성
-  - [ ] `useProducts.ts` (공통)
-  - [ ] `useOrders.ts` (공통)
-  - [ ] `useWholesaler.ts`
+  - [ ] `useProducts.ts`
+  - [ ] `useOrders.ts` (소매 주문)
   - [ ] `useRetailer.ts`
-  - [ ] `useRealtime.ts` (공통)
+  - [ ] `useRealtime.ts`
 
 ---
 
@@ -260,7 +228,6 @@
 ### 4.4 역할별 프로필 생성
 
 - [ ] 소매 프로필 생성 (`app/(auth)/retailer-onboarding/`)
-- [ ] 도매 프로필 생성 (`app/(auth)/wholesaler-onboarding/`)
 - [ ] 역할별 대시보드 리다이렉트 로직
 - [ ] 미들웨어 설정 (`middleware.ts`)
 
@@ -274,117 +241,9 @@
 
 ---
 
-## 🏭 5. Week 3: 도매 기능 + 🥇 AI 표준화
+## 🛒 5. Week 3-4: 소매 기능 + 🥉 장바구니
 
-### 5.1 도매 기본 기능
-
-- [ ] 도매 회원가입 및 사업자 정보 등록
-
-  - [ ] `app/(auth)/wholesaler-onboarding/page.tsx`
-  - [ ] 사업자 정보 폼 구현
-  - [ ] 유효성 검증 (`lib/validation/wholesaler.ts`)
-  - [ ] Supabase에 저장
-
-- [ ] 승인 대기 페이지
-
-  - [ ] `app/wholesaler/pending-approval/page.tsx`
-  - [ ] Realtime 구독으로 승인 상태 실시간 확인
-  - [ ] 승인 완료 시 대시보드로 리다이렉트
-
-- [ ] 관리자 도매 승인/반려 기능
-
-  - [ ] `app/admin/wholesalers/pending/page.tsx` (승인 대기 목록)
-  - [ ] `app/admin/wholesalers/[id]/page.tsx` (상세 + 승인/반려)
-  - [ ] 승인/반려 처리 로직
-
-- [ ] 도매 상품 등록/수정 폼 (기본)
-  - [ ] `app/wholesaler/products/new/page.tsx`
-  - [ ] `app/wholesaler/products/[id]/edit/page.tsx`
-  - [ ] 기본 상품 정보 입력 폼
-
-### 5.2 🥇 1순위: Gemini 상품명 표준화
-
-- [ ] Gemini API 연동
-
-  - [ ] `lib/api/ai-standardize.ts` 구현
-  - [ ] `app/api/ai/standardize/route.ts` 구현
-
-- [ ] 상품 등록/수정 페이지에 "AI 표준화" 버튼 추가
-
-  - [ ] 버튼 UI 구현
-  - [ ] API 호출 로직
-
-- [ ] AI 제안 UI
-
-  - [ ] 표준화 상품명 표시
-  - [ ] 카테고리 자동 추천 표시
-  - [ ] 검색 키워드 표시
-  - [ ] 신뢰도 점수 표시
-
-- [ ] 제안 수락/거부 처리
-
-  - [ ] 수락 시 자동 입력
-  - [ ] 거부 시 원래 값 유지
-
-- [ ] (선택) AI 제안 이력 저장
-  - [ ] `ai_product_suggestions` 테이블에 로그 저장
-
----
-
-## 📊 6. Week 4: 도매 상품 관리 + 🥈 시세 조회
-
-### 6.1 도매 상품 관리
-
-- [ ] 도매 상품 목록 조회
-
-  - [ ] `app/wholesaler/products/page.tsx`
-  - [ ] 상품 테이블 구현
-  - [ ] 필터/검색 기능
-
-- [ ] 도매 상품 삭제/비활성화
-
-  - [ ] 삭제 기능
-  - [ ] 비활성화 기능 (`is_active` 토글)
-
-- [ ] 도매 대시보드
-  - [ ] `app/wholesaler/dashboard/page.tsx`
-  - [ ] 오늘 신규 주문 수
-  - [ ] 출고 대기 주문 수
-  - [ ] 금주 정산 예정 금액
-
-### 6.2 🥈 2순위: 실시간 시세 조회
-
-- [ ] 공공데이터포털 API 연동
-
-  - [ ] `lib/api/market-prices.ts` 구현
-  - [ ] `app/api/ai/market-price/route.ts` 구현
-
-- [ ] 상품 가격 책정 시 "시세 조회" 버튼 추가
-
-  - [ ] 버튼 UI 구현
-  - [ ] 모달 또는 사이드바로 시세 표시
-
-- [ ] 시세 검색 UI
-
-  - [ ] 품목별 검색
-  - [ ] 지역별 검색
-  - [ ] 날짜별 검색
-
-- [ ] 가격 추이 차트
-
-  - [ ] Recharts 라이브러리 사용
-  - [ ] 최근 7일 가격 추이 표시
-  - [ ] 차트 스타일링
-
-- [ ] 참고 가격으로 활용
-  - [ ] 자동 입력은 하지 않음
-  - [ ] 사용자가 참고하여 수동 입력
-
----
-
-## 🛒 7. Week 5: 소매 기능 + 🥉 장바구니
-
-### 7.1 소매 기본 기능
+### 5.1 소매 기본 기능
 
 - [ ] 소매 회원가입 및 프로필 등록
 
@@ -404,7 +263,7 @@
   - [ ] 상품 정보 표시
   - [ ] 가격, MOQ 표시
 
-### 7.2 🥉 3순위: 장바구니
+### 5.2 🥉 3순위: 장바구니
 
 - [ ] cart_items 테이블 및 RLS 정책
 
@@ -430,9 +289,9 @@
 
 ---
 
-## 📦 8. Week 6: 주문 관리 + 4순위 ProductVariant
+## 📦 6. Week 5: 주문 관리 + 4순위 ProductVariant
 
-### 8.1 주문 관리
+### 6.1 주문 관리
 
 - [ ] 소매 주문 생성 (장바구니 연동)
 
@@ -445,36 +304,17 @@
   - [ ] `app/retailer/orders/[id]/page.tsx` (주문 상세)
   - [ ] 주문 상태 표시
 
-- [ ] 도매 주문 목록 조회
-
-  - [ ] `app/wholesaler/orders/page.tsx`
-  - [ ] RLS로 본인 상품 주문만 조회
-  - [ ] 필터 기능 (전체/신규/출고완료)
-
-- [ ] 도매 주문 상태 변경
-
-  - [ ] `app/wholesaler/orders/[id]/page.tsx`
-  - [ ] 상태 변경 버튼
-  - [ ] pending → confirmed → shipped → completed
-
-- [ ] 소매/도매 주문 상세 페이지
+- [ ] 소매 주문 상세 페이지
   - [ ] 주문 정보 표시
   - [ ] 상품 정보 표시
   - [ ] 배송지 정보 표시
 
-### 8.2 4순위: ProductVariant (상품 옵션)
+### 6.2 4순위: ProductVariant (상품 옵션)
 
 - [ ] product_variants 테이블 및 RLS 정책
 
   - [ ] 마이그레이션 파일 확인
   - [ ] RLS 정책 확인
-
-- [ ] 도매: 상품 등록/수정 시 옵션 추가 UI
-
-  - [ ] 옵션 추가 버튼
-  - [ ] 옵션명 입력 (예: "1kg", "5kg", "10kg")
-  - [ ] 옵션별 가격 설정
-  - [ ] 옵션별 재고 관리
 
 - [ ] 소매: 상품 상세에서 옵션 선택
 
@@ -488,9 +328,9 @@
 
 ---
 
-## 💳 9. Week 7: 7순위 결제 + 5순위 CS 봇
+## 💳 7. Week 6: 7순위 결제 + 5순위 CS 봇
 
-### 9.1 7순위: TossPayments 결제 연동
+### 7.1 7순위: TossPayments 결제 연동
 
 - [ ] TossPayments SDK 연동
 
@@ -514,21 +354,8 @@
 
   - [ ] orders 테이블에 주문 생성
   - [ ] 주문 상태 자동 업데이트 (pending)
-  - [ ] settlements 테이블에 정산 계산
-    - [ ] 플랫폼 수수료 계산 (5%)
-    - [ ] 도매 정산액 계산 (주문금액 - 수수료)
-    - [ ] 정산 예정일 설정 (D+7)
 
-- [ ] 도매: 정산 내역 조회 페이지
-
-  - [ ] `app/wholesaler/settlements/page.tsx`
-  - [ ] 정산 예정액 표시
-  - [ ] 정산 예정일 표시
-  - [ ] 정산 상태 표시
-
-- [ ] ⚠️ 자동 송금은 제외 (수동 정산)
-
-### 9.2 5순위: CS AI 봇
+### 7.2 5순위: CS AI 봇
 
 - [ ] cs_threads, cs_messages 테이블 및 RLS 정책
 
@@ -538,7 +365,6 @@
 - [ ] CS 위젯 또는 페이지
 
   - [ ] `app/retailer/cs/page.tsx`
-  - [ ] `app/wholesaler/cs/page.tsx` (선택)
 
 - [ ] 새 문의 작성 폼
 
@@ -574,29 +400,9 @@
 
 ---
 
-## 📝 10. Week 8: 6순위 감사로그 + 통합 테스트 + 배포
+## 📝 8. Week 7-8: 통합 테스트 + 배포
 
-### 10.1 6순위: 감사 로그
-
-- [ ] audit_logs 테이블 및 RLS 정책
-
-  - [ ] 마이그레이션 파일 확인
-  - [ ] RLS 정책 확인 (관리자만 조회)
-
-- [ ] 주요 관리자 액션 자동 로깅
-
-  - [ ] 도매 승인/반려 시 로그 기록
-  - [ ] 계정 정지/해제 시 로그 기록
-  - [ ] 설정 변경 시 로그 기록
-  - [ ] PII 조회 시 로그 기록
-
-- [ ] 관리자: 감사 로그 페이지
-  - [ ] `app/admin/audit-logs/page.tsx`
-  - [ ] 로그 목록 표시
-  - [ ] 필터 기능 (액션 유형, 날짜, 사용자)
-  - [ ] 로그 상세 조회 (액션 내용, IP 주소, 대상)
-
-### 10.2 통합 테스트
+### 8.1 통합 테스트
 
 - [ ] UI/UX 전체 개선
 
@@ -607,11 +413,10 @@
 - [ ] 통합 테스트 시나리오 실행
 
   - [ ] **TC-001**: 소매 상품 주문 (장바구니 → 결제 → 주문 조회)
-  - [ ] **TC-002**: 도매 승인 및 상품 등록 (AI 표준화, 시세 조회)
-  - [ ] **TC-003**: 주문 처리 (상태 변경)
-  - [ ] **TC-004**: RLS 검증
-  - [ ] **TC-005**: CS 봇 (AI 응답 → 사람 상담 전환)
-  - [ ] **TC-006**: 결제 및 정산 계산
+  - [ ] **TC-002**: 주문 상태 확인
+  - [ ] **TC-003**: RLS 검증
+  - [ ] **TC-004**: CS 봇 (AI 응답 → 사람 상담 전환)
+  - [ ] **TC-005**: 결제 처리
 
 - [ ] 버그 수정
 
@@ -623,7 +428,7 @@
   - [ ] 쿼리 최적화
   - [ ] 번들 크기 최적화
 
-### 10.3 배포
+### 8.2 배포
 
 - [ ] Vercel 배포
 
@@ -644,21 +449,16 @@
 ### 전체 진행률
 
 - [ ] Week 1-2: 인프라 및 인증 (0%)
-- [ ] Week 3: 도매 기능 + AI 표준화 (0%)
-- [ ] Week 4: 도매 상품 관리 + 시세 조회 (0%)
-- [ ] Week 5: 소매 기능 + 장바구니 (0%)
-- [ ] Week 6: 주문 관리 + ProductVariant (0%)
-- [ ] Week 7: 결제 + CS 봇 (0%)
-- [ ] Week 8: 감사로그 + 테스트 + 배포 (0%)
+- [ ] Week 3-4: 소매 기능 + 장바구니 (0%)
+- [ ] Week 5: 주문 관리 + ProductVariant (0%)
+- [ ] Week 6: 결제 + CS 봇 (0%)
+- [ ] Week 7-8: 테스트 + 배포 (0%)
 
 ### 우선순위별 진행률
 
-- [ ] 🥇 1순위: Gemini 상품명 표준화 (0%)
-- [ ] 🥈 2순위: 실시간 시세 조회 (0%)
 - [ ] 🥉 3순위: 장바구니 (0%)
 - [ ] 4순위: ProductVariant (0%)
 - [ ] 5순위: CS AI 봇 (0%)
-- [ ] 6순위: 감사 로그 (0%)
 - [ ] 7순위: TossPayments 결제 (0%)
 
 ---
@@ -666,8 +466,8 @@
 ## 📌 참고 문서
 
 - [PRD.md](./PRD.md) - 전체 프로젝트 기획서
-- [WS_Guideline.md](./Wholesaler/WS_Guideline.md) - 도매 페이지 개발 가이드라인
-- [WS_TODO.md](./Wholesaler/WS_TODO.md) - 도매 페이지 개발 TODO
+- [RE_PRD.md](./retailer/RE_PRD.md) - 소매 페이지 기획서
+- [RE_TODO.md](./retailer/RE_TODO.md) - 소매 페이지 개발 TODO
 
 ---
 

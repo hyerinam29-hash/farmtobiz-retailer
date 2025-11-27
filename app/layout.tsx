@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { koKR } from "@clerk/localizations";
-import type { LocalizationResource } from "@clerk/types";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import Navbar from "@/components/Navbar";
@@ -10,7 +9,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
 // FarmToBiz 브랜딩을 위한 커스텀 localization
-const customKoKR: LocalizationResource = {
+const customKoKR = {
   ...koKR,
   socialButtonsBlockButton: "FarmToBiz로 계속",
 };

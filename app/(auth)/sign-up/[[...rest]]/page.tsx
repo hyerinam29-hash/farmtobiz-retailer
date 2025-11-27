@@ -27,7 +27,7 @@
 import { SignUp } from "@clerk/nextjs";
 
 interface SignUpPageProps {
-  searchParams: Promise<{ type?: "retailer" | "wholesaler" }>;
+  searchParams: Promise<{ type?: "retailer" }>;
 }
 
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
@@ -35,9 +35,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
 
   // 역할별 리다이렉트 URL 결정
   const afterSignUpUrl =
-    type === "wholesaler"
-      ? "/wholesaler-onboarding" // 도매점: 온보딩 페이지
-      : type === "retailer"
+    type === "retailer"
       ? "/retailer-onboarding" // 소매점: 온보딩 페이지
       : "/retailer/dashboard"; // 기본값
 
