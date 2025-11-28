@@ -101,10 +101,28 @@ export interface User {
 export interface Retailer {
   id: string;
   user_id: string; // profiles 테이블 참조
+  profile_id: string; // profiles 테이블 참조 (실제 스키마에서는 profile_id 사용)
   business_name: string;
   address: string;
   phone: string;
   created_at: string;
+}
+
+/**
+ * 배송지 관리 테이블 타입
+ */
+export interface DeliveryAddress {
+  id: string;
+  retailer_id: string;
+  name: string; // 배송지 별칭 (예: "본점", "지점1")
+  recipient_name: string; // 수령인 이름
+  recipient_phone: string; // 수령인 전화번호
+  address: string; // 기본 주소
+  address_detail: string | null; // 상세 주소
+  postal_code: string | null; // 우편번호
+  is_default: boolean; // 기본 배송지 여부
+  created_at: string;
+  updated_at: string;
 }
 
 /**

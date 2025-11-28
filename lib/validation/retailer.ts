@@ -73,3 +73,110 @@ export type RetailerOnboardingFormData = z.infer<
   typeof retailerOnboardingSchema
 >;
 
+/**
+ * 프로필 수정 폼 데이터 스키마
+ * (이메일 제외, 선택적 필드)
+ */
+export const retailerProfileUpdateSchema = z.object({
+  business_name: z
+    .string()
+    .min(2, "상호명은 2글자 이상 입력해주세요.")
+    .max(100, "상호명은 100글자 이하로 입력해주세요.")
+    .optional(),
+
+  phone: z
+    .string()
+    .min(1, "연락처를 입력해주세요.")
+    .refine(
+      (val) => {
+        const digits = val.replace(/\D/g, "");
+        return (
+          (digits.length === 11 || digits.length === 10) &&
+          digits.startsWith("010") &&
+          /^\d+$/.test(digits)
+        );
+      },
+      {
+        message: "연락처는 010-####-#### 형식으로 입력해주세요.",
+      },
+    )
+    .optional(),
+
+  address: z
+    .string()
+    .min(5, "주소는 5글자 이상 입력해주세요.")
+    .max(200, "주소는 200글자 이하로 입력해주세요.")
+    .optional(),
+}).refine(
+  (data) => {
+    // 최소 하나의 필드는 입력되어야 함
+    return data.business_name || data.phone || data.address;
+  },
+  {
+    message: "최소 하나의 정보는 수정해야 합니다.",
+  }
+);
+
+/**
+ * 프로필 수정 폼 데이터 타입
+ */
+export type RetailerProfileUpdateFormData = z.infer<
+  typeof retailerProfileUpdateSchema
+>;
+
+/**
+ * 배송지 관리 폼 데이터 스키마
+ */
+export const deliveryAddressSchema = z.object({
+  name: z
+    .string()
+    .min(1, "배송지 별칭을 입력해주세요.")
+    .max(50, "배송지 별칭은 50글자 이하로 입력해주세요."),
+  
+  recipient_name: z
+    .string()
+    .min(1, "수령인 이름을 입력해주세요.")
+    .max(50, "수령인 이름은 50글자 이하로 입력해주세요."),
+  
+  recipient_phone: z
+    .string()
+    .min(1, "수령인 전화번호를 입력해주세요.")
+    .refine(
+      (val) => {
+        const digits = val.replace(/\D/g, "");
+        return (
+          (digits.length === 11 || digits.length === 10) &&
+          digits.startsWith("010") &&
+          /^\d+$/.test(digits)
+        );
+      },
+      {
+        message: "연락처는 010-####-#### 형식으로 입력해주세요.",
+      },
+    ),
+  
+  address: z
+    .string()
+    .min(5, "주소를 입력해주세요.")
+    .max(200, "주소는 200글자 이하로 입력해주세요."),
+  
+  address_detail: z
+    .string()
+    .max(200, "상세 주소는 200글자 이하로 입력해주세요.")
+    .optional()
+    .nullable(),
+  
+  postal_code: z
+    .string()
+    .max(10, "우편번호는 10글자 이하로 입력해주세요.")
+    .optional()
+    .nullable(),
+  
+  is_default: z.boolean().default(false),
+});
+
+/**
+ * 배송지 관리 폼 데이터 타입
+ */
+export type DeliveryAddressFormData = z.infer<typeof deliveryAddressSchema>;
+
