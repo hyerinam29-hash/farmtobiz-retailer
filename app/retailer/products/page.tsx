@@ -216,7 +216,7 @@ export default async function ProductsPage({
           )}
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center py-[4.5rem]">
+        <div className="w-full flex flex-col items-center justify-center py-[4.5rem]">
           <p className="text-gray-500 dark:text-gray-400 text-2xl">
             상품이 없습니다.
           </p>

@@ -40,7 +40,7 @@ export default function RetailerLayoutClient({
         <PageHeader onMenuClick={() => setSidebarOpen(true)} />
 
         {/* 메인 컨텐츠 */}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 max-w-none mx-0 pt-0 px-0">{children}</main>
       </div>
     </div>
   );

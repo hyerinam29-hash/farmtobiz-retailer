@@ -12,9 +12,9 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, Filter, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface ProductSearchClientProps {
   initialSearch?: string;
@@ -41,10 +41,31 @@ export function ProductSearchClient({
   const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortOrder, setSortOrder] = useState(initialSortOrder);
 
-  // 검색 실행
-  const handleSearch = (value: string) => {
+  // initialSearch prop이 변경될 때 동기화 (페이지 리로드 시)
+  useEffect(() => {
+    console.log("🔄 [검색창] initialSearch 동기화:", initialSearch);
+    setSearch(initialSearch || "");
+  }, [initialSearch]);
+
+  // 검색어 입력 (로컬 상태만 업데이트)
+  const handleSearchInput = (value: string) => {
+    console.log("🔍 [검색창] 검색어 입력:", value);
     setSearch(value);
-    updateURL({ search: value });
+  };
+
+  // 검색 실행 (URL 업데이트)
+  const executeSearch = () => {
+    // 클로저 문제 방지를 위해 현재 search 상태를 직접 참조
+    const currentSearch = search;
+    console.log("✅ [검색창] 검색 실행:", currentSearch);
+    updateURL({ search: currentSearch });
+  };
+
+  // 검색어 초기화
+  const clearSearch = () => {
+    console.log("🗑️ [검색창] 검색어 초기화");
+    setSearch("");
+    updateURL({ search: "" });
   };
 
   // 필터 업데이트
@@ -90,15 +111,6 @@ export function ProductSearchClient({
     });
   };
 
-  // 필터 초기화
-  const resetFilters = () => {
-    setSearch("");
-    setSelectedCategory("all");
-    setSortBy("created_at");
-    setSortOrder("desc");
-    router.push("/retailer/products");
-  };
-
   // 카테고리 목록
   const categories = [
     { value: "all", label: "전체" },
@@ -115,37 +127,45 @@ export function ProductSearchClient({
       {/* 검색 및 필터 영역 */}
       <div className="flex flex-col md:flex-row gap-6">
         {/* 검색창 */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="relative">
-            <Search className="absolute left-[1.125rem] top-1/2 -translate-y-1/2 w-[1.875rem] h-[1.875rem] text-gray-400" />
+            <Search className="absolute left-[1.125rem] top-1/2 -translate-y-1/2 w-[1.875rem] h-[1.875rem] text-gray-400 pointer-events-none z-10" />
             <input
               type="text"
               placeholder="상품명, 카테고리 검색 (Cmd+K)"
               value={search}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => handleSearchInput(e.target.value)}
               onKeyDown={(e) => {
                 // Enter 키로 검색 실행
                 if (e.key === "Enter") {
-                  updateURL({ search });
+                  e.preventDefault();
+                  executeSearch();
                 }
                 // Cmd+K 또는 Ctrl+K는 Command Palette에서 처리됨
               }}
-              className="w-full pl-[3.75rem] pr-6 py-[1.125rem] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary text-base"
-              disabled={isPending}
+              className="w-full min-w-0 pl-[3.75rem] pr-[3.75rem] py-[1.125rem] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary text-base"
             />
-            {search && (
+            {/* X 버튼: 항상 렌더링하여 레이아웃 시프트 방지 - 크기 완전 고정 */}
+            <div className="absolute right-[1.125rem] top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center">
               <button
-                onClick={() => handleSearch("")}
-                className="absolute right-[1.125rem] top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                type="button"
+                onClick={clearSearch}
+                className={`w-full h-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-opacity duration-200 ${
+                  search
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+                aria-label="검색어 지우기"
+                tabIndex={search ? 0 : -1}
               >
                 <X className="w-6 h-6" />
               </button>
-            )}
+            </div>
           </div>
         </div>
 
         {/* 정렬 선택 */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <select
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
@@ -154,7 +174,7 @@ export function ProductSearchClient({
               setSortOrder(newSortOrder as "asc" | "desc");
               updateURL({ sortBy: newSortBy, sortOrder: newSortOrder as "asc" | "desc" });
             }}
-            className="px-6 py-[1.125rem] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary text-base"
+            className="px-6 py-[1.125rem] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary text-base whitespace-nowrap"
             disabled={isPending}
           >
             <option value="created_at-desc">최신순</option>
@@ -177,7 +197,7 @@ export function ProductSearchClient({
                 category: category.value === "all" ? undefined : category.value,
               });
             }}
-            className={`px-6 py-3 rounded-full text-base font-medium whitespace-nowrap transition-colors ${
+            className={`px-6 py-3 rounded-full text-base font-medium whitespace-nowrap transition-colors w-[5.5rem] text-center flex-shrink-0 ${
               selectedCategory === category.value
                 ? "bg-primary text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -187,18 +207,6 @@ export function ProductSearchClient({
             {category.label}
           </button>
         ))}
-
-        {/* 필터 초기화 */}
-        {(search || selectedCategory !== "all") && (
-          <button
-            onClick={resetFilters}
-            className="px-6 py-3 rounded-full text-base font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            disabled={isPending}
-          >
-            <Filter className="w-6 h-6 inline mr-1.5" />
-            필터 초기화
-          </button>
-        )}
       </div>
     </div>
   );
