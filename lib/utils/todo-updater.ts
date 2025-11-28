@@ -47,7 +47,7 @@ export function updateTodoCheckbox(
   markComplete: boolean = true
 ): void {
   try {
-    let content = readTodoFile();
+    const content = readTodoFile();
     // 이스케이프 처리
     const escapedText = searchText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     
