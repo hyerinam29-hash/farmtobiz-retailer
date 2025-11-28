@@ -33,8 +33,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   getDeliveryAddresses,
   deleteDeliveryAddress,
-  type DeliveryAddress,
 } from "@/actions/retailer/delivery-addresses";
+import type { DeliveryAddress } from "@/types/database";
 import DeliveryAddressForm from "./DeliveryAddressForm";
 
 export default function DeliveryAddressList() {
