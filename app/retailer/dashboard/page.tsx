@@ -245,7 +245,7 @@ export default function RetailerDashboardPage() {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">
+    <div className="px-6 sm:px-9 lg:px-12 pb-6 md:pb-8">
       {/* 헤더 섹션 */}
       <div className="mb-6 md:mb-8 pt-4">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
