@@ -29,7 +29,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -39,8 +38,8 @@ import {
 import {
   createDeliveryAddress,
   updateDeliveryAddress,
-  type DeliveryAddress,
 } from "@/actions/retailer/delivery-addresses";
+import type { DeliveryAddress } from "@/types/database";
 
 interface DeliveryAddressFormProps {
   initialData?: DeliveryAddress;
