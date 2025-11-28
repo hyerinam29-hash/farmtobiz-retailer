@@ -147,6 +147,10 @@ PRD 3.6 섹션 참조.
 ### 5.2 최적화 및 테스트
 - [ ] **성능 최적화**
   - [ ] 이미지 최적화 및 Lazy Loading
+  - [ ] **Supabase Storage 이미지 도메인 설정**
+    - [ ] `next.config.ts`의 `images.remotePatterns`에 Supabase Storage 도메인 추가
+    - [ ] 예: `{ hostname: "*.supabase.co", protocol: "https" }` 또는 특정 프로젝트 도메인
+    - [ ] Next.js Image 컴포넌트에서 Supabase Storage 이미지 사용 시 필수 설정
 - [ ] **테스트**
   - [ ] 주요 시나리오 E2E 테스트
 
