@@ -33,7 +33,9 @@ export default function RetailerSignInPage() {
             </div>
             <CardTitle className="text-xl">소매업자 로그인</CardTitle>
             <CardDescription className="text-sm">
-              다양한 도매업체의 상품을 발견하고 합리적인 가격으로 주문하세요.
+              다양한 도매업체의 상품을 발견하고
+              <br />
+              합리적인 가격으로 주문하세요.
             </CardDescription>
           </CardHeader>
         </Card>
