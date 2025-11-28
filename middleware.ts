@@ -21,15 +21,34 @@
  * @see {@link https://clerk.com/docs/nextjs/middleware} - Clerk 미들웨어 문서
  */
 
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+/**
+ * 공개 라우트 정의
+ * 
+ * 이 경로들은 인증 없이 접근 가능합니다.
+ */
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/sync-user",
+  "/api/market-prices(.*)",
+  "/api/test-market-api(.*)",
+]);
 
 /**
  * Clerk 미들웨어
  *
- * 모든 요청에 대해 Clerk 인증을 처리합니다.
+ * 공개 라우트를 제외한 모든 요청에 대해 Clerk 인증을 처리합니다.
  * 인증되지 않은 사용자는 Clerk가 자동으로 로그인 페이지로 리다이렉트합니다.
  */
-export default clerkMiddleware();
+export default clerkMiddleware(async (auth, request) => {
+  // 공개 라우트는 인증 확인하지 않음
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+});
 
 /**
  * 미들웨어 실행 조건 설정
