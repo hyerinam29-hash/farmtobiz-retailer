@@ -20,9 +20,9 @@
 
 "use client";
 
-import { SignIn } from "@clerk/nextjs";
+import { SignIn, useUser, useClerk } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // 🚨 파일 로드 확인 및 전역 에러 감지 리스너 등록
 if (typeof window !== "undefined") {
@@ -210,7 +210,11 @@ export default function SignInWithRedirect({
   });
 
   const pathname = usePathname();
+  const { isSignedIn, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [showWholesalerBlockModal, setShowWholesalerBlockModal] = useState(false);
+  const prevSignedInRef = useRef(false);
 
   // 🎯 전역 에러 감지: Clerk가 DOM에 렌더링하는 에러 메시지를 감지
   useEffect(() => {
@@ -543,6 +547,52 @@ export default function SignInWithRedirect({
     }
   }, [showSignUpModal]);
 
+  // 도매점 계정 차단 로직: 로그인 성공 후 역할 확인
+  useEffect(() => {
+    // 소매점 로그인 페이지에서만 체크
+    if (!pathname?.includes("/retailer") && !path?.includes("/retailer")) {
+      return;
+    }
+
+    // 로그인 성공 감지
+    if (isLoaded && isSignedIn && !prevSignedInRef.current) {
+      console.log("🔍 [Wholesaler Block] 로그인 성공 감지 - 역할 확인 시작");
+      
+      // 역할 확인 API 호출
+      const checkUserRole = async () => {
+        try {
+          console.log("📡 [Wholesaler Block] /api/check-role API 호출");
+          const response = await fetch("/api/check-role");
+          const data = await response.json();
+          console.log("✅ [Wholesaler Block] 역할 확인 결과:", data.role);
+          return data.role; // 'retailer' | 'wholesaler' | 'admin' | null
+        } catch (error) {
+          console.error("❌ [Wholesaler Block] 역할 확인 실패:", error);
+          return null;
+        }
+      };
+
+      checkUserRole().then((role) => {
+        if (role === "wholesaler") {
+          console.log("🚫 [Wholesaler Block] 도매점 계정 감지 - 차단 모달 표시");
+          setShowWholesalerBlockModal(true);
+          
+          // Clerk 세션 종료 (로그아웃 처리)
+          signOut({ redirectUrl: window.location.href }).catch((error) => {
+            console.error("❌ [Wholesaler Block] 로그아웃 실패:", error);
+          });
+        } else {
+          console.log("✅ [Wholesaler Block] 소매점 계정 또는 역할 없음 - 정상 진행");
+        }
+      });
+    }
+
+    // 이전 로그인 상태 업데이트
+    if (isLoaded) {
+      prevSignedInRef.current = isSignedIn;
+    }
+  }, [isSignedIn, isLoaded, pathname, path, signOut]);
+
   // 소매사업자 확인 로직 (사용하지 않지만 타입 호환성을 위해 유지)
 
   // 모달 확인 핸들러
@@ -617,6 +667,50 @@ export default function SignInWithRedirect({
               className="min-w-[80px] bg-blue-600 hover:bg-blue-700"
             >
               확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 도매점 계정 차단 모달 */}
+      <Dialog
+        open={showWholesalerBlockModal}
+        onOpenChange={setShowWholesalerBlockModal}
+        modal={true}
+      >
+        <DialogContent
+          className="sm:max-w-[425px]"
+          style={{ zIndex: 9999 }}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              도매점 계정은 소매점 로그인을 사용할 수 없습니다
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-base">
+              도매점 계정으로는 소매점 로그인 페이지에서 로그인할 수 없습니다.
+              <br />
+              도매점 로그인 페이지를 이용해주세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowWholesalerBlockModal(false)}
+              className="min-w-[80px]"
+            >
+              확인
+            </Button>
+            <Button
+              onClick={() => {
+                setShowWholesalerBlockModal(false);
+                // 도매점 로그인 페이지로 리다이렉트
+                window.location.href = "/sign-in/wholesaler";
+              }}
+              className="min-w-[80px] bg-blue-600 hover:bg-blue-700"
+            >
+              도매점 로그인 페이지로 이동
             </Button>
           </DialogFooter>
         </DialogContent>
