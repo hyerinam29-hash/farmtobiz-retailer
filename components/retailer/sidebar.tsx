@@ -12,20 +12,22 @@
  * 4. 마이페이지 링크
  * 5. 현재 경로 하이라이트
  * 6. 모바일 반응형 지원 (햄버거 메뉴로 제어)
+ * 7. 사용자 프로필 드롭다운 메뉴 (프로필 수정, 로그아웃)
  *
  * @dependencies
- * - @clerk/nextjs (useUser)
- * - next/navigation (usePathname, Link)
+ * - @clerk/nextjs (useUser, useClerk)
+ * - next/navigation (usePathname, Link, useRouter)
  * - lucide-react (아이콘)
  * - lib/utils (cn 함수)
+ * - components/ui/dropdown-menu (드롭다운 메뉴)
  */
 
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { usePathname, useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import {
   LayoutDashboard,
@@ -33,8 +35,18 @@ import {
   ClipboardList,
   User,
   X,
+  Settings,
+  LogOut,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const menuItems = [
   {
@@ -71,7 +83,9 @@ export default function RetailerSidebar({
   onClose,
 }: RetailerSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [mounted, setMounted] = useState(false);
 
   // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
@@ -87,6 +101,26 @@ export default function RetailerSidebar({
       return (words[0][0] + words[words.length - 1][0]).toUpperCase();
     }
     return name[0].toUpperCase();
+  };
+
+  // 로그아웃 처리
+  const handleSignOut = async () => {
+    console.log("🚪 [Sidebar] 로그아웃 시작");
+    try {
+      await signOut({ redirectUrl: "/" });
+      console.log("✅ [Sidebar] 로그아웃 완료");
+    } catch (error) {
+      console.error("❌ [Sidebar] 로그아웃 실패:", error);
+    }
+  };
+
+  // 마이페이지로 이동
+  const handleProfileClick = () => {
+    router.push("/retailer/profile");
+    // 모바일에서 링크 클릭 시 사이드바 닫기
+    if (window.innerWidth < 1024) {
+      onClose();
+    }
   };
 
   // 아바타 이미지 URL 또는 null
@@ -150,36 +184,57 @@ export default function RetailerSidebar({
         {/* 사용자 프로필 영역 */}
         {isLoaded && user && (
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-3">
-              {/* 아바타 */}
-              <div className="relative flex-shrink-0">
-                {avatarUrl ? (
-                  <Image
-                    src={avatarUrl}
-                    alt={userName || "사용자"}
-                    width={48}
-                    height={48}
-                    className="rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-lg">
-                    {getInitials(userName)}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full flex items-center gap-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors p-2 -m-2">
+                  {/* 아바타 */}
+                  <div className="relative flex-shrink-0">
+                    {avatarUrl ? (
+                      <Image
+                        src={avatarUrl}
+                        alt={userName || "사용자"}
+                        width={48}
+                        height={48}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-lg">
+                        {getInitials(userName)}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* 사용자 정보 */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  {userName || "소매점"}
-                </p>
-                {userEmail && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {userEmail}
-                  </p>
-                )}
-              </div>
-            </div>
+                  {/* 사용자 정보 */}
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {userName || "소매점"}
+                    </p>
+                    {userEmail && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {userEmail}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* 드롭다운 아이콘 */}
+                  <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem onClick={handleProfileClick}>
+                  <Settings className="w-4 h-4" />
+                  <span>프로필 수정</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  variant="destructive"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>로그아웃</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 
