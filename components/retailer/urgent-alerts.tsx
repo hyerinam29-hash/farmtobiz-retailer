@@ -8,7 +8,8 @@
  * 주요 기능:
  * 1. 재고 부족 알림 배너
  * 2. 플랫폼 공지사항 배너
- * 3. 다크 모드 최적화
+ * 3. 알림 삭제 기능 (X 버튼)
+ * 4. 다크 모드 최적화
  *
  * @dependencies
  * - lucide-react (아이콘)
@@ -31,6 +32,7 @@ interface Alert {
 
 interface UrgentAlertsProps {
   alerts: Alert[];
+  onDelete?: (alertId: string) => void; // 알림 삭제 콜백
 }
 
 // 알림 타입별 설정
@@ -58,7 +60,7 @@ const alertConfig = {
   },
 };
 
-export default function UrgentAlerts({ alerts }: UrgentAlertsProps) {
+export default function UrgentAlerts({ alerts, onDelete }: UrgentAlertsProps) {
   if (alerts.length === 0) {
     return (
       <div className="h-full flex flex-col">
@@ -119,8 +121,12 @@ export default function UrgentAlerts({ alerts }: UrgentAlertsProps) {
                   </p>
                 </div>
 
-                {/* 닫기 버튼 (옵션) */}
+                {/* 닫기 버튼 */}
                 <button
+                  onClick={() => {
+                    console.log("[UrgentAlerts] 알림 삭제 버튼 클릭:", alert.id);
+                    onDelete?.(alert.id);
+                  }}
                   className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   aria-label="알림 닫기"
                 >

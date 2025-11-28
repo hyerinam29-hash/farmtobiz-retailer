@@ -1,159 +1,172 @@
 # TODO - 소매점(Retailer) 기능 개발
 
-> **프로젝트:** MarketLink 소매점 사이트
-> **업데이트:** 2024-11-28 (PRD 기반 재정비)
-> **문서:** [RE_PRD.md](docs/retailer/RE_PRD.md) 참조
+ 프로젝트 MarketLink 소매점 사이트
+ 업데이트 2024-11-28 (PRD 기반 재정비)
+ 문서 [RE_PRD.md](docsretailerRE_PRD.md) 참조
 
 ---
 
 ## 📋 개발 로드맵
 
 ```
-Phase 1: 인증 & 기본 구조 (완료)
-Phase 2: 상품 탐색 & 장바구니 (완료)
-Phase 3: 주문 & 결제 (진행 중)
-Phase 4: 거래 관리 & 마이페이지 (진행 중)
-Phase 5: AI & 최적화 (예정)
+Phase 1 인증 & 기본 구조 (완료)
+Phase 2 상품 탐색 & 장바구니 (완료)
+Phase 3 주문 & 결제 (진행 중)
+Phase 4 거래 관리 & 마이페이지 (진행 중)
+Phase 5 AI & 최적화 (예정)
 ```
 
 ---
 
-## Phase 1: 인증 & 진입 (R.AUTH) 🔐
+## Phase 1 인증 & 진입 (R.AUTH) 🔐
 
 PRD 3.0 섹션 참조.
 
 ### 1.1 인증 시스템 (R.AUTH.01)
-- [x] **Clerk 초기 설정**
-  - [x] Clerk 프로젝트 연동 및 환경변수 설정
-  - [x] 로그인/회원가입 페이지 (`/sign-in`, `/sign-up`)
-  - [x] 한국어 로컬라이제이션
-- [x] **소매점 역할 관리**
-  - [x] 역할 선택 페이지 (`/role-selection`)
-  - [x] 소매점(`retailer`) 메타데이터 연동
+
+- [X] Clerk 초기 설정
+  - [X] Clerk 프로젝트 연동 및 환경변수 설정
+  - [X] 로그인회원가입 페이지 (`sign-in`, `sign-up`)
+  - [X] 한국어 로컬라이제이션
+- [X] 소매점 역할 관리
+  - [X] 역할 선택 페이지 (`role-selection`)
+  - [X] 소매점(`retailer`) 메타데이터 연동
 
 ### 1.2 진입 및 보안 (R.AUTH.02, R.AUTH.03)
-- [x] **초기 리다이렉트 (R.AUTH.02)**
-  - [x] 로그인 시 `/retailer/dashboard`로 이동
-  - [x] 미인증 사용자 접근 차단 (Middleware)
-- [ ] **데이터 접근 권한 (R.AUTH.03)**
+
+- [X] 초기 리다이렉트 (R.AUTH.02)
+  - [X] 로그인 시 `retailerdashboard`로 이동
+  - [X] 미인증 사용자 접근 차단 (Middleware)
+- [ ] 데이터 접근 권한 (R.AUTH.03)
   - [ ] Supabase RLS 정책 수립 (본인 주문만 조회)
   - [ ] 도매점 PII(개인정보) 접근 차단 정책
 
 ### 1.3 레이아웃구조
-- [x] **Retailer 공통 레이아웃**
-  - [x] `/retailer` 경로 레이아웃 (`layout.tsx`)
-  - [x] 모바일 대응 사이드바/헤더 (`page-header.tsx`, `sidebar.tsx`)
-  - [x] 페이지별 동적 타이틀 처리
+
+- [X] Retailer 공통 레이아웃
+  - [X] `retailer` 경로 레이아웃 (`layout.tsx`)
+  - [X] 모바일 대응 사이드바헤더 (`page-header.tsx`, `sidebar.tsx`)
+  - [X] 페이지별 동적 타이틀 처리
 
 ---
 
-## Phase 2: 대시보드 & 상품 탐색 🛒
+## Phase 2 대시보드 & 상품 탐색 🛒
 
 PRD 3.1, 3.2, 3.3 섹션 참조.
 
 ### 2.1 대시보드 (R.DASH)
-- [x] **Bento Grid 레이아웃 (R.DASH.01)**
-  - [x] 반응형 대시보드 UI 구현
-- [x] **AI 추천 상품 (R.DASH.02)**
-  - [x] 추천 상품 UI 카드 구현
-  - [x] "지금 구매해야 할 상품" 리스트
-- [x] **주문/알림 요약 (R.DASH.03, R.DASH.04)**
-  - [x] 최근 주문 상태 요약 컴포넌트
-  - [x] 재고 부족/긴급 공지 알림 UI
+
+- [X] Bento Grid 레이아웃 (R.DASH.01)
+  - [X] 반응형 대시보드 UI 구현
+- [X] AI 추천 상품 (R.DASH.02)
+  - [X] 추천 상품 UI 카드 구현
+  - [X] 지금 구매해야 할 상품 리스트
+- [X] 주문알림 요약 (R.DASH.03, R.DASH.04)
+  - [X] 최근 주문 상태 요약 컴포넌트
+  - [X] 재고 부족긴급 공지 알림 UI
 
 ### 2.2 상품 검색 (R.SEARCH)
-- [x] **Smart Search (R.SEARCH.01)**
-  - [x] Command Palette (`Cmd+K`) 구현
-  - [x] 상품명/카테고리 검색 기능
-- [x] **상품 리스트 & 필터 (R.SEARCH.02, R.SEARCH.03)**
-  - [x] 상품 목록 페이지 UI
-  - [x] 카테고리/배송 필터링 UI
-- [x] **상품 상세 & 익명화 (R.SEARCH.04)**
-  - [x] 상품 상세 페이지 구현
-  - [x] 도매점 정보 익명화 처리 (예: Partner #F2B-01)
-- [x] **장바구니 담기 (R.SEARCH.05)**
-  - [x] 수량 선택 및 장바구니 추가 버튼
+
+- [X] Smart Search (R.SEARCH.01)
+  - [X] Command Palette (`Cmd+K`) 구현
+  - [X] 상품명카테고리 검색 기능
+- [X] 상품 리스트 & 필터 (R.SEARCH.02, R.SEARCH.03)
+  - [X] 상품 목록 페이지 UI
+  - [X] 카테고리배송 필터링 UI
+- [X] 상품 상세 & 익명화 (R.SEARCH.04)
+  - [X] 상품 상세 페이지 구현
+  - [X] 도매점 정보 익명화 처리 (예 Partner #F2B-01)
+- [X] 장바구니 담기 (R.SEARCH.05)
+  - [X] 수량 선택 및 장바구니 추가 버튼
 
 ### 2.3 장바구니 (R.CART)
-- [x] **장바구니 관리 (R.CART.01, R.CART.02)**
-  - [x] 장바구니 목록 UI
-  - [x] 수량 변경 및 삭제 기능
-  - [x] 상태 관리 (Zustand/Local Storage)
-- [x] **주문 예상 (R.CART.03, R.CART.04)**
-  - [x] 예상 결제 금액 계산
-  - [x] 최소 주문 수량 검증
+
+- [X] 장바구니 관리 (R.CART.01, R.CART.02)
+  - [X] 장바구니 목록 UI
+  - [X] 수량 변경 및 삭제 기능
+  - [X] 상태 관리 (ZustandLocal Storage)
+- [X] 주문 예상 (R.CART.03, R.CART.04)
+  - [X] 예상 결제 금액 계산
+  - [X] 최소 주문 수량 검증
 
 ---
 
-## Phase 3: 주문 & 결제 💳
+## Phase 3 주문 & 결제 💳
 
 PRD 3.4 섹션 참조.
 
 ### 3.1 주문서 작성 (R.ORDER.01, R.ORDER.02)
-- [x] **주문서 UI**
-  - [x] 주문 상품 요약 표시
-  - [x] 배송지 정보 입력 폼
-- [x] **배송 옵션 (R.ORDER.01)**
-  - [x] 새벽/일반 배송 선택 UI
-- [x] **배송 시간 (R.ORDER.02)**
-  - [x] 배송 희망 시간 선택 UI
+
+- [X] 주문서 UI
+  - [X] 주문 상품 요약 표시
+  - [X] 배송지 정보 입력 폼
+- [X] 배송 옵션 (R.ORDER.01)
+  - [X] 새벽일반 배송 선택 UI
+- [X] 배송 시간 (R.ORDER.02)
+  - [X] 배송 희망 시간 선택 UI
 
 ### 3.2 결제 처리 (R.ORDER.03-05)
-- [x] **결제 수단 선택 (R.ORDER.03)**
-  - [x] 결제 수단(카드/간편결제) 선택 UI
-- [ ] **PG 연동 (R.ORDER.03)**
+
+- [X] 결제 수단 선택 (R.ORDER.03)
+  - [X] 결제 수단(카드간편결제) 선택 UI
+- [ ] PG 연동 (R.ORDER.03)
   - [ ] Toss Payments SDK 설치 및 연동
-  - [ ] 결제 승인/실패 처리
-- [ ] **주문 생성 (R.ORDER.05)**
+  - [ ] 결제 승인실패 처리
+- [ ] 주문 생성 (R.ORDER.05)
   - [ ] 주문 데이터 검증 및 DB 생성 (Server Action)
 
 ---
 
-## Phase 4: 거래 관리 & 마이페이지 📦
+## Phase 4 거래 관리 & 마이페이지 📦
 
 PRD 3.5 섹션 참조.
 
 ### 4.1 주문 내역 (R.MY.01, R.MY.02)
-- [x] **주문 목록 조회 (R.MY.01)**
-  - [x] 주문 리스트 UI 및 상태 필터
-  - [x] 주문 상세 페이지 UI
-- [x] **배송 타임라인 (R.MY.02)**
-  - [x] 주문 진행 상태 타임라인 시각화
+
+- [X] 주문 목록 조회 (R.MY.01)
+  - [X] 주문 리스트 UI 및 상태 필터
+  - [X] 주문 상세 페이지 UI
+- [X] 배송 타임라인 (R.MY.02)
+  - [X] 주문 진행 상태 타임라인 시각화
 
 ### 4.2 구매 확정 (R.MY.03)
-- [x] **구매 확정 프로세스**
-  - [x] 구매 확정 버튼 및 확인 모달
-  - [x] 구매 확정 처리 Action
+
+- [X] 구매 확정 프로세스
+  - [X] 구매 확정 버튼 및 확인 모달
+  - [X] 구매 확정 처리 Action
 
 ### 4.3 마이페이지
-- [x] **프로필 관리**
-  - [x] 내 정보 수정 페이지
-  - [x] 배송지 관리 기능
+
+- [X] 프로필 관리
+  - [X] 내 정보 수정 페이지
+  - [X] 배송지 관리 기능
 
 ---
 
-## Phase 5: AI & 최적화 🤖
+## Phase 5 AI & 최적화 🤖
 
 PRD 3.6 섹션 참조.
 
 ### 5.1 AI 인터페이스 (R.AI)
-- [ ] **AI 챗봇 (R.AI.01, R.AI.02)**
+
+- [ ] AI 챗봇 (R.AI.01, R.AI.02)
   - [ ] Floating Action Button (FAB)
   - [ ] Command Palette 통합 질의
-- [ ] **지능형 응답 (R.AI.03, R.AI.04)**
+- [ ] 지능형 응답 (R.AI.03, R.AI.04)
   - [ ] 배송 가능 여부 질의 처리
   - [ ] 응답 내 PII 마스킹 처리
 
 ### 5.2 최적화 및 테스트
-- [ ] **성능 최적화**
+
+- [ ] 성능 최적화
   - [ ] 이미지 최적화 및 Lazy Loading
-  - [ ] **Supabase Storage 이미지 도메인 설정**
+  - [ ] Supabase Storage 이미지 도메인 설정
     - [ ] `next.config.ts`의 `images.remotePatterns`에 Supabase Storage 도메인 추가
-    - [ ] 예: `{ hostname: "*.supabase.co", protocol: "https" }` 또는 특정 프로젝트 도메인
+    - [ ] 예 `{ hostname .supabase.co, protocol https }` 또는 특정 프로젝트 도메인
     - [ ] Next.js Image 컴포넌트에서 Supabase Storage 이미지 사용 시 필수 설정
-- [ ] **테스트**
+- [ ] 테스트
   - [ ] 주요 시나리오 E2E 테스트
 
 ---
 
-> **Note:** 이 문서는 소매점(Retailer) 기능 개발만을 추적합니다. 도매점 및 관리자 기능은 포함되지 않습니다.
+ Note 이 문서는 소매점(Retailer) 기능 개발만을 추적합니다. 도매점 및 관리자 기능은 포함되지 않습니다.

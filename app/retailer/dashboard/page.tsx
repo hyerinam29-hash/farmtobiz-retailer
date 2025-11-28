@@ -28,6 +28,9 @@
  * @see {@link PRD.md} - R.DASH.01~04 요구사항
  */
 
+"use client";
+
+import { useState } from "react";
 import { BentoGrid, BentoCard } from "@/components/retailer/bento-grid";
 import AIRecommendationList from "@/components/retailer/ai-recommendation-list";
 import RecentOrdersSummary from "@/components/retailer/recent-orders-summary";
@@ -216,6 +219,31 @@ const mockMarketPrices = [
 ];
 
 export default function RetailerDashboardPage() {
+  // 긴급 알림 상태 관리 (추후 API로 교체 시에도 동일한 구조 사용)
+  const [alerts, setAlerts] = useState(mockAlerts);
+
+  // 알림 삭제 핸들러
+  // 추후 API 연동 시: await deleteAlert(alertId) 호출 후 상태 업데이트
+  const handleDeleteAlert = (alertId: string) => {
+    console.log("[Dashboard] 알림 삭제 요청:", alertId);
+    
+    // 목 데이터 삭제 (즉시 UI 업데이트)
+    setAlerts((prev) => {
+      const filtered = prev.filter((alert) => alert.id !== alertId);
+      console.log("[Dashboard] 알림 삭제 완료. 남은 알림 수:", filtered.length);
+      return filtered;
+    });
+
+    // TODO: 추후 API 연동 시 아래 코드 활성화
+    // try {
+    //   await deleteAlert(alertId);
+    //   setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
+    // } catch (error) {
+    //   console.error("알림 삭제 실패:", error);
+    //   // 에러 처리 (토스트 메시지 등)
+    // }
+  };
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">
       {/* 헤더 섹션 */}
@@ -242,7 +270,7 @@ export default function RetailerDashboardPage() {
 
         {/* 작은 카드: 긴급 알림 (1x1) - R.DASH.04 */}
         <BentoCard className="min-h-[280px]">
-          <UrgentAlerts alerts={mockAlerts} />
+          <UrgentAlerts alerts={alerts} onDelete={handleDeleteAlert} />
         </BentoCard>
 
         {/* 큰 카드: AI 추천 상품 (전체 너비) - R.DASH.02 */}
