@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Upload, Bot } from "lucide-react";
 import { toast } from "sonner";
+import { createInquiry } from "@/actions/retailer/create-inquiry";
 
 const inquirySchema = z.object({
   type: z.string().min(1, "문의 유형을 선택해주세요"),
@@ -60,17 +61,33 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
     setIsSubmitting(true);
 
     try {
-      // TODO: API 호출로 교체
-      // const response = await createInquiry({ ...data, userId });
-      
-      // 임시: AI 응답 시뮬레이션
-      setTimeout(() => {
-        setAiResponse("안녕하세요! 문의주신 내용에 대해 답변 드립니다.\n\n일시적인 네트워크 문제일 수 있으니, 잠시 후 다시 시도해보시는 것을 권장합니다. 문제가 지속될 경우, 사용하고 계신 브라우저의 캐시를 삭제하시거나 다른 브라우저(예: Chrome, Firefox)를 이용해 보시기 바랍니다.\n\n위 방법으로도 해결되지 않는다면, 오류 발생 시 화면 스크린샷과 함께 '사람 상담 연결' 버튼을 눌러주세요. 담당자가 신속하게 확인 후 도와드리겠습니다.");
+      // Server Action 호출
+      const result = await createInquiry({
+        type: data.type,
+        title: data.title,
+        content: data.content,
+      });
+
+      if (!result.success) {
+        toast.error(result.error || "문의 제출에 실패했습니다.");
         setIsSubmitting(false);
-        toast.success("문의가 제출되었습니다.");
-        reset();
-        setFile(null);
-      }, 1500);
+        return;
+      }
+
+      // AI 답변 표시
+      if (result.aiResponse) {
+        setAiResponse(result.aiResponse);
+      } else {
+        // AI 답변 생성 실패 시 기본 메시지
+        setAiResponse(
+          "죄송합니다. AI 답변 생성에 실패했습니다. 문의는 정상적으로 접수되었으며, 담당자가 확인 후 답변드리겠습니다.",
+        );
+      }
+
+      toast.success("문의가 제출되었습니다.");
+      reset();
+      setFile(null);
+      setIsSubmitting(false);
     } catch (error) {
       console.error("❌ [InquiryForm] 문의 제출 실패:", error);
       toast.error("문의 제출에 실패했습니다. 다시 시도해주세요.");
