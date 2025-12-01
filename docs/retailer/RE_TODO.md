@@ -1,7 +1,7 @@
 # TODO - 소매점(Retailer) 기능 개발
 
  프로젝트 MarketLink 소매점 사이트
- 업데이트 2024-11-28 (PRD 기반 재정비)
+ 업데이트 2024-12-XX (PRD 기반 재정비)
  문서 [RE_PRD.md](docsretailerRE_PRD.md) 참조
 
 ---
