@@ -8,11 +8,13 @@
  * 주요 기능:
  * 1. 대시보드 링크
  * 2. 상품 검색 링크
- * 3. 주문 내역 링크
- * 4. 마이페이지 링크
- * 5. 현재 경로 하이라이트
- * 6. 모바일 반응형 지원 (햄버거 메뉴로 제어)
- * 7. 사용자 프로필 드롭다운 메뉴 (프로필 수정, 로그아웃)
+ * 3. 장바구니 링크
+ * 4. 주문 내역 링크
+ * 5. 마이페이지 링크
+ * 6. 고객센터 링크
+ * 7. 현재 경로 하이라이트
+ * 8. 모바일 반응형 지원 (햄버거 메뉴로 제어)
+ * 9. 사용자 프로필 드롭다운 메뉴 (프로필 수정, 로그아웃)
  *
  * @dependencies
  * - @clerk/nextjs (useUser, useClerk)
@@ -32,8 +34,10 @@ import Image from "next/image";
 import {
   LayoutDashboard,
   Search,
+  ShoppingCart,
   ClipboardList,
   User,
+  HelpCircle,
   X,
   Settings,
   LogOut,
@@ -60,6 +64,11 @@ const menuItems = [
     icon: Search,
   },
   {
+    href: "/retailer/cart",
+    label: "장바구니",
+    icon: ShoppingCart,
+  },
+  {
     href: "/retailer/orders",
     label: "주문 내역",
     icon: ClipboardList,
@@ -68,6 +77,11 @@ const menuItems = [
     href: "/retailer/profile",
     label: "마이페이지",
     icon: User,
+  },
+  {
+    href: "/retailer/cs",
+    label: "고객센터",
+    icon: HelpCircle,
   },
 ];
 
