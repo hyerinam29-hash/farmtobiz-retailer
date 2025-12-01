@@ -14,14 +14,13 @@
  * 6. 고객센터 링크
  * 7. 현재 경로 하이라이트
  * 8. 모바일 반응형 지원 (햄버거 메뉴로 제어)
- * 9. 사용자 프로필 드롭다운 메뉴 (프로필 수정, 로그아웃)
+ * 9. 사용자 프로필 메뉴 (프로필 수정, 로그아웃) - 하단 고정
  *
  * @dependencies
  * - @clerk/nextjs (useUser, useClerk)
  * - next/navigation (usePathname, Link, useRouter)
  * - lucide-react (아이콘)
  * - lib/utils (cn 함수)
- * - components/ui/dropdown-menu (드롭다운 메뉴)
  */
 
 "use client";
@@ -41,16 +40,8 @@ import {
   X,
   Settings,
   LogOut,
-  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const menuItems = [
   {
@@ -198,57 +189,36 @@ export default function RetailerSidebar({
         {/* 사용자 프로필 영역 */}
         {isLoaded && user && (
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-full flex items-center gap-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors p-2 -m-2">
-                  {/* 아바타 */}
-                  <div className="relative flex-shrink-0">
-                    {avatarUrl ? (
-                      <Image
-                        src={avatarUrl}
-                        alt={userName || "사용자"}
-                        width={48}
-                        height={48}
-                        className="rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-lg">
-                        {getInitials(userName)}
-                      </div>
-                    )}
+            <div className="w-full flex items-center gap-3">
+              {/* 아바타 */}
+              <div className="relative flex-shrink-0">
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={userName || "사용자"}
+                    width={48}
+                    height={48}
+                    className="rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-lg">
+                    {getInitials(userName)}
                   </div>
+                )}
+              </div>
 
-                  {/* 사용자 정보 */}
-                  <div className="flex-1 min-w-0 text-left">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {userName || "소매점"}
-                    </p>
-                    {userEmail && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {userEmail}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* 드롭다운 아이콘 */}
-                  <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem onClick={handleProfileClick}>
-                  <Settings className="w-4 h-4" />
-                  <span>프로필 수정</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleSignOut}
-                  variant="destructive"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>로그아웃</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              {/* 사용자 정보 */}
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                  {userName || "소매점"}
+                </p>
+                {userEmail && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {userEmail}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -290,6 +260,28 @@ export default function RetailerSidebar({
             })}
           </div>
         </nav>
+
+        {/* 프로필 메뉴 - 하단 고정 */}
+        {isLoaded && user && (
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={handleProfileClick}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+              >
+                <Settings className="w-4 h-4" />
+                <span>프로필 수정</span>
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>로그아웃</span>
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
     </>
   );
