@@ -287,30 +287,30 @@ export default function ProfileEditForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-6xl">내 정보 수정</CardTitle>
-          <CardDescription className="text-3xl">
+          <CardTitle className="text-4xl">내 정보 수정</CardTitle>
+          <CardDescription className="text-2xl">
             소매점의 기본 정보를 수정할 수 있습니다.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-20">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
             {/* 상호명 */}
             <FormField
               control={form.control}
               name="business_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-3xl">상호명</FormLabel>
+                  <FormLabel className="text-2xl">상호명</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="예: 강남식자재마트"
                       {...field}
                       disabled={isLoading}
-                      className="h-24 text-3xl"
+                      className="h-16 text-2xl"
                     />
                   </FormControl>
-                  <FormDescription className="text-3xl">
+                  <FormDescription className="text-2xl">
                     현재 상호명: {initialData?.business_name || "없음"}
                   </FormDescription>
                   <FormMessage />
@@ -324,7 +324,7 @@ export default function ProfileEditForm() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-3xl">전화번호</FormLabel>
+                  <FormLabel className="text-2xl">전화번호</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="010-1234-5678"
@@ -333,10 +333,10 @@ export default function ProfileEditForm() {
                         handlePhoneChange(e.target.value);
                       }}
                       disabled={isLoading}
-                      className="h-24 text-3xl"
+                      className="h-16 text-2xl"
                     />
                   </FormControl>
-                  <FormDescription className="text-3xl">
+                  <FormDescription className="text-2xl">
                     현재 전화번호: {initialData?.phone || "없음"}
                   </FormDescription>
                   <FormMessage />
@@ -350,14 +350,14 @@ export default function ProfileEditForm() {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-3xl">주소</FormLabel>
+                  <FormLabel className="text-2xl">주소</FormLabel>
                   <FormControl>
                     <div className="flex gap-3">
                       <Input
                         placeholder="예: 서울시 강남구 테헤란로 123"
                         {...field}
                         disabled={isLoading}
-                        className="h-24 text-3xl flex-1"
+                        className="h-16 text-2xl flex-1"
                         readOnly
                         onClick={handleAddressSearch}
                       />
@@ -365,15 +365,15 @@ export default function ProfileEditForm() {
                         type="button"
                         onClick={handleAddressSearch}
                         disabled={isLoading || !isPostcodeLoaded}
-                        className="h-24 px-8 text-3xl"
+                        className="h-16 px-8 text-2xl"
                         variant="outline"
                       >
-                        <MapPin className="w-8 h-8 mr-3" />
+                        <MapPin className="w-6 h-6 mr-3" />
                         주소 검색
                       </Button>
                     </div>
                   </FormControl>
-                  <FormDescription className="text-3xl">
+                  <FormDescription className="text-2xl">
                     현재 주소: {initialData?.address || "없음"}
                   </FormDescription>
                   <FormMessage />
@@ -383,8 +383,8 @@ export default function ProfileEditForm() {
 
             {/* 제출 버튼 */}
             <div className="flex justify-end">
-              <Button type="submit" disabled={isLoading} className="h-24 text-3xl px-12 py-6">
-                {isLoading && <Loader2 className="mr-6 h-12 w-12 animate-spin" />}
+              <Button type="submit" disabled={isLoading} className="h-16 text-2xl px-12 py-6">
+                {isLoading && <Loader2 className="mr-6 h-10 w-10 animate-spin" />}
                 수정하기
               </Button>
             </div>

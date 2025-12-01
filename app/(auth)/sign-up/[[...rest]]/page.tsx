@@ -12,19 +12,22 @@
  *    - type=retailer: 소매점 대시보드 (바로 이동)
  *    - type=wholesaler: 도매점 온보딩
  * 3. Catch-all route로 Clerk 내부 라우팅 지원
+ * 4. 도매 계정 중복 가입 차단 모달 표시
  *
  * 개선 사항 (v2):
  * - 역할별 회원가입 플로우 분리 (type 쿼리 파라미터)
  * - 회원가입 후 동기화를 위한 약간의 지연 추가
  * - forceRedirectUrl 사용으로 리다이렉트 안정성 향상
+ * - 도매 계정 중복 가입 차단 기능 추가
  *
  * @dependencies
  * - @clerk/nextjs (SignUp)
+ * - components/auth/sign-up-with-wholesaler-block
  *
  * @see {@link https://clerk.com/docs/components/sign-up/sign-up} - Clerk SignUp 문서
  */
 
-import { SignUp } from "@clerk/nextjs";
+import SignUpWithWholesalerBlock from "@/components/auth/sign-up-with-wholesaler-block";
 
 interface SignUpPageProps {
   searchParams: Promise<{ type?: "retailer" }>;
@@ -41,7 +44,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-      <SignUp
+      <SignUpWithWholesalerBlock
         appearance={{
           elements: {},
         }}

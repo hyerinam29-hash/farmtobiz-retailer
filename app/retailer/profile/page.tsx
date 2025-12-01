@@ -28,7 +28,7 @@ export default async function ProfilePage() {
   return (
     <div className="p-12 md:p-16 lg:p-20">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-6xl md:text-9xl font-bold mb-20">마이페이지</h1>
+        <h1 className="text-4xl md:text-6xl font-bold mb-20">마이페이지</h1>
         <ProfileTabs />
       </div>
     </div>
