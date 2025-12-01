@@ -13,7 +13,7 @@ import { Truck, Package, RefreshCw } from "lucide-react";
 
 interface ProductDetailTabsProps {
   product: {
-    description: string;
+    description: string | null;
     delivery_dawn_available: boolean;
     delivery_method: string;
   };
@@ -68,7 +68,21 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
                 <div className="space-y-3 text-gray-700 dark:text-gray-300">
                   <div>
                     <p className="font-medium mb-1">배송방법</p>
+                    <p>
+                      {product.delivery_method === "courier" && "택배"}
+                      {product.delivery_method === "direct" && "직배송"}
+                      {product.delivery_method === "quick" && "퀵서비스"}
+                      {product.delivery_method === "freight" && "화물"}
+                      {product.delivery_method === "pickup" && "픽업"}
+                      {!["courier", "direct", "quick", "freight", "pickup"].includes(product.delivery_method) && product.delivery_method}
+                    </p>
                   </div>
+                  {product.delivery_dawn_available && (
+                    <div>
+                      <p className="font-medium mb-1">새벽 배송</p>
+                      <p className="text-green-600 dark:text-green-400">새벽 배송 가능합니다.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

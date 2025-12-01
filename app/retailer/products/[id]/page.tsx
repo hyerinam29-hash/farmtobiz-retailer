@@ -9,6 +9,7 @@
  * 4. 수량 선택
  *
  * @dependencies
+ * - lib/supabase/queries/retailer-products.ts
  * - app/retailer/layout.tsx (레이아웃)
  *
  * @see {@link PRD.md} - R.SEARCH.04, R.SEARCH.05 요구사항
@@ -16,27 +17,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ChevronLeft, ShoppingCart, Truck, Package } from "lucide-react";
+import { getRetailerProductById } from "@/lib/supabase/queries/retailer-products";
 import { ProductDetailTabs } from "./product-detail-tabs";
-
-// 임시 목 데이터
-const mockProduct = {
-  id: "1",
-  name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  description: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  price: 0, // 가격 삭제, 나중에 내용 추가 가능
-  moq: 1,
-  delivery_method: "courier",
-  stock_quantity: 0, // 재고 삭제, 나중에 내용 추가 가능
-  image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
-  anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-  delivery_dawn_available: true,
-};
 
 export default async function ProductDetailPage({
   params,
@@ -44,6 +28,33 @@ export default async function ProductDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  console.log("🔍 [product-detail-page] 상품 상세 페이지 로드", { productId: id });
+
+  // 실제 DB에서 상품 정보 조회
+  const product = await getRetailerProductById(id);
+
+  // 상품이 없거나 비활성화된 경우 404 처리
+  if (!product) {
+    console.log("⚠️ [product-detail-page] 상품 없음", { productId: id });
+    notFound();
+  }
+
+  console.log("✅ [product-detail-page] 상품 조회 완료", {
+    productId: id,
+    productName: product.standardized_name || product.name,
+  });
+
+  // 배송 방법 한글 변환
+  const deliveryMethodMap: Record<string, string> = {
+    courier: "택배",
+    direct: "직배송",
+    quick: "퀵서비스",
+    freight: "화물",
+    pickup: "픽업",
+  };
+
+  const deliveryMethodText = deliveryMethodMap[product.delivery_method] || product.delivery_method;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
@@ -61,10 +72,10 @@ export default async function ProductDetailPage({
         {/* 왼쪽: 이미지 */}
         <div className="flex flex-col gap-4">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-700">
-            {mockProduct.image_url ? (
+            {product.image_url ? (
               <Image
-                src={mockProduct.image_url}
-                alt={mockProduct.standardized_name}
+                src={product.image_url}
+                alt={product.standardized_name || product.name}
                 fill
                 className="object-cover"
                 priority
@@ -74,14 +85,6 @@ export default async function ProductDetailPage({
                 <span className="text-gray-400 text-base">이미지 없음</span>
               </div>
             )}
-            {/* 배지 */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
-              {mockProduct.is_seasonal && (
-                <span className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-full">
-                  제철 농산물
-                </span>
-              )}
-            </div>
           </div>
         </div>
 
@@ -91,24 +94,26 @@ export default async function ProductDetailPage({
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Package className="w-4 h-4" />
             <span>
-              {mockProduct.anonymous_seller_id} · {mockProduct.seller_region}
+              {product.wholesaler_anonymous_code} · {product.wholesaler_region}
             </span>
           </div>
 
           {/* 상품명 */}
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
-              {mockProduct.standardized_name}
+              {product.standardized_name || product.name}
             </h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              {mockProduct.category} · {mockProduct.specification}
+              {product.category} {product.specification ? `· ${product.specification}` : ""}
             </p>
           </div>
 
           {/* 설명 */}
-          <p className="text-gray-700 dark:text-gray-300">
-            {mockProduct.description}
-          </p>
+          {product.description && (
+            <p className="text-gray-700 dark:text-gray-300">
+              {product.description}
+            </p>
+          )}
 
           {/* 구분선 */}
           <div className="border-t border-gray-200 dark:border-gray-700" />
@@ -117,15 +122,27 @@ export default async function ProductDetailPage({
           <div className="flex flex-col gap-2">
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold text-green-600 dark:text-green-400">
-                {mockProduct.price.toLocaleString()}원
+                {product.price.toLocaleString()}원
               </span>
-              <span className="text-gray-500 dark:text-gray-400">
-                / {mockProduct.specification}
-              </span>
+              {product.specification && (
+                <span className="text-gray-500 dark:text-gray-400">
+                  / {product.specification}
+                </span>
+              )}
             </div>
-            {mockProduct.moq > 1 && (
+            {product.moq > 1 && (
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                최소 주문 수량: {mockProduct.moq}개
+                최소 주문 수량: {product.moq}개
+              </p>
+            )}
+            {product.stock_quantity > 0 && (
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                재고: {product.stock_quantity}개
+              </p>
+            )}
+            {product.stock_quantity === 0 && (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                품절
               </p>
             )}
           </div>
@@ -137,6 +154,19 @@ export default async function ProductDetailPage({
               <p className="font-medium text-gray-900 dark:text-gray-100">
                 배송방법
               </p>
+              <p className="text-gray-600 dark:text-gray-400">
+                {deliveryMethodText}
+              </p>
+              {product.delivery_dawn_available && (
+                <p className="text-green-600 dark:text-green-400 font-medium mt-1">
+                  새벽 배송 가능
+                </p>
+              )}
+              {product.shipping_fee > 0 && (
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
+                  배송비: {product.shipping_fee.toLocaleString()}원
+                </p>
+              )}
             </div>
           </div>
 
@@ -151,8 +181,8 @@ export default async function ProductDetailPage({
               </button>
               <input
                 type="number"
-                min={mockProduct.moq}
-                defaultValue={mockProduct.moq}
+                min={product.moq}
+                defaultValue={product.moq}
                 className="w-20 h-10 text-center border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
               <button className="flex items-center justify-center w-10 h-10 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -163,11 +193,17 @@ export default async function ProductDetailPage({
 
           {/* 버튼 */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+            <button
+              disabled={product.stock_quantity === 0}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
+            >
               <ShoppingCart className="w-5 h-5" />
               <span>장바구니 담기</span>
             </button>
-            <button className="flex-1 px-6 py-4 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-bold rounded-lg transition-colors">
+            <button
+              disabled={product.stock_quantity === 0}
+              className="flex-1 px-6 py-4 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
+            >
               바로 구매
             </button>
           </div>
@@ -175,7 +211,7 @@ export default async function ProductDetailPage({
       </div>
 
       {/* 추가 정보 탭 */}
-      <ProductDetailTabs product={mockProduct} />
+      <ProductDetailTabs product={product} />
     </div>
   );
 }
