@@ -9,7 +9,7 @@
  * 주요 기능:
  * 1. Clerk SignUp 컴포넌트를 통한 회원가입 처리
  * 2. 회원가입 성공 시 역할별 자동 리다이렉트
- *    - type=retailer: 소매점 대시보드
+ *    - type=retailer: 소매점 대시보드 (바로 이동)
  *    - type=wholesaler: 도매점 온보딩
  * 3. Catch-all route로 Clerk 내부 라우팅 지원
  *
@@ -36,7 +36,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   // 역할별 리다이렉트 URL 결정
   const afterSignUpUrl =
     type === "retailer"
-      ? "/retailer-onboarding" // 소매점: 온보딩 페이지
+      ? "/retailer/dashboard" // 소매점: 바로 대시보드로 이동
       : "/retailer/dashboard"; // 기본값
 
   return (
