@@ -180,7 +180,7 @@ export default function RetailerOnboardingForm() {
                 name="business_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>상호명 *</FormLabel>
+                    <FormLabel>상호명(이름) *</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="예: 강남식자재마트"
@@ -233,7 +233,7 @@ export default function RetailerOnboardingForm() {
                         disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormDescription>사업장 주소를 입력해주세요.</FormDescription>
+                    <FormDescription>사업장(주소)를 입력 해주세요</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
