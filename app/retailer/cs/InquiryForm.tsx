@@ -17,9 +17,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Upload, Bot } from "lucide-react";
+import { Upload, Bot, ThumbsUp, ThumbsDown } from "lucide-react";
 import { toast } from "sonner";
 import { createInquiry } from "@/actions/retailer/create-inquiry";
+import { updateInquiryFeedback } from "@/actions/retailer/inquiry-feedback";
+import { cn } from "@/lib/utils";
 
 const inquirySchema = z.object({
   type: z.string().min(1, "문의 유형을 선택해주세요"),
@@ -37,6 +39,9 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [inquiryId, setInquiryId] = useState<string | null>(null); // 문의 ID 저장
+  const [selectedFeedback, setSelectedFeedback] = useState<boolean | null>(null); // 선택된 피드백 (true: 네, false: 아니요, null: 미선택)
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false); // 피드백 제출 중
 
   const {
     register,
@@ -84,6 +89,11 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
         );
       }
 
+      // 문의 ID 저장
+      if (result.inquiryId) {
+        setInquiryId(result.inquiryId);
+      }
+
       toast.success("문의가 제출되었습니다.");
       reset();
       setFile(null);
@@ -104,6 +114,40 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
       }
       setFile(selectedFile);
       console.log("📎 [InquiryForm] 파일 선택됨", selectedFile.name);
+    }
+  };
+
+  // 피드백 제출 핸들러
+  const handleFeedback = async (helpful: boolean) => {
+    // 이미 피드백이 선택된 경우 무시 (한 번만 클릭 가능)
+    if (!inquiryId || isSubmittingFeedback || selectedFeedback !== null) {
+      return;
+    }
+
+    console.log("👍 [InquiryForm] 피드백 제출", { inquiryId, helpful });
+
+    setIsSubmittingFeedback(true);
+    setSelectedFeedback(helpful);
+
+    try {
+      const result = await updateInquiryFeedback({
+        inquiryId,
+        helpful,
+      });
+
+      if (result.success) {
+        toast.success("피드백이 저장되었습니다.");
+      } else {
+        toast.error(result.error || "피드백 저장에 실패했습니다.");
+        // 실패 시 선택 상태 되돌리기
+        setSelectedFeedback(null);
+      }
+    } catch (error) {
+      console.error("❌ [InquiryForm] 피드백 제출 실패:", error);
+      toast.error("피드백 저장에 실패했습니다.");
+      setSelectedFeedback(null);
+    } finally {
+      setIsSubmittingFeedback(false);
     }
   };
 
@@ -244,15 +288,55 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
               이 답변이 도움이 되셨나요?
             </p>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <span className="mr-2">👍</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleFeedback(true)}
+                disabled={isSubmittingFeedback || selectedFeedback !== null}
+                className={cn(
+                  "min-w-[80px]",
+                  selectedFeedback === true
+                    ? "bg-green-500 dark:bg-green-600 text-black dark:text-black border-green-500 dark:border-green-600"
+                    : "",
+                  (isSubmittingFeedback || selectedFeedback !== null) && selectedFeedback !== true
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                )}
+              >
+                <ThumbsUp className={cn(
+                  "w-4 h-4 mr-2",
+                  selectedFeedback === true ? "text-green-600 dark:text-green-700" : "text-green-500"
+                )} />
                 네
               </Button>
-              <Button variant="outline" size="sm">
-                <span className="mr-2">👎</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleFeedback(false)}
+                disabled={isSubmittingFeedback || selectedFeedback !== null}
+                className={cn(
+                  "min-w-[80px]",
+                  selectedFeedback === false
+                    ? "bg-red-500 dark:bg-red-600 text-black dark:text-black border-red-500 dark:border-red-600"
+                    : "",
+                  (isSubmittingFeedback || selectedFeedback !== null) && selectedFeedback !== false
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                )}
+              >
+                <ThumbsDown className={cn(
+                  "w-4 h-4 mr-2",
+                  selectedFeedback === false ? "text-red-600 dark:text-red-700" : "text-red-500"
+                )} />
                 아니요
               </Button>
-              <Button variant="outline" size="sm" className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50">
+              {/* 사람 상담 연결 버튼은 나중에 구현 */}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled
+                className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 opacity-50 cursor-not-allowed"
+              >
                 <span className="mr-2">💬</span>
                 사람 상담 연결
               </Button>
