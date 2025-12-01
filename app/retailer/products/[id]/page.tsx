@@ -22,20 +22,19 @@ import { ProductDetailTabs } from "./product-detail-tabs";
 // 임시 목 데이터
 const mockProduct = {
   id: "1",
-  name: "고당도 설향 딸기",
-  standardized_name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
-  category: "과일",
-  specification: "1kg",
-  description:
-    "GAP 인증을 받은 고랭지에서 재배한 프리미엄 설향 딸기입니다. 당도가 높고 향이 풍부하여 디저트나 생과로 드시기에 적합합니다.",
-  price: 15900,
+  name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  description: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  price: 0, // 가격 삭제, 나중에 내용 추가 가능
   moq: 1,
   delivery_method: "courier",
-  stock_quantity: 50,
-  image_url: "/strawberry.jpg",
-  anonymous_seller_id: "Partner #F2B-01",
-  seller_region: "경기도 양평군",
-  is_seasonal: true,
+  stock_quantity: 0, // 재고 삭제, 나중에 내용 추가 가능
+  image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+  anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
   delivery_dawn_available: true,
 };
 
@@ -62,13 +61,19 @@ export default async function ProductDetailPage({
         {/* 왼쪽: 이미지 */}
         <div className="flex flex-col gap-4">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-700">
-            <Image
-              src={mockProduct.image_url}
-              alt={mockProduct.standardized_name}
-              fill
-              className="object-cover"
-              priority
-            />
+            {mockProduct.image_url ? (
+              <Image
+                src={mockProduct.image_url}
+                alt={mockProduct.standardized_name}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-gray-400 text-base">이미지 없음</span>
+              </div>
+            )}
             {/* 배지 */}
             <div className="absolute top-4 left-4 flex flex-col gap-2">
               {mockProduct.is_seasonal && (

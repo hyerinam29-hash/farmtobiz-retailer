@@ -22,25 +22,25 @@ import { Clock, Package, CreditCard } from "lucide-react";
 const mockOrderItems = [
   {
     id: "1",
-    product_name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
-    product_image: "/strawberry.jpg",
-    quantity: 2,
-    price: 15900,
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    product_image: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+    quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
+    price: 0, // 가격 삭제, 나중에 내용 추가 가능
   },
   {
     id: "2",
-    product_name: "노르웨이 생연어 필렛 500g",
-    product_image: "/salmon.jpg",
-    quantity: 1,
-    price: 22000,
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    product_image: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+    quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
+    price: 0, // 가격 삭제, 나중에 내용 추가 가능
   },
 ];
 
 const mockUserInfo = {
-  name: "김소매",
-  phone: "010-1234-5678",
-  address: "서울특별시 강남구 테헤란로 427",
-  addressDetail: "위워크타워 10층",
+  name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  phone: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  address: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+  addressDetail: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
 };
 
 export default function CheckoutPage() {
@@ -175,12 +175,18 @@ export default function CheckoutPage() {
               {mockOrderItems.map((item) => (
                 <div key={item.id} className="flex gap-4">
                   <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-                    <Image
-                      src={item.product_image}
-                      alt={item.product_name}
-                      fill
-                      className="object-cover"
-                    />
+                    {item.product_image ? (
+                      <Image
+                        src={item.product_image}
+                        alt={item.product_name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">이미지 없음</span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <p className="text-sm font-bold text-gray-900 dark:text-gray-100">

@@ -72,139 +72,139 @@ const mockOrderDetails: Record<string, {
 }> = {
   "1": {
     id: "1",
-    order_number: "20241125-0001",
-    order_date: "2024-11-25",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    order_date: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     status: "delivered",
-    status_label: "배송 완료",
-    delivery_method: "새벽 배송",
-    delivery_scheduled_time: "2024-11-26 오전 7시",
+    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     products: [
       {
         id: "p1",
-        name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
-        image_url: "/strawberry.jpg",
-        quantity: 2,
-        unit_price: 15900,
-        subtotal: 31800,
-        anonymous_seller_id: "Partner #F2B-01",
-        seller_region: "경기도 양평군",
+        name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+        quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
+        unit_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+        subtotal: 0, // 가격 삭제, 나중에 내용 추가 가능
+        anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
       },
     ],
     delivery_info: {
-      recipient_name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울시 강남구 테헤란로 123",
-      address_detail: "1층 과일가게",
-      request: "문 앞에 놓아주세요",
+      recipient_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      phone: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      address: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      address_detail: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      request: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     },
     payment_info: {
-      method: "신용카드",
-      card_name: "삼성카드",
-      card_number: "1234-****-****-5678",
-      paid_at: "2024-11-25 10:30",
+      method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      card_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      card_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      paid_at: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     },
     price_info: {
-      product_total: 31800,
-      total: 35800,
+      product_total: 0, // 가격 삭제, 나중에 내용 추가 가능
+      total: 0, // 가격 삭제, 나중에 내용 추가 가능
     },
     timeline: [
       {
         status: "ordered",
-        label: "주문 접수",
-        timestamp: "2024-11-25 10:30",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "confirmed",
-        label: "주문 확인",
-        timestamp: "2024-11-25 11:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "preparing",
-        label: "상품 준비 중",
-        timestamp: "2024-11-25 14:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "shipping",
-        label: "배송 중",
-        timestamp: "2024-11-26 04:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "delivered",
-        label: "배송 완료",
-        timestamp: "2024-11-26 06:45",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
     ],
   },
   "2": {
     id: "2",
-    order_number: "20241124-0003",
-    order_date: "2024-11-24",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    order_date: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     status: "shipping",
-    status_label: "배송 중",
-    delivery_method: "일반 배송",
-    delivery_scheduled_time: "2024-11-26 오전 9시",
+    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     products: [
       {
         id: "p2",
-        name: "노르웨이 생연어 필렛 500g",
-        image_url: "/salmon.jpg",
-        quantity: 1,
-        unit_price: 22000,
-        subtotal: 22000,
-        anonymous_seller_id: "Partner #F2B-02",
-        seller_region: "부산시 해운대구",
+        name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+        quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
+        unit_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+        subtotal: 0, // 가격 삭제, 나중에 내용 추가 가능
+        anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
       },
     ],
     delivery_info: {
-      recipient_name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울시 강남구 테헤란로 123",
-      address_detail: "1층 과일가게",
-      request: "부재 시 경비실에 맡겨주세요",
+      recipient_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      phone: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      address: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      address_detail: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      request: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     },
     payment_info: {
-      method: "신용카드",
-      card_name: "신한카드",
-      card_number: "5678-****-****-9012",
-      paid_at: "2024-11-24 15:20",
+      method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      card_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      card_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      paid_at: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     },
     price_info: {
-      product_total: 22000,
-      total: 27000,
+      product_total: 0, // 가격 삭제, 나중에 내용 추가 가능
+      total: 0, // 가격 삭제, 나중에 내용 추가 가능
     },
     timeline: [
       {
         status: "ordered",
-        label: "주문 접수",
-        timestamp: "2024-11-24 15:20",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "confirmed",
-        label: "주문 확인",
-        timestamp: "2024-11-24 16:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "preparing",
-        label: "상품 준비 중",
-        timestamp: "2024-11-25 09:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "shipping",
-        label: "배송 중",
-        timestamp: "2024-11-26 08:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "delivered",
-        label: "배송 완료",
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
         timestamp: null,
         completed: false,
       },
@@ -212,79 +212,79 @@ const mockOrderDetails: Record<string, {
   },
   "3": {
     id: "3",
-    order_number: "20241123-0007",
-    order_date: "2024-11-23",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    order_date: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     status: "preparing",
-    status_label: "준비 중",
-    delivery_method: "새벽 배송",
-    delivery_scheduled_time: "2024-11-26 오전 7시",
+    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     products: [
       {
         id: "p3",
-        name: "무농약 아스파라거스 1단",
-        image_url: "/asparagus.png",
-        quantity: 2,
-        unit_price: 4500,
-        subtotal: 9000,
-        anonymous_seller_id: "Partner #F2B-03",
-        seller_region: "충청남도 논산시",
+        name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+        quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
+        unit_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+        subtotal: 0, // 가격 삭제, 나중에 내용 추가 가능
+        anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
       },
       {
         id: "p4",
-        name: "유기농 동물복지 유정란 10구",
-        image_url: "/eggs.jpg",
-        quantity: 1,
-        unit_price: 7800,
-        subtotal: 7800,
-        anonymous_seller_id: "Partner #F2B-04",
-        seller_region: "경기도 안산시",
+        name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+        quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
+        unit_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+        subtotal: 0, // 가격 삭제, 나중에 내용 추가 가능
+        anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
       },
     ],
     delivery_info: {
-      recipient_name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울시 강남구 테헤란로 123",
-      address_detail: "1층 과일가게",
-      request: "문 앞에 놓아주세요",
+      recipient_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      phone: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      address: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      address_detail: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      request: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     },
     payment_info: {
-      method: "계좌이체",
-      card_name: "",
-      card_number: "",
-      paid_at: "2024-11-23 14:15",
+      method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      card_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      card_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+      paid_at: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     },
     price_info: {
-      product_total: 16800,
-      total: 33600,
+      product_total: 0, // 가격 삭제, 나중에 내용 추가 가능
+      total: 0, // 가격 삭제, 나중에 내용 추가 가능
     },
     timeline: [
       {
         status: "ordered",
-        label: "주문 접수",
-        timestamp: "2024-11-23 14:15",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "confirmed",
-        label: "주문 확인",
-        timestamp: "2024-11-23 15:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "preparing",
-        label: "상품 준비 중",
-        timestamp: "2024-11-25 16:00",
-        completed: true,
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        timestamp: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+        completed: false,
       },
       {
         status: "shipping",
-        label: "배송 중",
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
         timestamp: null,
         completed: false,
       },
       {
         status: "delivered",
-        label: "배송 완료",
+        label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
         timestamp: null,
         completed: false,
       },
@@ -424,11 +424,17 @@ export default async function OrderDetailPage({
             >
               {/* 상품 이미지 */}
               <div className="w-20 h-20 bg-gray-200 dark:bg-gray-600 rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-gray-400 text-xs">이미지 없음</span>
+                  </div>
+                )}
               </div>
 
               {/* 상품 정보 */}

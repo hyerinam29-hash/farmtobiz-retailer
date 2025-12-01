@@ -49,7 +49,6 @@ export default function AIRecommendationCard({
   product,
 }: AIRecommendationCardProps) {
   const displayName = product.standardized_name || product.name;
-  const imageUrl = product.image_url || "/placeholder-product.png";
 
   return (
     <Link
@@ -58,12 +57,18 @@ export default function AIRecommendationCard({
     >
       {/* 이미지 영역 */}
       <div className="relative aspect-square w-full overflow-hidden">
-        <Image
-          src={imageUrl}
-          alt={displayName}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        {product.image_url ? (
+          <Image
+            src={product.image_url}
+            alt={displayName}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+            <span className="text-gray-400 text-base">이미지 없음</span>
+          </div>
+        )}
         {/* 배지 오버레이 */}
         <div className="absolute top-3 left-3 flex flex-col gap-3">
           {product.is_seasonal && (

@@ -43,59 +43,59 @@ import MarketPriceTable from "@/components/retailer/market-price-table";
 const mockRecommendedProducts = [
   {
     id: "1",
-    name: "고당도 설향 딸기",
-    standardized_name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
-    category: "과일",
-    specification: "1kg",
-    price: 15900,
+    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    price: 0, // 가격 삭제, 나중에 내용 추가 가능
     moq: 1,
-    image_url: "/strawberry.jpg",
-    is_seasonal: true,
-    stock_warning: false,
-    anonymous_seller_id: "Partner #F2B-01",
-    seller_region: "경기도 양평군",
+    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
   },
   {
     id: "2",
-    name: "노르웨이 생연어 필렛",
-    standardized_name: "노르웨이 생연어 필렛 500g",
-    category: "수산물",
-    specification: "500g",
-    price: 22000,
+    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    price: 0, // 가격 삭제, 나중에 내용 추가 가능
     moq: 1,
-    image_url: "/salmon.jpg",
-    is_seasonal: false,
-    stock_warning: true,
-    anonymous_seller_id: "Partner #F2B-02",
-    seller_region: "부산시 해운대구",
+    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
   },
   {
     id: "3",
-    name: "무농약 아스파라거스",
-    standardized_name: "무농약 아스파라거스 1단",
-    category: "채소",
-    specification: "1단",
-    price: 4500,
+    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    price: 0, // 가격 삭제, 나중에 내용 추가 가능
     moq: 2,
-    image_url: "/asparagus.png",
-    is_seasonal: true,
-    stock_warning: false,
-    anonymous_seller_id: "Partner #F2B-03",
-    seller_region: "충청남도 논산시",
+    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
   },
   {
     id: "4",
-    name: "유기농 동물복지 유정란",
-    standardized_name: "유기농 동물복지 유정란 10구",
-    category: "기타",
-    specification: "10구",
-    price: 7800,
+    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    price: 0, // 가격 삭제, 나중에 내용 추가 가능
     moq: 1,
-    image_url: "/eggs.jpg",
-    is_seasonal: false,
-    stock_warning: true,
-    anonymous_seller_id: "Partner #F2B-04",
-    seller_region: "경기도 안산시",
+    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
+    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
+    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
   },
 ];
 
@@ -103,33 +103,33 @@ const mockRecommendedProducts = [
 const mockRecentOrders = [
   {
     id: "1",
-    order_number: "20241125-0001",
-    product_name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     status: "delivered" as const,
-    status_label: "배송 완료",
-    delivery_method: "새벽 배송",
-    delivery_scheduled_time: "오전 7시 도착",
-    total_price: 35800,
+    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    total_price: 0, // 가격 삭제, 나중에 내용 추가 가능
   },
   {
     id: "2",
-    order_number: "20241124-0003",
-    product_name: "노르웨이 생연어 필렛 500g",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     status: "shipping" as const,
-    status_label: "배송 중",
-    delivery_method: "일반 배송",
-    delivery_scheduled_time: "내일 도착 예정",
-    total_price: 27000,
+    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    total_price: 0, // 가격 삭제, 나중에 내용 추가 가능
   },
   {
     id: "3",
-    order_number: "20241123-0007",
-    product_name: "무농약 아스파라거스 외 1건",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     status: "preparing" as const,
-    status_label: "준비 중",
-    delivery_method: "새벽 배송",
-    delivery_scheduled_time: "내일 오전 7시",
-    total_price: 33600,
+    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    total_price: 0, // 가격 삭제, 나중에 내용 추가 가능
   },
 ];
 
@@ -138,45 +138,45 @@ const mockAlerts = [
   {
     id: "1",
     type: "stock_warning" as const,
-    title: "배추 재고 부족 예상",
-    message: "이번 주 배추 출하량이 줄어들 예정입니다. 미리 주문해주세요.",
-    created_at: "10분 전",
+    title: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    message: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    created_at: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
   },
   {
     id: "2",
     type: "notice" as const,
-    title: "새벽 배송 시간 변경 안내",
-    message: "12월부터 새벽 배송 시간이 오전 6시로 변경됩니다.",
-    created_at: "1시간 전",
+    title: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    message: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    created_at: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
   },
 ];
 
 // 임시 목 데이터 - 월별 구매 추이 (추후 API로 교체 예정)
 const mockMonthlyPurchaseData = [
-  { month: "7월", amount: 1200000 },
-  { month: "8월", amount: 1500000 },
-  { month: "9월", amount: 1800000 },
-  { month: "10월", amount: 2100000 },
-  { month: "11월", amount: 2400000 },
+  { month: "", amount: 0 }, // 텍스트 내용 및 금액 삭제, 나중에 내용 추가 가능
+  { month: "", amount: 0 }, // 텍스트 내용 및 금액 삭제, 나중에 내용 추가 가능
+  { month: "", amount: 0 }, // 텍스트 내용 및 금액 삭제, 나중에 내용 추가 가능
+  { month: "", amount: 0 }, // 텍스트 내용 및 금액 삭제, 나중에 내용 추가 가능
+  { month: "", amount: 0 }, // 텍스트 내용 및 금액 삭제, 나중에 내용 추가 가능
 ];
 
 // 임시 목 데이터 - 배송 예정 알림 (추후 API로 교체 예정)
 const mockDeliverySchedules = [
   {
     id: "2",
-    order_number: "20241124-0003",
-    product_name: "노르웨이 생연어 필렛 500g",
-    delivery_date: "2024-11-26",
-    delivery_time: "오전 9시",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_date: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     delivery_method: "일반 배송" as const,
     status: "shipping" as const,
   },
   {
     id: "3",
-    order_number: "20241123-0007",
-    product_name: "무농약 아스파라거스 외 1건",
-    delivery_date: "2024-11-26",
-    delivery_time: "오전 7시",
+    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_date: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    delivery_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
     delivery_method: "새벽 배송" as const,
     status: "preparing" as const,
   },
@@ -186,35 +186,35 @@ const mockDeliverySchedules = [
 const mockMarketPrices = [
   {
     id: "1",
-    product_name: "배추",
-    current_price: 3500,
-    previous_price: 3200,
-    unit: "10kg",
-    change_rate: 9.4,
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    current_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    previous_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    unit: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    change_rate: 0, // 변화율 삭제, 나중에 내용 추가 가능
   },
   {
     id: "2",
-    product_name: "무",
-    current_price: 2800,
-    previous_price: 3000,
-    unit: "10kg",
-    change_rate: -6.7,
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    current_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    previous_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    unit: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    change_rate: 0, // 변화율 삭제, 나중에 내용 추가 가능
   },
   {
     id: "3",
-    product_name: "양파",
-    current_price: 4200,
-    previous_price: 4200,
-    unit: "10kg",
-    change_rate: 0,
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    current_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    previous_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    unit: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    change_rate: 0, // 변화율 삭제, 나중에 내용 추가 가능
   },
   {
     id: "4",
-    product_name: "고구마",
-    current_price: 5500,
-    previous_price: 5000,
-    unit: "10kg",
-    change_rate: 10.0,
+    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    current_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    previous_price: 0, // 가격 삭제, 나중에 내용 추가 가능
+    unit: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
+    change_rate: 0, // 변화율 삭제, 나중에 내용 추가 가능
   },
 ];
 
