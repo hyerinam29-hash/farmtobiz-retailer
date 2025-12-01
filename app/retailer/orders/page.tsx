@@ -9,6 +9,8 @@
  *
  * @dependencies
  * - app/retailer/layout.tsx (레이아웃)
+ * - lib/supabase/queries/orders.ts
+ * - types/order.ts
  *
  * @see {@link PRD.md} - R.MY.01~03 요구사항
  */
@@ -16,89 +18,80 @@
 import Link from "next/link";
 import { Search, Calendar } from "lucide-react";
 import OrderListItemActions from "@/components/retailer/order-list-item-actions";
+import { getOrders } from "@/lib/supabase/queries/orders";
+import type { OrderStatus } from "@/types/order";
 
-// 타입 정의
-type OrderStatus = "preparing" | "shipping" | "delivered" | "cancelled";
-
-interface MockOrder {
-  id: string;
-  order_number: string;
-  order_date: string;
-  products: Array<{
-    name: string;
-    quantity: number;
-  }>;
-  total_price: number;
-  status: OrderStatus;
-  status_label: string;
-  delivery_method: string;
-  delivery_scheduled_time: string;
-}
-
-// 임시 목 데이터
-const mockOrders: MockOrder[] = [
-  {
-    id: "1",
-    order_number: "20241125-0001",
-    order_date: "2024-11-25",
-    products: [
-      {
-        name: "GAP 인증 고랭지 설향 딸기 1kg 특품",
-        quantity: 2,
-      },
-    ],
-    total_price: 35800,
-    status: "delivered",
-    status_label: "배송 완료",
-    delivery_method: "새벽 배송",
-    delivery_scheduled_time: "2024-11-26 오전 7시",
+// 주문 상태별 표시 설정
+const statusConfig: Record<
+  OrderStatus,
+  { label: string; color: string; displayStatus: "preparing" | "shipping" | "delivered" | "cancelled" }
+> = {
+  pending: {
+    label: "준비 중",
+    color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    displayStatus: "preparing",
   },
-  {
-    id: "2",
-    order_number: "20241124-0003",
-    order_date: "2024-11-24",
-    products: [
-      {
-        name: "노르웨이 생연어 필렛 500g",
-        quantity: 1,
-      },
-    ],
-    total_price: 27000,
-    status: "shipping",
-    status_label: "배송 중",
-    delivery_method: "일반 배송",
-    delivery_scheduled_time: "2024-11-27 예정",
+  confirmed: {
+    label: "주문 완료",
+    color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    displayStatus: "preparing",
   },
-  {
-    id: "3",
-    order_number: "20241123-0007",
-    order_date: "2024-11-23",
-    products: [
-      {
-        name: "무농약 아스파라거스 1단",
-        quantity: 4,
-      },
-      {
-        name: "유기농 동물복지 유정란 10구",
-        quantity: 2,
-      },
-    ],
-    total_price: 33600,
-    status: "preparing",
-    status_label: "준비 중",
-    delivery_method: "새벽 배송",
-    delivery_scheduled_time: "2024-11-25 오전 7시",
+  shipped: {
+    label: "배송 중",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    displayStatus: "shipping",
   },
-];
-
-const statusColors = {
-  preparing: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  shipping: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  delivered: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  cancelled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  completed: {
+    label: "배송 완료",
+    color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    displayStatus: "delivered",
+  },
+  cancelled: {
+    label: "주문 취소",
+    color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+    displayStatus: "cancelled",
+  },
 };
 
-export default function OrdersPage() {
+// 날짜 포맷팅 함수
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
+export default async function OrdersPage() {
+  console.log("[OrdersPage] 주문 내역 페이지 로드 시작");
+
+  // 실제 주문 데이터 가져오기
+  let ordersResult;
+  try {
+    ordersResult = await getOrders({
+      page: 1,
+      pageSize: 50, // 충분한 수량 가져오기
+      sortBy: "created_at",
+      sortOrder: "desc",
+    });
+    console.log("[OrdersPage] 주문 데이터 조회 완료", {
+      count: ordersResult.orders.length,
+      total: ordersResult.total,
+    });
+  } catch (error) {
+    console.error("[OrdersPage] 주문 데이터 조회 실패:", error);
+    // 에러 발생 시 빈 배열로 처리
+    ordersResult = {
+      orders: [],
+      total: 0,
+      page: 1,
+      pageSize: 50,
+      totalPages: 0,
+    };
+  }
+
+  const orders = ordersResult.orders;
   return (
     <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 pb-12 md:pb-16">
       {/* 헤더 */}
@@ -153,83 +146,90 @@ export default function OrdersPage() {
 
       {/* 주문 목록 */}
       <div className="space-y-8">
-        {mockOrders.map((order) => (
-          <div
-            key={order.id}
-            className="p-8 sm:p-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
-          >
-            {/* 주문 헤더 */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8 pb-8 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col gap-2 min-w-0">
-                <div className="flex items-center gap-4 flex-wrap">
-                  <span className="text-base sm:text-lg font-medium text-gray-600 dark:text-gray-400">
-                    {order.order_date}
-                  </span>
-                  <span className="text-base sm:text-lg text-gray-400">·</span>
-                  <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 break-all">
-                    {order.order_number}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <span
-                    className={`inline-flex items-center px-5 py-1 rounded-full text-base font-medium ${statusColors[order.status as keyof typeof statusColors]}`}
-                  >
-                    {order.status_label}
-                  </span>
-                  <span className="text-base text-gray-500 dark:text-gray-400">
-                    {order.delivery_method}
-                  </span>
-                </div>
-              </div>
-
-              <Link
-                href={`/retailer/orders/${order.id}`}
-                className="text-base sm:text-lg text-green-600 dark:text-green-400 font-medium hover:underline whitespace-nowrap flex-shrink-0"
-              >
-                상세 보기
-              </Link>
-            </div>
-
-            {/* 주문 내용 */}
-            <div className="py-8">
-              <div className="flex flex-col gap-4">
-                {order.products.map((product, index) => (
-                  <p
-                    key={index}
-                    className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 break-words"
-                  >
-                    {product.name}
-                    {order.products.length > 1 &&
-                      index === 0 &&
-                      ` 외 ${order.products.length - 1}건`}
-                  </p>
-                ))}
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
-                  수량: {order.products.reduce((sum, p) => sum + p.quantity, 0)}개
-                </p>
-              </div>
-            </div>
-
-            {/* 주문 푸터 */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col gap-2">
-                <span className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
-                  결제 금액
-                </span>
-                <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {order.total_price.toLocaleString()}원
-                </span>
-              </div>
-
-              <OrderListItemActions
-                orderId={order.id}
-                orderNumber={order.order_number}
-                status={order.status}
-                totalPrice={order.total_price}
-              />
-            </div>
+        {orders.length === 0 ? (
+          <div className="p-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              주문 내역이 없습니다
+            </p>
+            <p className="mt-2 text-base text-gray-500 dark:text-gray-500">
+              주문하시면 여기에 표시됩니다
+            </p>
           </div>
-        ))}
+        ) : (
+          orders.map((order) => {
+            const statusInfo = statusConfig[order.status];
+            const productName = order.product?.name || "상품명 없음";
+            const variantName = order.variant?.name ? ` (${order.variant.name})` : "";
+
+            return (
+              <div
+                key={order.id}
+                className="p-8 sm:p-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+              >
+                {/* 주문 헤더 */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8 pb-8 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col gap-2 min-w-0">
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span className="text-base sm:text-lg font-medium text-gray-600 dark:text-gray-400">
+                        {formatDate(order.created_at)}
+                      </span>
+                      <span className="text-base sm:text-lg text-gray-400">·</span>
+                      <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 break-all">
+                        {order.order_number}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span
+                        className={`inline-flex items-center px-5 py-1 rounded-full text-base font-medium ${statusInfo.color}`}
+                      >
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/retailer/orders/${order.id}`}
+                    className="text-base sm:text-lg text-green-600 dark:text-green-400 font-medium hover:underline whitespace-nowrap flex-shrink-0"
+                  >
+                    상세 보기
+                  </Link>
+                </div>
+
+                {/* 주문 내용 */}
+                <div className="py-8">
+                  <div className="flex flex-col gap-4">
+                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 break-words">
+                      {productName}
+                      {variantName}
+                    </p>
+                    <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+                      수량: {order.quantity}개
+                    </p>
+                  </div>
+                </div>
+
+                {/* 주문 푸터 */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+                      결제 금액
+                    </span>
+                    <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {order.total_amount.toLocaleString()}원
+                    </span>
+                  </div>
+
+                  <OrderListItemActions
+                    orderId={order.id}
+                    orderNumber={order.order_number}
+                    status={statusInfo.displayStatus}
+                    totalPrice={order.total_amount}
+                  />
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
