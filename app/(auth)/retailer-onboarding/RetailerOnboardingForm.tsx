@@ -188,7 +188,7 @@ export default function RetailerOnboardingForm() {
                         disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormDescription>상호명을 입력해주세요.</FormDescription>
+                    <FormDescription>상호명(이름)으로 입력해주세요.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -233,7 +233,7 @@ export default function RetailerOnboardingForm() {
                         disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormDescription>사업장(주소)를 입력 해주세요</FormDescription>
+                    <FormDescription>사업장(주소)를 입력해주세요</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
