@@ -112,7 +112,7 @@ export default function RetailerSidebar({
   const handleSignOut = async () => {
     console.log("🚪 [Sidebar] 로그아웃 시작");
     try {
-      await signOut({ redirectUrl: "/" });
+      await signOut({ redirectUrl: "/sign-in/retailer" });
       console.log("✅ [Sidebar] 로그아웃 완료");
     } catch (error) {
       console.error("❌ [Sidebar] 로그아웃 실패:", error);
