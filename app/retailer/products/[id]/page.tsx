@@ -18,9 +18,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, ShoppingCart, Truck, Package } from "lucide-react";
+import { ChevronLeft, Truck, Package } from "lucide-react";
 import { getRetailerProductById } from "@/lib/supabase/queries/retailer-products";
 import { ProductDetailTabs } from "./product-detail-tabs";
+import { ProductActions } from "./product-actions";
 
 export default async function ProductDetailPage({
   params,
@@ -170,43 +171,8 @@ export default async function ProductDetailPage({
             </div>
           </div>
 
-          {/* 수량 선택 */}
-          <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              수량
-            </label>
-            <div className="flex items-center gap-3">
-              <button className="flex items-center justify-center w-10 h-10 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                -
-              </button>
-              <input
-                type="number"
-                min={product.moq}
-                defaultValue={product.moq}
-                className="w-20 h-10 text-center border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-              />
-              <button className="flex items-center justify-center w-10 h-10 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* 버튼 */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <button
-              disabled={product.stock_quantity === 0}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              <span>장바구니 담기</span>
-            </button>
-            <button
-              disabled={product.stock_quantity === 0}
-              className="flex-1 px-6 py-4 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
-            >
-              바로 구매
-            </button>
-          </div>
+          {/* 수량 선택 및 버튼 */}
+          <ProductActions product={product} />
         </div>
       </div>
 
