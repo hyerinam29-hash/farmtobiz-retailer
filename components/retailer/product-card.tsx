@@ -1,9 +1,9 @@
 /**
  * @file components/retailer/product-card.tsx
- * @description 상품 카드 컴포넌트 (장바구니 추가 기능 포함)
+ * @description 상품 카드 컴포넌트
  *
  * 상품 목록에서 사용되는 상품 카드 컴포넌트입니다.
- * 장바구니 추가 기능을 포함합니다.
+ * "장바구니 담기" 버튼 클릭 시 상세 페이지로 이동합니다.
  */
 
 "use client";
@@ -12,9 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
-import { useCartStore } from "@/stores/cart-store";
 import type { Product } from "@/types/product";
-import type { DeliveryMethod as CartDeliveryMethod } from "@/types/cart";
 
 interface ProductCardProps {
   product: Product & {
@@ -26,40 +24,14 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
-  const addToCart = useCartStore((state) => state.addToCart);
 
   const handleAddToCart = () => {
-    console.log("🛒 [장바구니] 상품 추가 시도:", {
+    console.log("🛒 [상품목록] 장바구니 담기 버튼 클릭, 상세 페이지로 이동:", {
       product_id: product.id,
       product_name: product.standardized_name || product.original_name || product.name,
-      quantity: product.moq,
-      price: product.price,
     });
 
-    // 배송 방법 타입 변환 (database.DeliveryMethod -> cart.DeliveryMethod)
-    const cartDeliveryMethod: CartDeliveryMethod =
-      product.delivery_method === "quick" ? "dawn" : "normal";
-
-    // 장바구니에 추가
-    addToCart({
-      product_id: product.id,
-      variant_id: null, // 옵션이 없으면 null
-      quantity: product.moq, // 최소 주문 수량으로 기본 설정
-      unit_price: product.price,
-      delivery_method: cartDeliveryMethod,
-      wholesaler_id: product.wholesaler_id,
-      product_name: product.standardized_name || product.original_name || product.name,
-      anonymous_seller_id: product.wholesaler_anonymous_code,
-      seller_region: product.wholesaler_region,
-      product_image: product.image_url,
-      specification: product.specification,
-      moq: product.moq,
-      stock_quantity: product.stock_quantity,
-    });
-
-    console.log("✅ [장바구니] 상품 추가 완료");
-
-    // 상품 상세 페이지로 이동
+    // 상품 상세 페이지로 이동 (상세 페이지에서 수량 선택 후 장바구니 담기)
     router.push(`/retailer/products/${product.id}`);
   };
 
