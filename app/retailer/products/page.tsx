@@ -17,10 +17,9 @@
  */
 
 import Link from "next/link";
-import Image from "next/image";
-import { Search, Filter, ShoppingCart } from "lucide-react";
 import { getRetailerProducts } from "@/lib/supabase/queries/retailer-products";
 import { ProductSearchClient } from "@/components/retailer/product-search-client";
+import ProductCard from "@/components/retailer/product-card";
 
 /**
  * 소매점 상품 목록 페이지 (서버 컴포넌트)
@@ -115,83 +114,7 @@ export default async function ProductsPage({
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-9">
             {products.map((product) => (
-              <div
-                key={product.id}
-                className="group flex flex-col overflow-hidden rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300"
-              >
-                {/* 이미지 영역 */}
-                <Link href={`/retailer/products/${product.id}`}>
-                  <div className="relative aspect-square w-full overflow-hidden">
-                    {product.image_url ? (
-                      <Image
-                        src={product.image_url}
-                        alt={product.standardized_name || product.original_name || product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        <span className="text-gray-400 text-base">이미지 없음</span>
-                      </div>
-                    )}
-                  </div>
-                </Link>
-
-                {/* 상품 정보 */}
-                <div className="flex flex-col p-6 gap-[1.125rem]">
-                  {/* 판매자 정보 (익명화) */}
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {product.wholesaler_anonymous_code} · {product.wholesaler_region}
-                  </p>
-
-                  {/* 상품명 (AI 표준화된 이름 우선 표시) */}
-                  <Link href={`/retailer/products/${product.id}`}>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-2 hover:text-primary transition-colors">
-                      {product.standardized_name || product.original_name || product.name}
-                    </h3>
-                  </Link>
-
-                  {/* 규격 */}
-                  {product.specification && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {product.specification}
-                    </p>
-                  )}
-
-                  {/* 가격 및 재고 */}
-                  <div className="flex items-center justify-between mt-auto">
-                    <div>
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {product.price.toLocaleString()}원
-                      </p>
-                      {product.stock_quantity > 0 && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          재고: {product.stock_quantity}개
-                        </p>
-                      )}
-                      {product.stock_quantity === 0 && (
-                        <p className="text-sm text-red-600 dark:text-red-400">
-                          품절
-                        </p>
-                      )}
-                    </div>
-                    {product.moq > 1 && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        최소 {product.moq}개
-                      </p>
-                    )}
-                  </div>
-
-                  {/* 장바구니 버튼 */}
-                  <Link
-                    href={`/retailer/products/${product.id}`}
-                    className="flex w-full items-center justify-center gap-3 px-6 py-3 bg-primary text-white rounded-lg text-base font-medium hover:bg-primary/90 transition-colors"
-                  >
-                    <ShoppingCart className="w-6 h-6" />
-                    <span>장바구니 담기</span>
-                  </Link>
-                </div>
-              </div>
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
 

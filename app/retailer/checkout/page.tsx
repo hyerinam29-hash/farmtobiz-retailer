@@ -8,47 +8,80 @@
  * 3. Toss Payments 연동 (R.ORDER.03)
  * 4. 수취인 플랫폼 (R.ORDER.04)
  * 5. 데이터 무결성 (R.ORDER.05)
- *
- * @dependencies
- * - app/retailer/layout.tsx (레이아웃)
- *
- * @see {@link PRD.md} - R.ORDER.01~05 요구사항
  */
 
+"use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Clock, Package, CreditCard } from "lucide-react";
-
-// 임시 목 데이터
-const mockOrderItems = [
-  {
-    id: "1",
-    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    product_image: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
-    quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
-    price: 0, // 가격 삭제, 나중에 내용 추가 가능
-  },
-  {
-    id: "2",
-    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    product_image: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
-    quantity: 0, // 수량 삭제, 나중에 내용 추가 가능
-    price: 0, // 가격 삭제, 나중에 내용 추가 가능
-  },
-];
-
-const mockUserInfo = {
-  name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  phone: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  address: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  addressDetail: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-};
+import { useCartStore } from "@/stores/cart-store";
 
 export default function CheckoutPage() {
-  const totalProductPrice = mockOrderItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const totalPrice = totalProductPrice;
+  const router = useRouter();
+  const items = useCartStore((state) => state.items);
+  const summary = useCartStore((state) => state.getSummary());
+
+  // 배송 옵션 상태
+  const [deliveryOption, setDeliveryOption] = useState<"dawn" | "normal">("dawn");
+  const [deliveryTime, setDeliveryTime] = useState("06:00-07:00");
+  const [deliveryNote, setDeliveryNote] = useState("");
+
+  // 결제 수단 상태
+  const [paymentMethod, setPaymentMethod] = useState<"toss" | "card" | "transfer">("toss");
+
+  // 사용자 정보 (임시 - 나중에 실제 사용자 정보로 교체)
+  const mockUserInfo = {
+    name: "홍길동",
+    phone: "010-1234-5678",
+    address: "서울특별시 강남구 테헤란로 123",
+    addressDetail: "456호",
+  };
+
+  // 장바구니가 비어있으면 장바구니 페이지로 리다이렉트
+  useEffect(() => {
+    if (items.length === 0) {
+      console.log("⚠️ [결제] 장바구니가 비어있어 장바구니 페이지로 리다이렉트");
+      router.push("/retailer/cart");
+    }
+  }, [items.length, router]);
+
+  // 장바구니가 비어있으면 아무것도 렌더링하지 않음
+  if (items.length === 0) {
+    return null;
+  }
+
+  const totalProductPrice = summary.totalProductPrice;
+  const totalPrice = summary.totalPrice;
+
+  // 결제 처리 함수
+  const handlePayment = async () => {
+    console.log("💳 [결제] 결제 프로세스 시작:", {
+      totalPrice,
+      paymentMethod,
+      itemsCount: items.length,
+      items: items.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+      })),
+    });
+
+    try {
+      // TODO: Toss Payments 연동
+      // 1. 서버에 결제 요청 생성 (Server Action 또는 API Route)
+      // 2. Toss Payments 위젯 열기
+      // 3. 결제 완료 후 주문 생성
+      // 4. 장바구니 비우기
+      // 5. 주문 완료 페이지로 이동
+
+      alert("결제 기능은 Toss Payments 연동 후 구현됩니다.");
+    } catch (error) {
+      console.error("❌ [결제] 결제 실패:", error);
+      alert("결제 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
@@ -111,7 +144,8 @@ export default function CheckoutPage() {
                 <input
                   type="radio"
                   name="delivery-option"
-                  defaultChecked
+                  checked={deliveryOption === "dawn"}
+                  onChange={() => setDeliveryOption("dawn")}
                   className="mt-0.5 w-5 h-5 text-green-600 focus:ring-green-500"
                 />
                 <div className="flex-1">
@@ -125,10 +159,16 @@ export default function CheckoutPage() {
                     다음날 오전 7시 전 도착
                   </p>
                   {/* 시간 선택 */}
-                  <select className="mt-3 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm">
-                    <option>오전 6:00 ~ 7:00</option>
-                    <option>오전 7:00 ~ 8:00</option>
-                  </select>
+                  {deliveryOption === "dawn" && (
+                    <select
+                      value={deliveryTime}
+                      onChange={(e) => setDeliveryTime(e.target.value)}
+                      className="mt-3 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm"
+                    >
+                      <option value="06:00-07:00">오전 6:00 ~ 7:00</option>
+                      <option value="07:00-08:00">오전 7:00 ~ 8:00</option>
+                    </select>
+                  )}
                 </div>
               </label>
 
@@ -136,6 +176,8 @@ export default function CheckoutPage() {
                 <input
                   type="radio"
                   name="delivery-option"
+                  checked={deliveryOption === "normal"}
+                  onChange={() => setDeliveryOption("normal")}
                   className="mt-0.5 w-5 h-5 text-green-600 focus:ring-green-500"
                 />
                 <div className="flex-1">
@@ -159,6 +201,8 @@ export default function CheckoutPage() {
               배송 요청사항
             </h2>
             <textarea
+              value={deliveryNote}
+              onChange={(e) => setDeliveryNote(e.target.value)}
               placeholder="배송 기사님께 전달할 요청사항을 입력해주세요."
               rows={3}
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -172,7 +216,7 @@ export default function CheckoutPage() {
             </h2>
 
             <div className="space-y-4">
-              {mockOrderItems.map((item) => (
+              {items.map((item) => (
                 <div key={item.id} className="flex gap-4">
                   <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
                     {item.product_image ? (
@@ -197,7 +241,7 @@ export default function CheckoutPage() {
                     </p>
                   </div>
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    {(item.price * item.quantity).toLocaleString()}원
+                    {(item.unit_price * item.quantity).toLocaleString()}원
                   </p>
                 </div>
               ))}
@@ -243,7 +287,8 @@ export default function CheckoutPage() {
                     <input
                       type="radio"
                       name="payment-method"
-                      defaultChecked
+                      checked={paymentMethod === "toss"}
+                      onChange={() => setPaymentMethod("toss")}
                       className="w-4 h-4 text-green-600 focus:ring-green-500"
                     />
                     <CreditCard className="w-4 h-4 text-green-600" />
@@ -256,6 +301,8 @@ export default function CheckoutPage() {
                     <input
                       type="radio"
                       name="payment-method"
+                      checked={paymentMethod === "card"}
+                      onChange={() => setPaymentMethod("card")}
                       className="w-4 h-4 text-green-600 focus:ring-green-500"
                     />
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -267,6 +314,8 @@ export default function CheckoutPage() {
                     <input
                       type="radio"
                       name="payment-method"
+                      checked={paymentMethod === "transfer"}
+                      onChange={() => setPaymentMethod("transfer")}
                       className="w-4 h-4 text-green-600 focus:ring-green-500"
                     />
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -276,7 +325,10 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+              <button
+                onClick={handlePayment}
+                className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors"
+              >
                 {totalPrice.toLocaleString()}원 결제하기
               </button>
 
@@ -290,4 +342,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

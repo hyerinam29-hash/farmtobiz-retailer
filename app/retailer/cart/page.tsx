@@ -31,6 +31,8 @@ import {
 
 export default function CartPage() {
   const items = useCartStore((state) => state.items);
+  const updateCartItem = useCartStore((state) => state.updateCartItem);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
 
   // 장바구니 요약 정보 계산 (useMemo로 캐싱하여 무한 루프 방지)
   const summary = useMemo(() => {
@@ -43,6 +45,37 @@ export default function CartPage() {
 
     return { totalProductPrice, totalPrice, itemCount };
   }, [items]);
+
+  // 수량 감소
+  const handleDecreaseQuantity = (itemId: string, currentQuantity: number, moq: number) => {
+    console.log("➖ [장바구니] 수량 감소 시도:", { itemId, currentQuantity, moq });
+    
+    if (currentQuantity > moq) {
+      updateCartItem({ id: itemId, quantity: currentQuantity - 1 });
+      console.log("✅ [장바구니] 수량 감소 완료:", currentQuantity - 1);
+    } else {
+      console.log("⚠️ [장바구니] 최소 주문 수량 이하로 감소 불가");
+    }
+  };
+
+  // 수량 증가
+  const handleIncreaseQuantity = (itemId: string, currentQuantity: number, stockQuantity: number) => {
+    console.log("➕ [장바구니] 수량 증가 시도:", { itemId, currentQuantity, stockQuantity });
+    
+    if (currentQuantity < stockQuantity) {
+      updateCartItem({ id: itemId, quantity: currentQuantity + 1 });
+      console.log("✅ [장바구니] 수량 증가 완료:", currentQuantity + 1);
+    } else {
+      console.log("⚠️ [장바구니] 재고 부족으로 증가 불가");
+    }
+  };
+
+  // 삭제
+  const handleRemoveItem = (itemId: string) => {
+    console.log("🗑️ [장바구니] 상품 삭제 시도:", itemId);
+    removeFromCart(itemId);
+    console.log("✅ [장바구니] 상품 삭제 완료");
+  };
 
   // 장바구니 검증
   const validationResult = useMemo(() => {
@@ -180,7 +213,11 @@ export default function CartPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mt-4">
                     {/* 수량 조절 */}
                     <div className="flex items-center gap-4">
-                      <button className="flex items-center justify-center w-16 h-16 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <button
+                        onClick={() => handleDecreaseQuantity(item.id, item.quantity, item.moq)}
+                        disabled={item.quantity <= item.moq}
+                        className="flex items-center justify-center w-16 h-16 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
                         <Minus className="w-8 h-8" />
                       </button>
                       <input
@@ -189,7 +226,11 @@ export default function CartPage() {
                         readOnly
                         className="w-24 h-16 text-center border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-lg"
                       />
-                      <button className="flex items-center justify-center w-16 h-16 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <button
+                        onClick={() => handleIncreaseQuantity(item.id, item.quantity, item.stock_quantity)}
+                        disabled={item.quantity >= item.stock_quantity}
+                        className="flex items-center justify-center w-16 h-16 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
                         <Plus className="w-8 h-8" />
                       </button>
                     </div>
@@ -199,7 +240,11 @@ export default function CartPage() {
                       <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                         {(item.unit_price * item.quantity).toLocaleString()}원
                       </p>
-                      <button className="text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
+                      <button
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors"
+                        aria-label="상품 삭제"
+                      >
                         <Trash2 className="w-10 h-10" />
                       </button>
                     </div>
