@@ -15,6 +15,7 @@ ON CONFLICT (id) DO UPDATE SET
   file_size_limit = 6291456;
 
 -- INSERT: 인증된 사용자만 자신의 폴더에 업로드 가능
+DROP POLICY IF EXISTS "Users can upload to own folder" ON storage.objects;
 CREATE POLICY "Users can upload to own folder"
 ON storage.objects FOR INSERT
 TO authenticated
@@ -24,6 +25,7 @@ WITH CHECK (
 );
 
 -- SELECT: 인증된 사용자만 자신의 파일 조회 가능
+DROP POLICY IF EXISTS "Users can view own files" ON storage.objects;
 CREATE POLICY "Users can view own files"
 ON storage.objects FOR SELECT
 TO authenticated
@@ -33,6 +35,7 @@ USING (
 );
 
 -- DELETE: 인증된 사용자만 자신의 파일 삭제 가능
+DROP POLICY IF EXISTS "Users can delete own files" ON storage.objects;
 CREATE POLICY "Users can delete own files"
 ON storage.objects FOR DELETE
 TO authenticated
@@ -42,6 +45,7 @@ USING (
 );
 
 -- UPDATE: 인증된 사용자만 자신의 파일 업데이트 가능
+DROP POLICY IF EXISTS "Users can update own files" ON storage.objects;
 CREATE POLICY "Users can update own files"
 ON storage.objects FOR UPDATE
 TO authenticated
