@@ -164,9 +164,14 @@ export default async function ProductsPage({
                       <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                         {product.price.toLocaleString()}원
                       </p>
-                      {product.stock !== undefined && (
+                      {product.stock_quantity > 0 && (
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          재고: {product.stock > 0 ? `${product.stock}개` : "품절"}
+                          재고: {product.stock_quantity}개
+                        </p>
+                      )}
+                      {product.stock_quantity === 0 && (
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          품절
                         </p>
                       )}
                     </div>
