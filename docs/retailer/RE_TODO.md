@@ -140,9 +140,12 @@ PRD 3.4 섹션 참조.
 - [X] 결제 수단 선택 (R.ORDER.03)
   - [X] 결제 수단(카드간편결제) 선택 UI
   - [X] 결제 버튼 클릭 핸들러 구현 (기본 구조)
-- [ ] PG 연동 (R.ORDER.03)
-  - [ ] Toss Payments SDK 설치 및 연동
-  - [ ] 결제 승인실패 처리
+- [X] PG 연동 (R.ORDER.03)
+  - [X] Toss Payments SDK 설치 및 연동
+  - [X] 결제 승인실패 처리
+  - [X] 토스 결제 테스트 페이지 구현 (`/retailer/payment/test`)
+    - [X] 임시 토스 결제 테스트 페이지 생성
+    - [X] 나중에 실제 결제 플로우와 연결 가능하도록 구조화
 - [ ] 주문 생성 (R.ORDER.05)
   - [ ] 주문 데이터 검증 및 DB 생성 (Server Action)
 

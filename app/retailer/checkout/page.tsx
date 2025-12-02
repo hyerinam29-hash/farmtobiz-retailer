@@ -12,14 +12,18 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Clock, Package, CreditCard } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
+import { useTossPayment } from "@/hooks/use-toss-payment";
+import { createPayment } from "@/actions/retailer/create-payment";
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { user } = useUser();
   const items = useCartStore((state) => state.items);
   const summary = useCartStore((state) => state.getSummary());
 
@@ -30,6 +34,56 @@ export default function CheckoutPage() {
 
   // 결제 수단 상태
   const [paymentMethod, setPaymentMethod] = useState<"toss" | "card" | "transfer">("toss");
+  
+  // 결제 요청 상태
+  const [paymentOrderId, setPaymentOrderId] = useState("");
+  const [paymentOrderName, setPaymentOrderName] = useState("");
+
+  // 토스 페이먼츠 설정 (환경변수에서 가져오기)
+  const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || "";
+  const TOSS_CUSTOMER_KEY = user?.id || "test-customer-key";
+
+  // 결제 수단 위젯 렌더링용 ref
+  const paymentMethodsRef = useRef<HTMLDivElement>(null);
+
+  // 결제 위젯 훅
+  const {
+    isReady: isPaymentReady,
+    isLoading: isPaymentLoading,
+    renderPaymentMethods,
+    requestPayment,
+    updateAmount,
+  } = useTossPayment({
+    clientKey: TOSS_CLIENT_KEY,
+    customerKey: TOSS_CUSTOMER_KEY,
+    amount: summary.totalPrice,
+    orderId: paymentOrderId,
+    orderName: paymentOrderName,
+    onSuccess: async (paymentKey, orderId, amount) => {
+      console.log("✅ [결제] 결제 성공:", { paymentKey, orderId, amount });
+      
+      // 결제 성공 페이지로 이동
+      router.push(`/retailer/payment/success?paymentKey=${paymentKey}&orderId=${orderId}`);
+    },
+    onFail: (error) => {
+      console.error("❌ [결제] 결제 실패:", error);
+      alert(`결제에 실패했습니다: ${error.message}`);
+    },
+  });
+
+  // 결제 수단 위젯 렌더링
+  useEffect(() => {
+    if (isPaymentReady && paymentMethodsRef.current && paymentMethod === "toss") {
+      renderPaymentMethods("#payment-methods-widget");
+    }
+  }, [isPaymentReady, paymentMethod, renderPaymentMethods]);
+
+  // 금액 변경 시 위젯 업데이트
+  useEffect(() => {
+    if (isPaymentReady && paymentMethod === "toss") {
+      updateAmount(summary.totalPrice);
+    }
+  }, [summary.totalPrice, isPaymentReady, paymentMethod, updateAmount]);
 
   // 사용자 정보 (임시 - 나중에 실제 사용자 정보로 교체)
   const mockUserInfo = {
@@ -58,7 +112,7 @@ export default function CheckoutPage() {
   // 결제 처리 함수
   const handlePayment = async () => {
     console.log("💳 [결제] 결제 프로세스 시작:", {
-      totalPrice,
+      totalPrice: summary.totalPrice,
       paymentMethod,
       itemsCount: items.length,
       items: items.map(item => ({
@@ -69,17 +123,45 @@ export default function CheckoutPage() {
     });
 
     try {
-      // TODO: Toss Payments 연동
-      // 1. 서버에 결제 요청 생성 (Server Action 또는 API Route)
-      // 2. Toss Payments 위젯 열기
-      // 3. 결제 완료 후 주문 생성
-      // 4. 장바구니 비우기
-      // 5. 주문 완료 페이지로 이동
+      // 1. 결제 요청 생성
+      const paymentResult = await createPayment({
+        items: items.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+        })),
+        deliveryOption,
+        deliveryTime,
+        deliveryNote,
+        totalAmount: summary.totalPrice,
+      });
 
-      alert("결제 기능은 Toss Payments 연동 후 구현됩니다.");
+      if (!paymentResult.success || !paymentResult.orderId) {
+        throw new Error(paymentResult.error || "결제 요청 생성에 실패했습니다.");
+      }
+
+      console.log("✅ [결제] 결제 요청 생성 완료:", paymentResult);
+
+      // 주문 정보 저장
+      setPaymentOrderId(paymentResult.orderId);
+      setPaymentOrderName(paymentResult.orderName || "주문");
+
+      // 2. 토스 페이먼츠 결제 위젯 열기
+      if (paymentMethod === "toss") {
+        if (!isPaymentReady) {
+          alert("결제 위젯이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
+          return;
+        }
+
+        // 위젯에 주문 정보 업데이트 후 결제 요청
+        await requestPayment(paymentResult.orderId, paymentResult.orderName);
+      } else {
+        // 다른 결제 수단은 나중에 구현
+        alert("토스페이먼츠만 현재 지원됩니다.");
+      }
     } catch (error) {
       console.error("❌ [결제] 결제 실패:", error);
-      alert("결제 중 오류가 발생했습니다. 다시 시도해주세요.");
+      alert(error instanceof Error ? error.message : "결제 중 오류가 발생했습니다.");
     }
   };
 
@@ -282,6 +364,22 @@ export default function CheckoutPage() {
                 <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
                   결제 수단
                 </h3>
+                
+                {/* 토스 페이먼츠 위젯 */}
+                {paymentMethod === "toss" && (
+                  <div
+                    id="payment-methods-widget"
+                    ref={paymentMethodsRef}
+                    className="mb-4 min-h-[200px]"
+                  >
+                    {!isPaymentReady && (
+                      <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg text-center text-sm text-gray-500">
+                        결제 위젯을 불러오는 중...
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <label className="flex items-center gap-3 p-3 border-2 border-green-600 rounded-lg cursor-pointer bg-green-50 dark:bg-green-900/20">
                     <input
@@ -327,9 +425,12 @@ export default function CheckoutPage() {
 
               <button
                 onClick={handlePayment}
-                className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors"
+                disabled={!isPaymentReady || isPaymentLoading || (paymentMethod === "toss" && !TOSS_CLIENT_KEY)}
+                className="w-full py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
               >
-                {totalPrice.toLocaleString()}원 결제하기
+                {isPaymentLoading
+                  ? "결제 진행 중..."
+                  : `${summary.totalPrice.toLocaleString()}원 결제하기`}
               </button>
 
               <p className="mt-3 text-xs text-center text-gray-500 dark:text-gray-400">
