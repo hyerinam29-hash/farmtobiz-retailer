@@ -27,9 +27,6 @@ export function ProductActions({ product }: ProductActionsProps) {
   
   // 수량 상태 (1부터 시작)
   const [quantity, setQuantity] = useState(1);
-  
-  // 배송 방법은 직배송만 가능하므로 "normal"로 고정
-  const deliveryMethod: "normal" = "normal";
 
   // 수량 감소
   const handleDecreaseQuantity = () => {
@@ -47,113 +44,62 @@ export function ProductActions({ product }: ProductActionsProps) {
     }
   };
 
-  // 장바구니 담기
+  // 장바구니 담기 (장바구니 페이지로 이동)
   const handleAddToCart = () => {
     console.log("🛒 [상품상세] 장바구니 담기 시도:", {
       productId: product.id,
       quantity,
+    });
+
+    addToCart({
+      product_id: product.id,
+      variant_id: null,
+      quantity,
+      unit_price: product.price,
+      delivery_method: "normal" as const,
+      wholesaler_id: product.wholesaler_id,
+      product_name: product.standardized_name || product.name,
+      anonymous_seller_id: product.wholesaler_anonymous_code,
+      seller_region: product.wholesaler_region,
+      product_image: product.image_url,
+      specification: product.specification,
+      moq: product.moq || 1,
       stock_quantity: product.stock_quantity,
     });
 
-    // 재고 확인
-    if (product.stock_quantity === 0) {
-      console.log("⚠️ [상품상세] 품절 상품");
-      toast.error("품절된 상품입니다");
-      return;
-    }
-
-    // 수량 확인
-    if (quantity < 1) {
-      console.log("⚠️ [상품상세] 수량 부족");
-      toast.error("수량을 1개 이상 선택해주세요");
-      return;
-    }
-
-    if (quantity > product.stock_quantity) {
-      console.log("⚠️ [상품상세] 재고 부족", {
-        quantity,
-        stock_quantity: product.stock_quantity,
-      });
-      toast.error(`재고가 부족합니다. (재고: ${product.stock_quantity}개)`);
-      return;
-    }
-
-    try {
-      addToCart({
-        product_id: product.id,
-        variant_id: null,
-        quantity,
-        unit_price: product.price,
-        delivery_method: "normal" as const,
-        wholesaler_id: product.wholesaler_id,
-        product_name: product.standardized_name || product.name,
-        anonymous_seller_id: product.wholesaler_anonymous_code,
-        seller_region: product.wholesaler_region,
-        product_image: product.image_url,
-        specification: product.specification,
-        moq: product.moq || 1,
-        stock_quantity: product.stock_quantity,
-      });
-
-      console.log("✅ [상품상세] 장바구니 담기 완료");
-      toast.success("장바구니에 담겼습니다");
-    } catch (error) {
-      console.error("❌ [상품상세] 장바구니 담기 실패:", error);
-      toast.error("장바구니 담기에 실패했습니다");
-    }
+    console.log("✅ [상품상세] 장바구니 담기 완료, 장바구니 페이지로 이동");
+    
+    // 장바구니 페이지로 이동
+    router.push("/retailer/cart");
   };
 
-  // 바로구매
+  // 바로구매 (결제 페이지로 이동)
   const handleBuyNow = () => {
     console.log("💳 [상품상세] 바로구매 시도:", {
       productId: product.id,
       quantity,
-      deliveryMethod,
     });
 
-    // 재고 확인
-    if (product.stock_quantity === 0) {
-      toast.error("품절된 상품입니다");
-      return;
-    }
+    addToCart({
+      product_id: product.id,
+      variant_id: null,
+      quantity,
+      unit_price: product.price,
+      delivery_method: "normal" as const,
+      wholesaler_id: product.wholesaler_id,
+      product_name: product.standardized_name || product.name,
+      anonymous_seller_id: product.wholesaler_anonymous_code,
+      seller_region: product.wholesaler_region,
+      product_image: product.image_url,
+      specification: product.specification,
+      moq: product.moq || 1,
+      stock_quantity: product.stock_quantity,
+    });
 
-    // 수량 확인
-    if (quantity < 1) {
-      toast.error("수량을 1개 이상 선택해주세요");
-      return;
-    }
-
-    if (quantity > product.stock_quantity) {
-      toast.error(`재고가 부족합니다. (재고: ${product.stock_quantity}개)`);
-      return;
-    }
-
-    try {
-      // 장바구니에 추가
-      addToCart({
-        product_id: product.id,
-        variant_id: null,
-        quantity,
-        unit_price: product.price,
-        delivery_method: "normal" as const,
-        wholesaler_id: product.wholesaler_id,
-        product_name: product.standardized_name || product.name,
-        anonymous_seller_id: product.wholesaler_anonymous_code,
-        seller_region: product.wholesaler_region,
-        product_image: product.image_url,
-        specification: product.specification,
-        moq: product.moq || 1,
-        stock_quantity: product.stock_quantity,
-      });
-
-      console.log("✅ [상품상세] 장바구니 담기 완료, 결제 페이지로 이동");
-      
-      // 결제 페이지로 이동
-      router.push("/retailer/checkout");
-    } catch (error) {
-      console.error("❌ [상품상세] 바로구매 실패:", error);
-      toast.error("주문 처리 중 오류가 발생했습니다");
-    }
+    console.log("✅ [상품상세] 바로구매, 결제 페이지로 이동");
+    
+    // 결제 페이지로 이동
+    router.push("/retailer/checkout");
   };
 
   const isOutOfStock = product.stock_quantity === 0;
