@@ -14,6 +14,7 @@ import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import type { Product } from "@/types/product";
+import type { DeliveryMethod as CartDeliveryMethod } from "@/types/cart";
 
 interface ProductCardProps {
   product: Product & {
@@ -35,13 +36,17 @@ export default function ProductCard({ product }: ProductCardProps) {
       price: product.price,
     });
 
+    // 배송 방법 타입 변환 (database.DeliveryMethod -> cart.DeliveryMethod)
+    const cartDeliveryMethod: CartDeliveryMethod =
+      product.delivery_method === "quick" ? "dawn" : "normal";
+
     // 장바구니에 추가
     addToCart({
       product_id: product.id,
       variant_id: null, // 옵션이 없으면 null
       quantity: product.moq, // 최소 주문 수량으로 기본 설정
       unit_price: product.price,
-      delivery_method: product.delivery_method,
+      delivery_method: cartDeliveryMethod,
       wholesaler_id: product.wholesaler_id,
       product_name: product.standardized_name || product.original_name || product.name,
       anonymous_seller_id: product.wholesaler_anonymous_code,
@@ -54,8 +59,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
     console.log("✅ [장바구니] 상품 추가 완료");
 
-    // 장바구니 페이지로 이동
-    router.push("/retailer/cart");
+    // 상품 상세 페이지로 이동
+    router.push(`/retailer/products/${product.id}`);
   };
 
   return (
