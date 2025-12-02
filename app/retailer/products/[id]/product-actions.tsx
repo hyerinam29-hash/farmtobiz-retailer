@@ -46,15 +46,24 @@ export function ProductActions({ product }: ProductActionsProps) {
 
   // 장바구니 담기 (장바구니 페이지로 이동)
   const handleAddToCart = () => {
+    // quantity를 명시적으로 Number로 변환하여 타입 보장
+    const quantityToAdd = Number(quantity);
+    
+    if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
+      console.error("❌ [상품상세] 잘못된 수량:", quantityToAdd);
+      toast.error("올바른 수량을 선택해주세요");
+      return;
+    }
+
     console.log("🛒 [상품상세] 장바구니 담기 시도:", {
       productId: product.id,
-      quantity,
+      quantity: quantityToAdd,
     });
 
     addToCart({
       product_id: product.id,
       variant_id: null,
-      quantity,
+      quantity: quantityToAdd, // Number로 보장
       unit_price: product.price,
       delivery_method: "normal" as const,
       wholesaler_id: product.wholesaler_id,
@@ -67,7 +76,7 @@ export function ProductActions({ product }: ProductActionsProps) {
       stock_quantity: product.stock_quantity,
     });
 
-    console.log("✅ [상품상세] 장바구니 담기 완료, 장바구니 페이지로 이동");
+    console.log("✅ [상품상세] 장바구니 담기 완료, quantity:", quantityToAdd);
     
     // 장바구니 페이지로 이동
     router.push("/retailer/cart");
@@ -75,15 +84,24 @@ export function ProductActions({ product }: ProductActionsProps) {
 
   // 바로구매 (결제 페이지로 이동)
   const handleBuyNow = () => {
+    // quantity를 명시적으로 Number로 변환하여 타입 보장
+    const quantityToAdd = Number(quantity);
+    
+    if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
+      console.error("❌ [상품상세] 잘못된 수량:", quantityToAdd);
+      toast.error("올바른 수량을 선택해주세요");
+      return;
+    }
+
     console.log("💳 [상품상세] 바로구매 시도:", {
       productId: product.id,
-      quantity,
+      quantity: quantityToAdd,
     });
 
     addToCart({
       product_id: product.id,
       variant_id: null,
-      quantity,
+      quantity: quantityToAdd, // Number로 보장
       unit_price: product.price,
       delivery_method: "normal" as const,
       wholesaler_id: product.wholesaler_id,
@@ -96,7 +114,7 @@ export function ProductActions({ product }: ProductActionsProps) {
       stock_quantity: product.stock_quantity,
     });
 
-    console.log("✅ [상품상세] 바로구매, 결제 페이지로 이동");
+    console.log("✅ [상품상세] 바로구매, quantity:", quantityToAdd);
     
     // 결제 페이지로 이동
     router.push("/retailer/checkout");

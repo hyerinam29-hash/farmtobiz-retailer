@@ -123,6 +123,20 @@ export const useCartStore = create<CartStore>()(
        * @param input 추가할 상품 정보
        */
       addToCart: (input: AddToCartInput) => {
+        // quantity를 명시적으로 Number로 변환하여 타입 보장
+        const inputQuantity = Number(input.quantity);
+        
+        if (isNaN(inputQuantity) || inputQuantity <= 0) {
+          console.error("❌ [cart-store] 잘못된 수량:", inputQuantity);
+          return;
+        }
+
+        console.log("📦 [cart-store] addToCart 호출:", {
+          productId: input.product_id,
+          inputQuantity: inputQuantity,
+          originalInput: input.quantity,
+        });
+
         const { items } = get();
 
         // 같은 상품이 이미 장바구니에 있는지 확인
@@ -135,10 +149,20 @@ export const useCartStore = create<CartStore>()(
 
         if (existingItemIndex !== -1) {
           // 같은 상품이 있으면 수량 증가
+          const existingQuantity = Number(items[existingItemIndex].quantity);
+          const newQuantity = existingQuantity + inputQuantity;
+          
+          console.log("🔄 [cart-store] 기존 상품 수량 증가:", {
+            productId: input.product_id,
+            existingQuantity,
+            inputQuantity,
+            newQuantity,
+          });
+
           const updatedItems = [...items];
           updatedItems[existingItemIndex] = {
             ...updatedItems[existingItemIndex],
-            quantity: updatedItems[existingItemIndex].quantity + input.quantity,
+            quantity: newQuantity, // Number로 보장
             // 가격이나 배송방법이 변경되었을 수 있으므로 업데이트
             unit_price: input.unit_price,
             delivery_method: input.delivery_method,
@@ -150,9 +174,15 @@ export const useCartStore = create<CartStore>()(
           set({ items: updatedItems });
         } else {
           // 같은 상품이 없으면 새 아이템 추가
+          console.log("➕ [cart-store] 새 상품 추가:", {
+            productId: input.product_id,
+            quantity: inputQuantity,
+          });
+
           const newItem: CartItem = {
             id: generateCartItemId(),
             ...input,
+            quantity: inputQuantity, // Number로 보장
           };
 
           set({ items: [...items, newItem] });
