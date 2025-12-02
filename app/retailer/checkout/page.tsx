@@ -121,6 +121,11 @@ export default function CheckoutPage() {
   const totalProductPrice = summary.totalProductPrice;
   const totalPrice = summary.totalPrice;
 
+  // 배송지 정보 문자열 생성
+  const getDeliveryAddressString = () => {
+    return `${mockUserInfo.name} | ${mockUserInfo.phone} | ${mockUserInfo.address} ${mockUserInfo.addressDetail}`;
+  };
+
   // 결제 처리 함수
   const handlePayment = async () => {
     console.log("💳 [결제] 결제 프로세스 시작:", {
@@ -135,7 +140,7 @@ export default function CheckoutPage() {
     });
 
     try {
-      // 1. 결제 요청 생성
+      // 1. 결제 요청 생성 (서버 측 검증 포함)
       const paymentResult = await createPayment({
         items: items.map(item => ({
           product_id: item.product_id,
@@ -145,6 +150,7 @@ export default function CheckoutPage() {
         deliveryOption,
         deliveryTime,
         deliveryNote,
+        deliveryAddress: getDeliveryAddressString(),
         totalAmount: summary.totalPrice,
       });
 
@@ -154,9 +160,29 @@ export default function CheckoutPage() {
 
       console.log("✅ [결제] 결제 요청 생성 완료:", paymentResult);
 
-      // 주문 정보 저장
+      // 주문 정보 저장 (state)
       setPaymentOrderId(paymentResult.orderId);
       setPaymentOrderName(paymentResult.orderName || "주문");
+
+      // 결제 성공 후 주문 생성에 필요한 정보를 localStorage에 저장
+      const pendingOrderData = {
+        orderId: paymentResult.orderId,
+        items: paymentResult.validatedItems || items.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          product_name: item.product_name,
+          wholesaler_id: item.wholesaler_id || "",
+          shipping_fee: 0,
+        })),
+        deliveryOption,
+        deliveryTime,
+        deliveryNote,
+        deliveryAddress: getDeliveryAddressString(),
+        totalAmount: paymentResult.amount || summary.totalPrice,
+      };
+      localStorage.setItem("pendingOrder", JSON.stringify(pendingOrderData));
+      console.log("💾 [결제] 주문 정보 임시 저장:", pendingOrderData);
 
       // 2. 토스 페이먼츠 결제 위젯 열기
       if (paymentMethod === "toss") {

@@ -147,8 +147,13 @@ PRD 3.4 섹션 참조.
   - [X] 토스 결제 테스트 페이지 구현 (`/retailer/payment/test`)
     - [X] 임시 토스 결제 테스트 페이지 생성
     - [X] 나중에 실제 결제 플로우와 연결 가능하도록 구조화
-- [ ] 주문 생성 (R.ORDER.05)
-  - [ ] 주문 데이터 검증 및 DB 생성 (Server Action)
+- [X] 주문 생성 (R.ORDER.05)
+  - [X] 주문 데이터 검증 및 DB 생성 (Server Action)
+    - [X] DB 마이그레이션: orders 테이블에 delivery_option, delivery_time, payment_key, paid_at 필드 추가
+    - [X] create-payment.ts: 서버 측 가격/재고 검증 (데이터 무결성)
+    - [X] create-order.ts: 결제 성공 후 주문 생성 Server Action
+    - [X] 결제 성공 페이지: 주문 생성 및 장바구니 비우기 연동
+    - [X] 주문 내역 페이지 연동 (생성된 주문 조회 가능)
 
 ---
 
