@@ -18,7 +18,7 @@
 
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Trash2, Minus, Plus, ShoppingBag, AlertCircle } from "lucide-react";
@@ -34,17 +34,59 @@ export default function CartPage() {
   const updateCartItem = useCartStore((state) => state.updateCartItem);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
 
-  // 장바구니 요약 정보 계산 (useMemo로 캐싱하여 무한 루프 방지)
+  // 선택된 항목 ID 배열 관리 (초기 상태: 빈 배열 - 아무것도 선택 안 됨)
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+
+  // 전체 선택/해제 핸들러
+  const handleSelectAll = (checked: boolean) => {
+    console.log("🔘 [장바구니] 전체 선택:", checked);
+    if (checked) {
+      setSelectedItemIds(items.map((item) => item.id));
+      console.log("✅ [장바구니] 전체 선택 완료:", items.length, "개 항목");
+    } else {
+      setSelectedItemIds([]);
+      console.log("✅ [장바구니] 전체 해제 완료");
+    }
+  };
+
+  // 개별 선택/해제 핸들러
+  const handleSelectItem = (itemId: string, checked: boolean) => {
+    console.log("🔘 [장바구니] 개별 선택:", { itemId, checked });
+    if (checked) {
+      setSelectedItemIds((prev) => [...prev, itemId]);
+      console.log("✅ [장바구니] 항목 선택 완료");
+    } else {
+      setSelectedItemIds((prev) => prev.filter((id) => id !== itemId));
+      console.log("✅ [장바구니] 항목 해제 완료");
+    }
+  };
+
+  // 선택 삭제 핸들러
+  const handleRemoveSelected = () => {
+    console.log("🗑️ [장바구니] 선택 삭제 시도:", selectedItemIds);
+    selectedItemIds.forEach((itemId) => {
+      removeFromCart(itemId);
+    });
+    setSelectedItemIds([]);
+    console.log("✅ [장바구니] 선택 삭제 완료");
+  };
+
+  // 전체 선택 여부 계산
+  const isAllSelected = items.length > 0 && selectedItemIds.length === items.length;
+  const isIndeterminate = selectedItemIds.length > 0 && selectedItemIds.length < items.length;
+
+  // 선택된 항목만 필터링하여 요약 계산
   const summary = useMemo(() => {
-    const totalProductPrice = items.reduce(
+    const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
+    const totalProductPrice = selectedItems.reduce(
       (sum, item) => sum + item.unit_price * item.quantity,
-    0
-  );
+      0
+    );
     const totalPrice = totalProductPrice;
-    const itemCount = items.length;
+    const itemCount = selectedItems.length;
 
     return { totalProductPrice, totalPrice, itemCount };
-  }, [items]);
+  }, [items, selectedItemIds]);
 
   // 수량 감소
   const handleDecreaseQuantity = (itemId: string, currentQuantity: number, moq: number) => {
@@ -77,13 +119,14 @@ export default function CartPage() {
     console.log("✅ [장바구니] 상품 삭제 완료");
   };
 
-  // 장바구니 검증
+  // 장바구니 검증 (선택된 항목만)
   const validationResult = useMemo(() => {
-    return validateCartItems(items);
-  }, [items]);
+    const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
+    return validateCartItems(selectedItems);
+  }, [items, selectedItemIds]);
 
-  // 주문하기 버튼 활성화 여부
-  const canCheckout = validationResult.isValid && items.length > 0;
+  // 주문하기 버튼 활성화 여부 (선택된 항목이 있어야 함)
+  const canCheckout = validationResult.isValid && selectedItemIds.length > 0;
 
   return (
     <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-12 md:py-16">
@@ -127,17 +170,25 @@ export default function CartPage() {
 
           {/* 전체 선택 */}
           <div className="flex items-center justify-between p-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <label className="flex items-center gap-6">
+            <label className="flex items-center gap-6 cursor-pointer">
               <input
                 type="checkbox"
-                defaultChecked
+                checked={isAllSelected}
+                ref={(input) => {
+                  if (input) input.indeterminate = isIndeterminate;
+                }}
+                onChange={(e) => handleSelectAll(e.target.checked)}
                 className="w-10 h-10 rounded border-gray-300 dark:border-gray-600 text-green-600 focus:ring-green-500"
               />
               <span className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                전체 선택 ({items.length}/{items.length})
+                전체 선택 ({selectedItemIds.length}/{items.length})
               </span>
             </label>
-            <button className="text-lg text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500">
+            <button
+              onClick={handleRemoveSelected}
+              disabled={selectedItemIds.length === 0}
+              className="text-lg text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
               선택 삭제
             </button>
           </div>
@@ -168,7 +219,8 @@ export default function CartPage() {
                   {/* 체크박스 */}
                   <input
                     type="checkbox"
-                    defaultChecked
+                    checked={selectedItemIds.includes(item.id)}
+                    onChange={(e) => handleSelectItem(item.id, e.target.checked)}
                     className="mt-2 w-10 h-10 rounded border-gray-300 dark:border-gray-600 text-green-600 focus:ring-green-500 flex-shrink-0"
                   />
 

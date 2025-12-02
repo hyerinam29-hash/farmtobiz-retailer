@@ -3,7 +3,8 @@
  * @description 상품 카드 컴포넌트
  *
  * 상품 목록에서 사용되는 상품 카드 컴포넌트입니다.
- * "장바구니 담기" 버튼 클릭 시 상세 페이지로 이동합니다.
+ * 장바구니 담기 버튼 클릭 시 상품 상세 페이지로 이동합니다.
+ * 실제 장바구니 추가는 상세 페이지에서 수량 선택 후 진행됩니다.
  */
 
 "use client";
@@ -26,12 +27,12 @@ export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
 
   const handleAddToCart = () => {
-    console.log("🛒 [상품목록] 장바구니 담기 버튼 클릭, 상세 페이지로 이동:", {
+    console.log("🛒 [상품목록] 상세 페이지로 이동:", {
       product_id: product.id,
       product_name: product.standardized_name || product.original_name || product.name,
     });
 
-    // 상품 상세 페이지로 이동 (상세 페이지에서 수량 선택 후 장바구니 담기)
+    // 상품 상세 페이지로 이동 (장바구니 추가는 상세 페이지에서 수량 선택 후 진행)
     router.push(`/retailer/products/${product.id}`);
   };
 
@@ -113,4 +114,3 @@ export default function ProductCard({ product }: ProductCardProps) {
     </div>
   );
 }
-
