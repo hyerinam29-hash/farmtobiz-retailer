@@ -12,7 +12,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -25,7 +25,19 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useUser();
   const items = useCartStore((state) => state.items);
-  const summary = useCartStore((state) => state.getSummary());
+  
+  // items를 직접 사용하여 summary 계산 (무한 루프 방지)
+  const summary = useMemo(() => {
+    const totalProductPrice = items.reduce(
+      (sum, item) => sum + item.unit_price * item.quantity,
+      0
+    );
+    return {
+      totalProductPrice,
+      totalPrice: totalProductPrice,
+      itemCount: items.length,
+    };
+  }, [items]);
 
   // 배송 옵션 상태
   const [deliveryOption, setDeliveryOption] = useState<"dawn" | "normal">("dawn");

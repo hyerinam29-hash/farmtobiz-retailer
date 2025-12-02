@@ -32,6 +32,7 @@ const pageTitles: Record<string, string> = {
   "/retailer/orders": "주문 내역",
   "/retailer/profile": "마이페이지",
   "/retailer/cart": "장바구니",
+  "/retailer/checkout": "결제",
 };
 
 // 경로 패턴으로 제목 찾기 (동적 라우트용)
