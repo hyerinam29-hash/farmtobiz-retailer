@@ -47,6 +47,12 @@ export function ProductSearchClient({
     setSearch(initialSearch || "");
   }, [initialSearch]);
 
+  // initialCategory prop이 변경될 때 동기화 (페이지 리로드 시)
+  useEffect(() => {
+    console.log("🔄 [검색창] initialCategory 동기화:", initialCategory);
+    setSelectedCategory(initialCategory || "all");
+  }, [initialCategory]);
+
   // 검색어 입력 (로컬 상태만 업데이트)
   const handleSearchInput = (value: string) => {
     console.log("🔍 [검색창] 검색어 입력:", value);
@@ -194,7 +200,7 @@ export function ProductSearchClient({
             onClick={() => {
               setSelectedCategory(category.value);
               updateURL({
-                category: category.value === "all" ? undefined : category.value,
+                category: category.value,
               });
             }}
             className={`px-6 py-3 rounded-full text-base font-medium whitespace-nowrap transition-colors w-[5.5rem] text-center flex-shrink-0 ${
