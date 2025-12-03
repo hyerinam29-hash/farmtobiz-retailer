@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 
 interface SignUpWithWholesalerBlockProps {
   afterSignUpUrl?: string;
@@ -48,6 +49,8 @@ export default function SignUpWithWholesalerBlock({
   appearance,
 }: SignUpWithWholesalerBlockProps) {
   const [showWholesalerBlockModal, setShowWholesalerBlockModal] =
+    useState(false);
+  const [showDuplicateAccountModal, setShowDuplicateAccountModal] =
     useState(false);
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
@@ -109,9 +112,11 @@ export default function SignUpWithWholesalerBlock({
     let checkCount = 0;
     const MAX_CHECKS = 200; // 최대 10초간 체크 (50ms * 200)
     let intervalId: NodeJS.Timeout | null = null;
+    let isProcessing = false; // 처리 중 플래그 (무한 루프 방지)
+    let observer: MutationObserver | null = null;
 
     const checkForClerkError = () => {
-      if (modalShownRef.current) return true;
+      if (modalShownRef.current || isProcessing) return true; // 처리 중이면 중단
 
       checkCount++;
 
@@ -126,6 +131,7 @@ export default function SignUpWithWholesalerBlock({
         "email already",
         "이미 존재",
         "이미 등록",
+        "unable to complete action",
       ];
 
       // 에러 패턴 감지
@@ -134,24 +140,68 @@ export default function SignUpWithWholesalerBlock({
       );
 
       if (foundPatterns.length > 0) {
-        console.log("🔍 [SignUp Block] 이미 가입된 계정 에러 감지 - 역할 확인 시작");
+        isProcessing = true; // 처리 시작
+        console.log("🔍 [SignUp Block] 이미 가입된 계정 에러 감지 - 이메일 추출 및 역할 확인 시작");
         
-        // 역할 확인하여 도매 계정이면 차단 모달 표시
-        const checkUserRole = async () => {
+        // Observer와 interval 즉시 정리 (무한 루프 방지)
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+
+        // DOM에서 이메일 주소 추출
+        const emailInput = document.querySelector<HTMLInputElement>(
+          'input[type="email"], input[name="emailAddress"], input[id*="email"]'
+        );
+        const email = emailInput?.value?.trim().toLowerCase();
+        
+        if (!email) {
+          console.log("⚠️ [SignUp Block] 이메일 주소를 찾을 수 없음 - 중복 가입 모달 표시");
+          if (!modalShownRef.current) {
+            modalShownRef.current = true;
+            setShowDuplicateAccountModal(true);
+          }
+          return true;
+        }
+
+        console.log("📧 [SignUp Block] 추출된 이메일:", email);
+        
+        // 이메일 기반 역할 확인 API 호출 (Supabase에서 확인)
+        const checkUserRoleByEmail = async () => {
           try {
-            const response = await fetch("/api/check-role");
+            console.log("📡 [SignUp Block] /api/check-role-by-email API 호출");
+            const response = await fetch(`/api/check-role-by-email?email=${encodeURIComponent(email)}`);
             const data = await response.json();
+            
+            console.log("✅ [SignUp Block] 역할 확인 결과:", data.role);
+            
+            // 도매 계정인 경우
             if (data.role === "wholesaler" && !modalShownRef.current) {
               console.log("🚫 [SignUp Block] 도매점 계정 감지 - 차단 모달 표시");
               modalShownRef.current = true;
               setShowWholesalerBlockModal(true);
+            } 
+            // 일반 사용자 또는 소매 사업자(retailer/null)인 경우
+            else if (!modalShownRef.current) {
+              console.log("⚠️ [SignUp Block] 일반 중복 가입 감지 - 중복 계정 모달 표시");
+              modalShownRef.current = true;
+              setShowDuplicateAccountModal(true);
             }
           } catch (error) {
             console.error("❌ [SignUp Block] 역할 확인 실패:", error);
+            // 역할 확인 실패 시에도 중복 가입 모달 표시
+            if (!modalShownRef.current) {
+              modalShownRef.current = true;
+              setShowDuplicateAccountModal(true);
+            }
           }
         };
 
-        checkUserRole();
+        checkUserRoleByEmail();
         return true;
       }
 
@@ -163,9 +213,24 @@ export default function SignUpWithWholesalerBlock({
       return;
     }
 
-    // MutationObserver로 DOM 변화 감지
-    const observer = new MutationObserver(() => {
-      checkForClerkError();
+    // MutationObserver 개선: 조건부로만 체크 (무한 루프 방지)
+    observer = new MutationObserver((mutations) => {
+      // 에러 관련 DOM 변화만 감지
+      const hasErrorChange = mutations.some((mutation) => {
+        const target = mutation.target as HTMLElement;
+        const text = target.textContent?.toLowerCase() || "";
+        return (
+          text.includes("already") ||
+          text.includes("exists") ||
+          text.includes("registered") ||
+          text.includes("unable")
+        );
+      });
+
+      if (hasErrorChange) {
+        console.log("🔍 [MutationObserver] 에러 관련 DOM 변화 감지");
+        checkForClerkError();
+      }
     });
 
     observer.observe(document.body, {
@@ -182,7 +247,10 @@ export default function SignUpWithWholesalerBlock({
           clearInterval(intervalId);
           intervalId = null;
         }
-        observer.disconnect();
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
       }
     }, 50);
 
@@ -190,7 +258,9 @@ export default function SignUpWithWholesalerBlock({
       if (intervalId) {
         clearInterval(intervalId);
       }
-      observer.disconnect();
+      if (observer) {
+        observer.disconnect();
+      }
     };
   }, []);
 
@@ -205,6 +275,13 @@ export default function SignUpWithWholesalerBlock({
     console.log("📝 [Modal] 도매점 로그인 페이지로 이동");
     setShowWholesalerBlockModal(false);
     router.push("/sign-in/wholesaler");
+  };
+
+  // 로그인 페이지로 이동 핸들러
+  const handleGoToLogin = () => {
+    console.log("📝 [Modal] 로그인 페이지로 이동");
+    setShowDuplicateAccountModal(false);
+    router.push("/sign-in/retailer");
   };
 
   // SignUp 컴포넌트 props 준비
@@ -223,6 +300,44 @@ export default function SignUpWithWholesalerBlock({
   return (
     <>
       <SignUp {...signUpProps} />
+
+      {/* 중복 가입 모달 */}
+      <Dialog
+        open={showDuplicateAccountModal}
+        onOpenChange={setShowDuplicateAccountModal}
+        modal={true}
+      >
+        <DialogContent
+          className="sm:max-w-[425px]"
+          style={{ zIndex: 9999 }}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader className="text-center">
+            {/* 경고 아이콘 */}
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-8 h-8 text-yellow-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-xl font-bold text-center">
+              이미 가입된 계정입니다
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2 text-base">
+              이미 가입된 계정입니다. 로그인을 시도하세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              type="button"
+              onClick={handleGoToLogin}
+              className="min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              로그인하기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* 도매 계정 차단 모달 */}
       <Dialog
