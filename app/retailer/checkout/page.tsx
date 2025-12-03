@@ -404,19 +404,21 @@ export default function CheckoutPage() {
                 </h3>
                 
                 {/* 토스 페이먼츠 위젯 */}
-                {paymentMethod === "toss" && (
-                  <div
-                    id="payment-methods-widget"
-                    ref={paymentMethodsRef}
-                    className="mb-4 min-h-[200px]"
-                  >
-                    {!isPaymentReady && (
-                      <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg text-center text-sm text-gray-500">
-                        결제 위젯을 불러오는 중...
-                      </div>
-                    )}
-                  </div>
-                )}
+                <div
+                  id="payment-methods-widget"
+                  ref={paymentMethodsRef}
+                  className="mb-4 min-h-[200px]"
+                >
+                  {paymentMethod === "toss" && (
+                    <>
+                      {!isPaymentReady && (
+                        <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg text-center text-sm text-gray-500">
+                          결제 위젯을 불러오는 중...
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
 
                 <div className="space-y-2">
                   <label className="flex items-center gap-3 p-3 border-2 border-green-600 rounded-lg cursor-pointer bg-green-50 dark:bg-green-900/20">
