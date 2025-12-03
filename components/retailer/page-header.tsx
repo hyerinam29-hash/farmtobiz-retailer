@@ -1,92 +1,283 @@
 /**
  * @file components/retailer/page-header.tsx
- * @description 소매점 페이지 제목 헤더
+ * @description 소매점 헤더 네비게이션
  *
- * 현재 페이지의 제목만 표시하는 간단한 헤더입니다.
- * 사이드바 메뉴와 연동되어 페이지 제목을 자동으로 표시합니다.
+ * 소매점 페이지의 상단 헤더 네비게이션입니다.
+ * 모든 메뉴와 기능을 헤더에 통합하여 제공합니다.
  *
  * 주요 기능:
- * 1. 현재 경로에 따른 페이지 제목 자동 표시
- * 2. 모바일/태블릿/랩탑에서 햄버거 메뉴 버튼 제공
- * 3. 사이드바와 연동된 네비게이션
+ * 1. 로고 표시
+ * 2. 네비게이션 메뉴 (홈, 상품 검색, 장바구니, 주문 내역, 마이페이지, 고객센터)
+ * 3. 프로필 수정, 로그아웃 버튼
+ * 4. 반응형 처리 (데스크톱: 가로 메뉴, 모바일: 햄버거 메뉴)
  *
  * @dependencies
- * - next/navigation (usePathname)
- * - lucide-react (Menu 아이콘)
+ * - @clerk/nextjs (useUser, useClerk)
+ * - next/navigation (usePathname, Link, useRouter)
+ * - next/image (Image)
+ * - lucide-react (아이콘)
+ * - lib/utils (cn 함수)
  */
 
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
+import {
+  Home,
+  Search,
+  ShoppingCart,
+  ClipboardList,
+  User,
+  HelpCircle,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// 네비게이션 메뉴 항목 정의
+const navMenuItems = [
+  {
+    href: "/retailer/dashboard",
+    label: "홈",
+    icon: Home,
+  },
+  {
+    href: "/retailer/products",
+    label: "상품 검색",
+    icon: Search,
+  },
+  {
+    href: "/retailer/cart",
+    label: "장바구니",
+    icon: ShoppingCart,
+  },
+  {
+    href: "/retailer/orders",
+    label: "주문 내역",
+    icon: ClipboardList,
+  },
+  {
+    href: "/retailer/profile",
+    label: "마이페이지",
+    icon: User,
+  },
+  {
+    href: "/retailer/cs",
+    label: "고객센터",
+    icon: HelpCircle,
+  },
+];
 
 interface PageHeaderProps {
-  /** 사이드바 열기 함수 (모바일용) */
+  /** 모바일 메뉴 열기 함수 (사용하지 않음, 내부 상태로 관리) */
   onMenuClick?: () => void;
-}
-
-// 경로별 페이지 제목 매핑
-const pageTitles: Record<string, string> = {
-  "/retailer/dashboard": "대시보드",
-  "/retailer/products": "상품 검색",
-  "/retailer/orders": "주문 내역",
-  "/retailer/profile": "마이페이지",
-  "/retailer/cart": "장바구니",
-  "/retailer/checkout": "결제",
-};
-
-// 경로 패턴으로 제목 찾기 (동적 라우트용)
-function getPageTitle(pathname: string): string {
-  // 정확히 일치하는 경우
-  if (pageTitles[pathname]) {
-    return pageTitles[pathname];
-  }
-
-  // 경로가 시작하는 경우 (동적 라우트 처리)
-  for (const [path, title] of Object.entries(pageTitles)) {
-    if (pathname.startsWith(path + "/")) {
-      // 주문 상세 페이지인 경우
-      if (pathname.startsWith("/retailer/orders/")) {
-        return "주문 상세";
-      }
-      return title;
-    }
-  }
-
-  // 기본값
-  return "FarmToBiz";
 }
 
 export default function PageHeader({ onMenuClick }: PageHeaderProps) {
   const pathname = usePathname();
-  // mounted 상태 제거 - pathname을 직접 사용하여 서버/클라이언트 일치 보장
-  const pageTitle = pathname ? getPageTitle(pathname) : "FarmToBiz";
+  const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
+  const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 모바일 메뉴 닫기 (링크 클릭 시)
+  const handleLinkClick = () => {
+    if (window.innerWidth < 1024) {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  // 현재 경로가 활성화된 메뉴인지 확인
+  const isActive = (href: string) => {
+    if (!mounted) return false;
+    if (href === "/retailer/dashboard") {
+      return pathname === href;
+    }
+    return pathname === href || pathname?.startsWith(href + "/");
+  };
+
+  // 프로필 수정 클릭 핸들러
+  const handleProfileClick = () => {
+    router.push("/retailer/profile");
+    handleLinkClick();
+  };
+
+  // 로그아웃 처리
+  const handleSignOut = async () => {
+    console.log("🚪 [Header] 로그아웃 시작");
+    try {
+      await signOut({ redirectUrl: "/sign-in/retailer" });
+      console.log("✅ [Header] 로그아웃 완료");
+    } catch (error) {
+      console.error("❌ [Header] 로그아웃 실패:", error);
+    }
+  };
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* 왼쪽: 햄버거 메뉴 + 페이지 제목 */}
-          <div className="flex items-center gap-3">
-            {/* 햄버거 메뉴 버튼 (모바일/태블릿/랩탑) */}
-            {onMenuClick && (
-              <button
-                onClick={onMenuClick}
-                className="xl:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                aria-label="메뉴 열기"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-            )}
+    <>
+      {/* 모바일 메뉴 오버레이 */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-            {/* 페이지 제목 */}
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {pageTitle}
-            </h1>
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* 왼쪽: 로고 + 데스크톱 네비게이션 */}
+            <div className="flex items-center gap-4 lg:gap-8">
+              {/* 로고 */}
+              <Link
+                href="/retailer/dashboard"
+                className="flex items-center gap-2 flex-shrink-0"
+              >
+                <Image
+                  src="/logo.png"
+                  alt="FarmToBiz"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
+                <span className="text-xl font-bold text-green-600 dark:text-green-400 hidden sm:inline">
+                  FarmToBiz
+                </span>
+              </Link>
+
+              {/* 데스크톱 네비게이션 메뉴 */}
+              <nav className="hidden lg:flex items-center gap-1">
+                {navMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                        active
+                          ? "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+                      )}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* 오른쪽: 데스크톱 프로필 메뉴 + 모바일 햄버거 버튼 */}
+            <div className="flex items-center gap-2">
+              {/* 데스크톱: 프로필 수정, 로그아웃 버튼 */}
+              {isLoaded && user && (
+                <div className="hidden lg:flex items-center gap-2">
+                  <button
+                    onClick={handleProfileClick}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>프로필 수정</span>
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>로그아웃</span>
+                  </button>
+                </div>
+              )}
+
+              {/* 모바일: 햄버거 메뉴 버튼 */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+                aria-label="메뉴 열기/닫기"
+              >
+                {mobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+
+        {/* 모바일 메뉴 (드롭다운) */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+            <nav className="px-4 py-2">
+              <div className="flex flex-col gap-1">
+                {/* 네비게이션 메뉴 */}
+                {navMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={handleLinkClick}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                        active
+                          ? "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      )}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+
+                {/* 구분선 */}
+                {isLoaded && user && (
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
+                )}
+
+                {/* 프로필 수정, 로그아웃 */}
+                {isLoaded && user && (
+                  <>
+                    <button
+                      onClick={handleProfileClick}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+                    >
+                      <Settings className="w-5 h-5" />
+                      <span>프로필 수정</span>
+                    </button>
+                    <button
+                      onClick={handleSignOut}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span>로그아웃</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </nav>
+          </div>
+        )}
+      </header>
+    </>
   );
 }
-
