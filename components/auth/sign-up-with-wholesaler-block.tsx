@@ -153,18 +153,45 @@ export default function SignUpWithWholesalerBlock({
           observer = null;
         }
 
-        // DOM에서 이메일 주소 추출
+        // 이메일 추출 시도 (여러 방법)
+        let email: string | null = null;
+
+        // 방법 1: 이메일 입력 필드에서 추출
         const emailInput = document.querySelector<HTMLInputElement>(
           'input[type="email"], input[name="emailAddress"], input[id*="email"]'
         );
-        const email = emailInput?.value?.trim().toLowerCase();
-        
+        email = emailInput?.value?.trim().toLowerCase() || null;
+
+        // 방법 2: 에러 메시지에서 이메일 패턴 추출 (소셜 로그인용)
         if (!email) {
-          console.log("⚠️ [SignUp Block] 이메일 주소를 찾을 수 없음 - 중복 가입 모달 표시");
-          if (!modalShownRef.current) {
-            modalShownRef.current = true;
-            setShowDuplicateAccountModal(true);
+          const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
+          const emailMatches = allText.match(emailRegex);
+          if (emailMatches && emailMatches.length > 0) {
+            email = emailMatches[0].toLowerCase();
+            console.log("📧 [SignUp Block] 에러 메시지에서 이메일 추출:", email);
           }
+        }
+
+        // 방법 3: Clerk 에러 요소에서 이메일 추출 시도
+        if (!email) {
+          const errorElements = document.querySelectorAll('[role="alert"], .cl-error, [data-error], [class*="error"]');
+          const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
+          for (const element of errorElements) {
+            const text = element.textContent || "";
+            const emailMatch = text.match(emailRegex);
+            if (emailMatch) {
+              email = emailMatch[0].toLowerCase();
+              console.log("📧 [SignUp Block] 에러 요소에서 이메일 추출:", email);
+              break;
+            }
+          }
+        }
+
+        // 이메일을 찾지 못한 경우 로그인 페이지로 리다이렉트
+        if (!email) {
+          console.log("⚠️ [SignUp Block] 이메일 주소를 찾을 수 없음 - 로그인 페이지로 리다이렉트");
+          isProcessing = false; // 플래그 리셋
+          router.push("/sign-in/retailer");
           return true;
         }
 
@@ -174,7 +201,12 @@ export default function SignUpWithWholesalerBlock({
         const checkUserRoleByEmail = async () => {
           try {
             console.log("📡 [SignUp Block] /api/check-role-by-email API 호출");
-            const response = await fetch(`/api/check-role-by-email?email=${encodeURIComponent(email)}`);
+            const response = await fetch(`/api/check-role-by-email?email=${encodeURIComponent(email!)}`);
+            
+            if (!response.ok) {
+              throw new Error(`API 호출 실패: ${response.status}`);
+            }
+            
             const data = await response.json();
             
             console.log("✅ [SignUp Block] 역할 확인 결과:", data.role);
@@ -198,6 +230,10 @@ export default function SignUpWithWholesalerBlock({
               modalShownRef.current = true;
               setShowDuplicateAccountModal(true);
             }
+          } finally {
+            // 비동기 작업 완료 후 플래그 리셋 (무한 로딩 방지)
+            isProcessing = false;
+            console.log("🔄 [SignUp Block] 처리 완료 - isProcessing 플래그 리셋");
           }
         };
 
@@ -313,25 +349,30 @@ export default function SignUpWithWholesalerBlock({
           onEscapeKeyDown={(e) => e.preventDefault()}
           onPointerDownOutside={(e) => e.preventDefault()}
         >
-          <DialogHeader className="text-center">
-            {/* 경고 아이콘 */}
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-yellow-600" />
+          <DialogHeader className="text-center space-y-4">
+            {/* 경고 아이콘 - 이미지와 동일한 스타일 */}
+            <div className="flex justify-center">
+              <div className="relative">
+                {/* 그림자 효과를 위한 배경 */}
+                <div className="absolute inset-0 bg-yellow-200 rounded-full blur-xl opacity-50"></div>
+                {/* 노란색 원 배경 */}
+                <div className="relative w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-10 h-10 text-yellow-600" strokeWidth={2.5} />
+                </div>
               </div>
             </div>
-            <DialogTitle className="text-xl font-bold text-center">
+            <DialogTitle className="text-xl font-bold text-center text-gray-900">
               이미 가입된 계정입니다
             </DialogTitle>
-            <DialogDescription className="text-center pt-2 text-base">
+            <DialogDescription className="text-center text-base text-gray-600">
               이미 가입된 계정입니다. 로그인을 시도하세요.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="sm:justify-center">
+          <DialogFooter className="sm:justify-center pt-4">
             <Button
               type="button"
               onClick={handleGoToLogin}
-              className="min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white"
+              className="min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-2 text-base font-medium"
             >
               로그인하기
             </Button>
