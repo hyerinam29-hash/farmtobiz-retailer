@@ -18,6 +18,9 @@
  * - actions/retailer/create-retailer.ts (role 자동 설정)
  */
 
+// 동적 렌더링 강제 (headers() 사용으로 인해 정적 생성 불가)
+export const dynamic = 'force-dynamic';
+
 import { redirect } from "next/navigation";
 import { getUserProfile } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";

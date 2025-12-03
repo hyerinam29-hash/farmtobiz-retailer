@@ -10,6 +10,7 @@
  * - 회원가입 링크에 역할 구분 파라미터 추가
  */
 
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -42,20 +43,22 @@ export default function RetailerSignInPage() {
 
         {/* 로그인 폼 */}
         <div className="flex justify-center">
-          <SignInWithRedirect
-            appearance={{
-              elements: {
-                rootBox: "mx-auto",
-                card: "shadow-lg",
-              },
-            }}
-            path="/sign-in/retailer"
-            signUpUrl="/sign-up?type=retailer"
-            fallbackRedirectUrl="/retailer-onboarding"
-            forceRedirectUrl="/retailer-onboarding"
-            redirectToSignUpUrl="/sign-up?type=retailer"
-            onboardingUrl="/retailer-onboarding"
-          />
+          <Suspense fallback={<div className="text-center py-8 text-gray-600">로딩 중...</div>}>
+            <SignInWithRedirect
+              appearance={{
+                elements: {
+                  rootBox: "mx-auto",
+                  card: "shadow-lg",
+                },
+              }}
+              path="/sign-in/retailer"
+              signUpUrl="/sign-up?type=retailer"
+              fallbackRedirectUrl="/retailer-onboarding"
+              forceRedirectUrl="/retailer-onboarding"
+              redirectToSignUpUrl="/sign-up?type=retailer"
+              onboardingUrl="/retailer-onboarding"
+            />
+          </Suspense>
         </div>
 
         {/* 신규 회원 안내 카드 */}
