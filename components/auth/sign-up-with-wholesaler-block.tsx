@@ -116,69 +116,42 @@ export default function SignUpWithWholesalerBlock({
     let observer: MutationObserver | null = null;
 
     const checkForClerkError = () => {
-      console.log(`🔍 [SignUp Block] checkForClerkError 호출 - modalShown: ${modalShownRef.current}, isProcessing: ${isProcessing}`);
-      
       if (modalShownRef.current || isProcessing) {
-        console.log(`⏭️ [SignUp Block] 체크 건너뜀 - modalShown: ${modalShownRef.current}, isProcessing: ${isProcessing}`);
         return true; // 처리 중이면 중단
       }
 
       checkCount++;
 
-      // Clerk 에러 요소 직접 확인 (우선순위 1)
+      // Clerk 에러 요소 직접 확인
       const clerkErrorElements = document.querySelectorAll(
-        '[role="alert"], .cl-alert, .cl-alertText, .cl-error, [data-error], [class*="error"], [class*="alert"]'
+        '[role="alert"], .cl-alert, .cl-alertText, .cl-formFieldErrorText'
       );
-      
-      let errorText = "";
+
       let foundErrorInElements = false;
-      
+
       for (const element of clerkErrorElements) {
         const text = element.textContent || "";
         const textLower = text.toLowerCase();
-        
-        // 에러 패턴 확인
-        if (
-          textLower.includes("already exists") ||
-          textLower.includes("already registered") ||
-          textLower.includes("email already") ||
-          textLower.includes("unable to complete action") ||
+
+        // 중복 가입 관련 에러 패턴만 확인
+        const isDuplicateError =
+          (textLower.includes("already") && textLower.includes("exists")) ||
+          (textLower.includes("already") && textLower.includes("registered")) ||
+          (textLower.includes("email") && textLower.includes("taken")) ||
+          (textLower.includes("identifier") && textLower.includes("exists")) ||
           textLower.includes("이미 존재") ||
-          textLower.includes("이미 등록")
-        ) {
-          errorText = text;
+          textLower.includes("이미 등록") ||
+          textLower.includes("이미 가입");
+
+        if (isDuplicateError) {
           foundErrorInElements = true;
-          console.log(`🔍 [SignUp Block] Clerk 에러 요소에서 에러 발견:`, text);
           break;
         }
       }
 
-      // 전체 document에서 에러 메시지 찾기 (우선순위 2)
-      const allText = document.body.textContent || "";
-      const allTextLower = allText.toLowerCase();
-
-      // 이미 가입된 이메일 에러 패턴
-      const errorPatterns = [
-        "already exists",
-        "already registered",
-        "email already",
-        "이미 존재",
-        "이미 등록",
-        "unable to complete action",
-      ];
-
-      // 에러 패턴 감지
-      const foundPatterns = errorPatterns.filter((pattern) =>
-        allTextLower.includes(pattern),
-      );
-
-      console.log(`🔍 [SignUp Block] 발견된 에러 패턴:`, foundPatterns);
-      console.log(`🔍 [SignUp Block] Clerk 에러 요소에서 발견:`, foundErrorInElements);
-
-      // Clerk 에러 요소에서 발견했거나 전체 텍스트에서 패턴을 찾았으면 처리
-      if (foundErrorInElements || foundPatterns.length > 0) {
-        isProcessing = true; // 처리 시작
-        console.log("🔍 [SignUp Block] 이미 가입된 계정 에러 감지 - 이메일 추출 및 역할 확인 시작");
+      // 에러가 발견되면 처리
+      if (foundErrorInElements) {
+        isProcessing = true;
         
         // Observer와 interval 즉시 정리 (무한 루프 방지)
         if (intervalId) {
@@ -199,61 +172,53 @@ export default function SignUpWithWholesalerBlock({
         );
         email = emailInput?.value?.trim().toLowerCase() || null;
 
-        // 방법 2: 에러 메시지에서 이메일 패턴 추출 (소셜 로그인용)
+        // 방법 2: Clerk 에러 요소에서 이메일 추출 시도
         if (!email) {
-          const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
-          const emailMatches = allText.match(emailRegex);
-          if (emailMatches && emailMatches.length > 0) {
-            email = emailMatches[0].toLowerCase();
-            console.log("📧 [SignUp Block] 에러 메시지에서 이메일 추출:", email);
-          }
-        }
-
-        // 방법 3: Clerk 에러 요소에서 이메일 추출 시도
-        if (!email) {
-          const errorElements = document.querySelectorAll('[role="alert"], .cl-error, [data-error], [class*="error"]');
+          const errorElements = document.querySelectorAll('[role="alert"], .cl-alert, .cl-alertText');
           const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
           for (const element of errorElements) {
             const text = element.textContent || "";
             const emailMatch = text.match(emailRegex);
             if (emailMatch) {
               email = emailMatch[0].toLowerCase();
-              console.log("📧 [SignUp Block] 에러 요소에서 이메일 추출:", email);
               break;
             }
           }
         }
 
-        console.log("📧 [SignUp Block] 추출된 이메일:", email);
+        // 방법 3: 전체 페이지에서 이메일 패턴 추출 (마지막 수단)
+        if (!email) {
+          const bodyText = document.body.textContent || "";
+          const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
+          const emailMatches = bodyText.match(emailRegex);
+          if (emailMatches && emailMatches.length > 0) {
+            email = emailMatches[0].toLowerCase();
+          }
+        }
         
         // 이메일 기반 역할 확인 API 호출 (Supabase에서 확인)
         const checkUserRoleByEmail = async () => {
           try {
             // 이메일이 있는 경우에만 역할 확인 API 호출
             if (email) {
-              console.log("📡 [SignUp Block] /api/check-role-by-email API 호출");
               const response = await fetch(`/api/check-role-by-email?email=${encodeURIComponent(email)}`);
-              
+
               if (!response.ok) {
                 throw new Error(`API 호출 실패: ${response.status}`);
               }
-              
+
               const data = await response.json();
-              
-              console.log("✅ [SignUp Block] 역할 확인 결과:", data.role);
-              
+
               // 도매 계정인 경우
               if (data.role === "wholesaler" && !modalShownRef.current) {
-                console.log("🚫 [SignUp Block] 도매점 계정 감지 - 차단 모달 표시");
                 modalShownRef.current = true;
                 setShowWholesalerBlockModal(true);
                 return;
-              } 
+              }
             }
-            
-            // 일반 사용자 또는 소매 사업자(retailer/null)인 경우, 또는 이메일이 없는 경우
+
+            // 일반 사용자 또는 소매 사업자인 경우
             if (!modalShownRef.current) {
-              console.log("⚠️ [SignUp Block] 일반 중복 가입 감지 - 중복 계정 모달 표시");
               modalShownRef.current = true;
               setShowDuplicateAccountModal(true);
             }
@@ -265,9 +230,7 @@ export default function SignUpWithWholesalerBlock({
               setShowDuplicateAccountModal(true);
             }
           } finally {
-            // 비동기 작업 완료 후 플래그 리셋 (무한 로딩 방지)
             isProcessing = false;
-            console.log("🔄 [SignUp Block] 처리 완료 - isProcessing 플래그 리셋");
           }
         };
 
@@ -281,21 +244,14 @@ export default function SignUpWithWholesalerBlock({
     // window error 이벤트 리스너 추가 (더 빠른 에러 감지)
     const handleWindowError = (event: ErrorEvent) => {
       const errorMessage = event.message?.toLowerCase() || "";
-      const errorSource = event.filename || "";
 
-      console.log("🔍 [Window Error] 에러 이벤트:", {
-        message: errorMessage,
-        source: errorSource,
-      });
+      // 중복 가입 관련 에러만 감지 (더 엄격한 조건)
+      const isDuplicateError =
+        (errorMessage.includes("already") && errorMessage.includes("exists")) ||
+        (errorMessage.includes("already") && errorMessage.includes("registered")) ||
+        (errorMessage.includes("identifier") && errorMessage.includes("exists"));
 
-      // 이미 가입된 계정 관련 에러 감지
-      if (
-        errorMessage.includes("already exists") ||
-        errorMessage.includes("already registered") ||
-        errorMessage.includes("identifier already") ||
-        errorSource.includes("clerk")
-      ) {
-        console.log("✅✅✅ [Window Error] 중복 계정 에러 감지!");
+      if (isDuplicateError) {
         if (!modalShownRef.current && !isProcessing) {
           isProcessing = true;
           checkForClerkError();
@@ -305,12 +261,8 @@ export default function SignUpWithWholesalerBlock({
 
     // 페이지 리다이렉트 감지 및 차단
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      // 에러가 감지되었고 모달이 표시되지 않았다면 리다이렉트 차단
       if (isProcessing && !modalShownRef.current) {
-        console.log("🚫 [BeforeUnload] 리다이렉트 차단 - 모달 표시 대기");
         event.preventDefault();
-        event.returnValue = "";
-        return "";
       }
     };
 
@@ -319,30 +271,23 @@ export default function SignUpWithWholesalerBlock({
       return;
     }
 
-    // MutationObserver 개선: 조건부로만 체크 (무한 루프 방지)
+    // MutationObserver 개선: 중복 가입 관련 에러만 감지 (오탐지 방지)
     observer = new MutationObserver((mutations) => {
-      // 에러 관련 DOM 변화만 감지
+      // 중복 가입 관련 DOM 변화만 감지 (더 엄격한 조건)
       const hasErrorChange = mutations.some((mutation) => {
         const target = mutation.target as HTMLElement;
         const text = target.textContent?.toLowerCase() || "";
+        // "already"와 "exists" 또는 "registered"가 함께 있어야 함
         return (
-          text.includes("already") ||
-          text.includes("exists") ||
-          text.includes("registered") ||
-          text.includes("unable")
+          (text.includes("already") && text.includes("exists")) ||
+          (text.includes("already") && text.includes("registered")) ||
+          (text.includes("email") && text.includes("taken")) ||
+          text.includes("이미 존재") ||
+          text.includes("이미 등록")
         );
       });
 
       if (hasErrorChange) {
-        console.log("🔍 [MutationObserver] 에러 관련 DOM 변화 감지");
-        // 변화된 텍스트 내용 확인
-        mutations.forEach((mutation) => {
-          const target = mutation.target as HTMLElement;
-          const text = target.textContent?.toLowerCase() || "";
-          if (text.includes("already") || text.includes("exists") || text.includes("registered") || text.includes("unable")) {
-            console.log("🔍 [MutationObserver] 변화된 텍스트:", text.substring(0, 200));
-          }
-        });
         checkForClerkError();
       }
     });

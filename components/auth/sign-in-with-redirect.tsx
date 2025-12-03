@@ -21,7 +21,7 @@
 "use client";
 
 import { SignIn, useUser, useClerk } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
 // 🚨 파일 로드 확인 및 전역 에러 감지 리스너 등록
@@ -210,11 +210,43 @@ export default function SignInWithRedirect({
   });
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { isSignedIn, isLoaded } = useUser();
   const { signOut } = useClerk();
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showWholesalerBlockModal, setShowWholesalerBlockModal] = useState(false);
+  const [showDuplicateAccountModal, setShowDuplicateAccountModal] = useState(false);
   const prevSignedInRef = useRef(false);
+  const duplicateCheckRef = useRef(false);
+
+  // 🎯 /sign-in/create 경로 감지: 소셜 로그인 중복 가입 시도 시 Clerk가 리다이렉트하는 경로
+  useEffect(() => {
+    if (duplicateCheckRef.current) return;
+
+    // 현재 경로가 /sign-in/create인지 확인
+    const isCreatePath = pathname?.includes("/sign-in/create") ||
+                         pathname?.includes("/sign-in/sso-callback") ||
+                         window.location.pathname.includes("/sign-in/create");
+
+    // redirect_url에 sign-up/create/sso-callback이 포함되어 있는지 확인
+    const redirectUrl = searchParams?.get("redirect_url") || "";
+    const hasSsoCallback = redirectUrl.includes("sso-callback") ||
+                          redirectUrl.includes("sign_up_force_redirect");
+
+    console.log("🔍 [Duplicate Check] 경로 확인:", {
+      pathname,
+      isCreatePath,
+      redirectUrl: redirectUrl.substring(0, 100),
+      hasSsoCallback,
+    });
+
+    // /sign-in/create로 리다이렉트되었고 SSO 콜백 관련 URL이면 중복 가입 시도
+    if (isCreatePath && hasSsoCallback) {
+      console.log("🚫 [Duplicate Check] 소셜 로그인 중복 가입 감지 - 모달 표시");
+      duplicateCheckRef.current = true;
+      setShowDuplicateAccountModal(true);
+    }
+  }, [pathname, searchParams]);
 
   // 🎯 전역 에러 감지: Clerk가 DOM에 렌더링하는 에러 메시지를 감지
   useEffect(() => {
@@ -658,13 +690,13 @@ export default function SignInWithRedirect({
             <Button
               variant="outline"
               onClick={() => setShowSignUpModal(false)}
-              className="min-w-[80px]"
+              className="min-w-20"
             >
               취소
             </Button>
             <Button
               onClick={handleSignUpConfirm}
-              className="min-w-[80px] bg-blue-600 hover:bg-blue-700"
+              className="min-w-20 bg-blue-600 hover:bg-blue-700"
             >
               확인
             </Button>
@@ -698,7 +730,7 @@ export default function SignInWithRedirect({
             <Button
               variant="outline"
               onClick={() => setShowWholesalerBlockModal(false)}
-              className="min-w-[80px]"
+              className="min-w-20"
             >
               확인
             </Button>
@@ -708,9 +740,67 @@ export default function SignInWithRedirect({
                 // 도매점 로그인 페이지로 리다이렉트
                 window.location.href = "/sign-in/wholesaler";
               }}
-              className="min-w-[80px] bg-blue-600 hover:bg-blue-700"
+              className="min-w-20 bg-blue-600 hover:bg-blue-700"
             >
               도매점 로그인 페이지로 이동
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 중복 계정 모달 (소셜 로그인 중복 가입 시도) */}
+      <Dialog
+        open={showDuplicateAccountModal}
+        onOpenChange={setShowDuplicateAccountModal}
+        modal={true}
+      >
+        <DialogContent
+          className="sm:max-w-[425px]"
+          style={{ zIndex: 9999 }}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader className="text-center space-y-4">
+            {/* 경고 아이콘 */}
+            <div className="flex justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-yellow-200 rounded-full blur-xl opacity-50"></div>
+                <div className="relative w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-10 h-10 text-yellow-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <DialogTitle className="text-xl font-bold text-center text-gray-900">
+              이미 가입된 계정입니다
+            </DialogTitle>
+            <DialogDescription className="text-center text-base text-gray-600">
+              이미 가입된 계정입니다. 로그인을 시도하세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center pt-4">
+            <Button
+              type="button"
+              onClick={() => {
+                setShowDuplicateAccountModal(false);
+                // 소매점 로그인 페이지로 이동
+                window.location.href = "/sign-in/retailer";
+              }}
+              className="min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-2 text-base font-medium"
+            >
+              로그인하기
             </Button>
           </DialogFooter>
         </DialogContent>
