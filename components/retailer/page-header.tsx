@@ -254,7 +254,7 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
                 >
                   <div className="relative">
                     <ShoppingCart className="w-5 h-5" />
-                    {cartItemCount > 0 && (
+                    {mounted && cartItemCount > 0 && (
                       <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
                         {cartItemCount > 99 ? "99+" : cartItemCount}
                       </span>
@@ -271,7 +271,7 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
                 >
                   <div className="relative">
                     <ShoppingCart className="w-5 h-5" />
-                    {cartItemCount > 0 && (
+                    {mounted && cartItemCount > 0 && (
                       <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
                         {cartItemCount > 99 ? "99+" : cartItemCount}
                       </span>
