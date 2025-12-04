@@ -405,28 +405,26 @@ export default function RetailerDashboardPage() {
               <button className="text-sm text-gray-400 hover:text-green-600">더보기</button>
             </div>
             <div className="space-y-4">
-              {mockDeliverySchedules.map((schedule) => (
-                <div key={schedule.id} className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group">
-                  <div className="bg-white p-3 rounded-full shadow-sm text-green-600 group-hover:scale-110 transition-transform">
-                    <Truck size={20} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-bold text-gray-800">
-                      {schedule.product_name || schedule.delivery_method}
-                    </div>
-                    <div className="text-sm text-green-600 font-medium">
-                      {schedule.delivery_date} {schedule.delivery_time} 도착 예정
-                    </div>
-                  </div>
-                  <span className={`text-xs font-bold px-3 py-1 rounded-lg ${
-                    schedule.status === "shipping" 
-                      ? "bg-green-100 text-green-700" 
-                      : "bg-gray-100 text-gray-600"
-                  }`}>
-                    {schedule.status === "shipping" ? "배송중" : "배송준비"}
-                  </span>
+              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group">
+                <div className="bg-white p-3 rounded-full shadow-sm text-green-600 group-hover:scale-110 transition-transform">
+                  <Truck size={20} />
                 </div>
-              ))}
+                <div className="flex-1">
+                  <div className="font-bold text-gray-800">오전 정기 배송</div>
+                  <div className="text-sm text-green-600 font-medium">14:00 도착 예정</div>
+                </div>
+                <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-lg">배송중</span>
+              </div>
+              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group">
+                <div className="bg-white p-3 rounded-full shadow-sm text-green-600 group-hover:scale-110 transition-transform">
+                  <Truck size={20} />
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-gray-800">오후 긴급 배송</div>
+                  <div className="text-sm text-green-600 font-medium">18:00 도착 예정</div>
+                </div>
+                <span className="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-lg">배송준비</span>
+              </div>
             </div>
           </div>
 
@@ -439,27 +437,32 @@ export default function RetailerDashboardPage() {
               <button className="text-sm text-gray-400 hover:text-green-600">더보기</button>
             </div>
             <div className="space-y-4">
-              {mockRecentOrders.map((order) => (
-                <div key={order.id} className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group">
-                  <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
-                    <Package size={20} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-bold text-gray-800">
-                      {order.product_name || "주문 내역"}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {order.delivery_scheduled_time || "날짜 정보 없음"}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold text-gray-800">
-                      {order.total_price > 0 ? `${order.total_price.toLocaleString()}원` : "가격 정보 없음"}
-                    </div>
-                    <button className="text-xs text-green-600 font-bold hover:underline mt-1">재주문</button>
-                  </div>
+              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group">
+                <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
+                  <Package size={20} />
                 </div>
-              ))}
+                <div className="flex-1">
+                  <div className="font-bold text-gray-800">양파, 마늘 외 5건</div>
+                  <div className="text-sm text-gray-500">2023.11.28</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold text-gray-800">154,000원</div>
+                  <button className="text-xs text-green-600 font-bold hover:underline mt-1">재주문</button>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group">
+                <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
+                  <Package size={20} />
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-gray-800">제주 감귤 10박스</div>
+                  <div className="text-sm text-gray-500">2023.11.27</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold text-gray-800">150,000원</div>
+                  <button className="text-xs text-green-600 font-bold hover:underline mt-1">재주문</button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -479,6 +482,34 @@ export default function RetailerDashboardPage() {
              </button>
            </div>
         </section>
+
+        {/* 회사소개 */}
+        <section className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-100 shadow-lg mb-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">Farm to Biz</h2>
+            <p className="text-gray-600 text-lg mb-10">농장에서 당신의 비즈니스까지, 신선함을 전달합니다</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+              <div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">산지 직송</h3>
+                <p className="text-gray-600 text-sm">신선한 농산물을 직접 배송</p>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">합리적인 가격</h3>
+                <p className="text-gray-600 text-sm">중간 유통 없는 최저가</p>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">품질 보증</h3>
+                <p className="text-gray-600 text-sm">엄선된 프리미엄 상품</p>
+              </div>
+            </div>
+            
+            <div className="border-t border-gray-200 pt-8 text-sm text-gray-500">
+              <p>© 2024 Farm to Biz. All rights reserved.</p>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   );
