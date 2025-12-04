@@ -91,6 +91,7 @@ PRD 3.1, 3.2, 3.3 섹션 참조.
 - [X] Smart Search (R.SEARCH.01)
   - [X] Command Palette (`Cmd+K`) 구현
   - [X] 상품명카테고리 검색 기능
+  - [X] 헤더 검색창 placeholder 텍스트 변경 ("Q 품목이나 거래처를 검색하세요" → "상품명이나 거래처를 검색하세요")
 - [X] 상품 리스트 & 필터 (R.SEARCH.02, R.SEARCH.03)
   - [X] 상품 목록 페이지 UI
   - [X] 카테고리배송 필터링 UI

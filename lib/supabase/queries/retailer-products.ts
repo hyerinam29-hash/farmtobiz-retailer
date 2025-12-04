@@ -96,9 +96,9 @@ export async function getRetailerProducts(
   }
 
   if (filter.search) {
-    // standardized_name, original_name, ai_keywords에서 검색
+    // standardized_name, original_name, name, category에서 검색
     query = query.or(
-      `standardized_name.ilike.%${filter.search}%,original_name.ilike.%${filter.search}%,category.ilike.%${filter.search}%`
+      `standardized_name.ilike.%${filter.search}%,original_name.ilike.%${filter.search}%,name.ilike.%${filter.search}%,category.ilike.%${filter.search}%`
     );
   }
 

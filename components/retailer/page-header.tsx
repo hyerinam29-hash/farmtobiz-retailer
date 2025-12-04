@@ -128,28 +128,28 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         {/* 상단 헤더 */}
         <div className="px-4 sm:px-6 lg:px-8 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between h-20 gap-4">
+          <div className="relative flex items-center justify-between h-20 gap-4">
             {/* 왼쪽: 로고 */}
             <Link
               href="/retailer/dashboard"
-              className="flex items-center gap-2 flex-shrink-0"
+              className="flex items-center gap-1 flex-shrink-0 z-10"
             >
-              <Leaf className="w-6 h-6 text-green-600 dark:text-green-400" />
-              <span className="text-xl font-bold text-green-600 dark:text-green-400">
+              <Leaf className="w-7 h-7 text-green-600 dark:text-green-400" />
+              <span className="text-lg font-bold text-green-600 dark:text-green-400">
                 Farm to Biz
               </span>
             </Link>
 
-            {/* 중앙: 검색 바 */}
+            {/* 중앙: 검색 바 (절대 위치로 중앙 배치) */}
             <form
               onSubmit={handleSearch}
-              className="flex-1 max-w-2xl mx-4 lg:mx-8"
+              className="absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-4"
             >
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="Q 품목이나 거래처를 검색하세요"
+                  placeholder="상품명이나 거래처를 검색하세요"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-full border-none outline-none text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
@@ -158,7 +158,7 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
             </form>
 
             {/* 오른쪽: 메뉴 아이콘들 */}
-            <div className="flex items-center gap-4 lg:gap-6 flex-shrink-0">
+            <div className="flex items-center gap-4 lg:gap-6 flex-shrink-0 z-10">
               {/* 고객센터 */}
               <Link
                 href="/retailer/cs"

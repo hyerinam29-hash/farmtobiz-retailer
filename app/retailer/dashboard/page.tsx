@@ -173,7 +173,7 @@ export default function RetailerDashboardPage() {
       <div className="absolute top-[15%] left-[5%] w-32 h-32 bg-gradient-to-br from-white/60 to-white/10 backdrop-blur-md rounded-full shadow-lg border border-white/30 -z-10"></div>
       <div className="absolute top-[40%] right-[10%] w-24 h-24 bg-gradient-to-br from-green-100/60 to-emerald-50/10 backdrop-blur-md rounded-[2rem] rotate-12 shadow-lg border border-white/30 -z-10"></div>
       
-      <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-16 mt-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 mt-12 relative z-10">
         {/* 섹션 1: 이 상품 어때요? */}
         <section className="relative pt-8">
           <div className="text-center mb-10">
