@@ -159,8 +159,9 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
 
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         {/* 상단 헤더 */}
-        <div className="px-4 sm:px-6 lg:px-8 border-b border-gray-200 dark:border-gray-700">
-          <div className="relative flex items-center justify-between h-20 gap-4">
+        <div className="border-b border-gray-200 dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative flex items-center justify-between h-20 gap-4">
             {/* 왼쪽: 로고 */}
             <Link
               href="/retailer/dashboard"
@@ -294,11 +295,13 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
               </div>
             </div>
           </div>
+          </div>
         </div>
 
         {/* 네비게이션 바 */}
-        <div className="px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800/50">
-          <nav className="flex items-center gap-6 lg:gap-8 h-12">
+        <div className="bg-gray-50 dark:bg-gray-800/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex items-center gap-6 lg:gap-8 h-12">
             {navBarItems.map((item) => {
               const active = isActive(item.href);
               const IconComponent = item.icon;
@@ -319,12 +322,13 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
               );
             })}
           </nav>
+          </div>
         </div>
 
         {/* 모바일 메뉴 (드롭다운) */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-            <nav className="px-4 py-2">
+            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
               <div className="flex flex-col gap-1">
                 {/* 네비게이션 바 메뉴 */}
                 {navBarItems.map((item) => {
