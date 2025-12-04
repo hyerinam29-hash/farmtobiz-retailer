@@ -1611,7 +1611,6 @@ USING (
   EXISTS (SELECT 1 FROM profiles WHERE clerk_user_id = auth.jwt() ->> 'sub' AND role = 'admin')
 );
 
--- INSERT: 소매만
 -- UPDATE: 도매(상태 변경만) + 관리자
 ```
 
