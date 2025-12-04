@@ -23,7 +23,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useUser, useClerk } from "@clerk/nextjs";
 import {
   Search,
@@ -35,12 +35,18 @@ import {
   Leaf,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCartStore } from "@/stores/cart-store";
 
 // 네비게이션 바 메뉴 항목 정의
 const navBarItems = [
   {
     href: "/retailer/products?category=all",
     label: "카테고리",
+    icon: Menu,
+  },
+  {
+    href: "/retailer/dashboard",
+    label: "홈",
   },
   {
     href: "/retailer/products?sort=popular",
@@ -63,12 +69,16 @@ interface PageHeaderProps {
 
 export default function PageHeader({ onMenuClick }: PageHeaderProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // 장바구니 개수 가져오기
+  const cartItemCount = useCartStore((state) => state.getSummary().itemCount);
 
   // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
   useEffect(() => {
@@ -85,7 +95,30 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
   // 현재 경로가 활성화된 메뉴인지 확인
   const isActive = (href: string) => {
     if (!mounted) return false;
-    return pathname === href || pathname?.startsWith(href.split("?")[0]);
+    
+    // 쿼리 파라미터가 있는 경우 (예: /retailer/products?category=all)
+    if (href.includes("?")) {
+      const [path, query] = href.split("?");
+      if (pathname !== path) return false;
+      
+      const currentQueryString = searchParams.toString();
+      const targetQueryString = query; // 간단한 비교를 위해 그대로 사용 (순서 다르면 매칭 안 될 수 있음, 현재는 단순함)
+      
+      // 현재 쿼리 파라미터가 타겟 쿼리 파라미터를 포함하는지 확인
+      // 더 정확한 비교를 위해 URLSearchParams 사용
+      const targetParams = new URLSearchParams(targetQueryString);
+      let isMatch = true;
+      targetParams.forEach((value, key) => {
+        if (searchParams.get(key) !== value) {
+          isMatch = false;
+        }
+      });
+      return isMatch;
+    }
+    
+    // 쿼리 파라미터가 없는 경우 (예: /retailer/dashboard)
+    // 정확히 일치하거나 해당 경로로 시작하는지 확인 (단, 다른 메뉴와 겹치지 않도록 주의)
+    return pathname === href;
   };
 
   // 검색 실행
@@ -159,60 +192,83 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
 
             {/* 오른쪽: 메뉴 아이콘들 */}
             <div className="flex items-center gap-4 lg:gap-6 flex-shrink-0 z-10">
-              {/* 고객센터 */}
-              <Link
-                href="/retailer/cs"
-                className="hidden lg:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-              >
-                <HelpCircle className="w-5 h-5" />
-                <span>고객센터</span>
-              </Link>
+              {/* 상단 텍스트 링크 (고객센터 | 로그인/회원가입) */}
+              <div className="hidden lg:flex flex-col items-end gap-0.5">
+                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <Link
+                    href="/retailer/cs"
+                    className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  >
+                    고객센터
+                  </Link>
+                  <span>|</span>
+                  {mounted && isLoaded && !user ? (
+                    <Link
+                      href="/sign-in/retailer"
+                      className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                    >
+                      로그인/회원가입
+                    </Link>
+                  ) : (
+                    <span className="w-20 h-3" />
+                  )}
+                </div>
+              </div>
 
-              {/* 로그인/회원가입 또는 나의상회 */}
-              {!mounted ? (
-                // 서버 사이드: 일관된 구조 유지 (플레이스홀더)
-                <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 w-24 h-5" />
-              ) : isLoaded && !user ? (
-                <Link
-                  href="/sign-in/retailer"
-                  className="hidden lg:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              {/* 나의상회 (세로 배치) */}
+              {mounted && isLoaded && user && (
+                <button
+                  onClick={handleMyShopClick}
+                  className="hidden lg:flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  aria-label="나의상회"
                 >
-                  <span>로그인/회원가입</span>
-                </Link>
-              ) : (
-                <>
-                  {/* 나의상회 */}
-                  {isLoaded && user && (
-                    <button
-                      onClick={handleMyShopClick}
-                      className="hidden lg:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                      aria-label="나의상회"
-                    >
-                      <User className="w-5 h-5" />
-                      <span className="hidden xl:inline">나의상회</span>
-                    </button>
-                  )}
-                  {/* 로그아웃 (모바일에서만 표시) */}
-                  {isLoaded && user && (
-                    <button
-                      onClick={handleSignOut}
-                      className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                      aria-label="로그아웃"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  )}
-                </>
+                  <User className="w-5 h-5" />
+                  <span className="text-xs">나의상회</span>
+                </button>
               )}
 
-              {/* 장바구니 */}
+              {/* 로그아웃 (모바일에서만 표시) */}
+              {mounted && isLoaded && user && (
+                <button
+                  onClick={handleSignOut}
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+                  aria-label="로그아웃"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+
+              {/* 장바구니 (세로 배치 + 숫자 배지) */}
               <Link
                 href="/retailer/cart"
-                className="relative flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                className="relative hidden lg:flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 aria-label="장바구니"
               >
-                <ShoppingCart className="w-5 h-5" />
-                <span className="hidden xl:inline text-sm">장바구니</span>
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
+                      {cartItemCount > 99 ? "99+" : cartItemCount}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs">장바구니</span>
+              </Link>
+              
+              {/* 모바일 장바구니 (가로 배치) */}
+              <Link
+                href="/retailer/cart"
+                className="relative lg:hidden flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                aria-label="장바구니"
+              >
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
+                      {cartItemCount > 99 ? "99+" : cartItemCount}
+                    </span>
+                  )}
+                </div>
               </Link>
 
               {/* 모바일: 햄버거 메뉴 버튼 */}
@@ -236,17 +292,19 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
           <nav className="flex items-center gap-6 lg:gap-8 h-12">
             {navBarItems.map((item) => {
               const active = isActive(item.href);
+              const IconComponent = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-sm font-medium transition-colors",
+                    "flex items-center gap-1.5 text-sm font-medium transition-colors",
                     active
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 pb-3"
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                   )}
                 >
+                  {IconComponent && <IconComponent className="w-4 h-4" />}
                   {item.label}
                 </Link>
               );
