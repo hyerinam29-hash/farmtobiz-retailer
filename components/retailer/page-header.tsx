@@ -191,98 +191,108 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
             </form>
 
             {/* 오른쪽: 메뉴 아이콘들 */}
-            <div className="flex items-center gap-4 lg:gap-6 flex-shrink-0 z-10">
-              {/* 상단 텍스트 링크 (고객센터 | 로그인/회원가입) */}
-              <div className="hidden lg:flex flex-col items-end gap-0.5">
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <Link
-                    href="/retailer/cs"
-                    className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                  >
-                    고객센터
-                  </Link>
-                  <span>|</span>
-                  {mounted && isLoaded && !user ? (
+            <div className="flex flex-col items-end gap-2 flex-shrink-0 z-10">
+              {/* 상단 텍스트 링크 (고객센터 | 로그아웃 or 로그인/회원가입) */}
+              <div className="hidden lg:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <Link
+                  href="/retailer/cs"
+                  className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                >
+                  고객센터
+                </Link>
+                <span>|</span>
+                {mounted && isLoaded ? (
+                  user ? (
+                    <button
+                      onClick={handleSignOut}
+                      className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                    >
+                      로그아웃
+                    </button>
+                  ) : (
                     <Link
                       href="/sign-in/retailer"
                       className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                     >
                       로그인/회원가입
                     </Link>
-                  ) : (
-                    <span className="w-20 h-3" />
-                  )}
-                </div>
+                  )
+                ) : (
+                  <span className="w-20 h-3" />
+                )}
               </div>
 
-              {/* 나의상회 (세로 배치) */}
-              {mounted && isLoaded && user && (
-                <button
-                  onClick={handleMyShopClick}
-                  className="hidden lg:flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                  aria-label="나의상회"
-                >
-                  <User className="w-5 h-5" />
-                  <span className="text-xs">나의상회</span>
-                </button>
-              )}
-
-              {/* 로그아웃 (모바일에서만 표시) */}
-              {mounted && isLoaded && user && (
-                <button
-                  onClick={handleSignOut}
-                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                  aria-label="로그아웃"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-
-              {/* 장바구니 (세로 배치 + 숫자 배지) */}
-              <Link
-                href="/retailer/cart"
-                className="relative hidden lg:flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                aria-label="장바구니"
-              >
-                <div className="relative">
-                  <ShoppingCart className="w-5 h-5" />
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
-                      {cartItemCount > 99 ? "99+" : cartItemCount}
-                    </span>
-                  )}
-                </div>
-                <span className="text-xs">장바구니</span>
-              </Link>
-              
-              {/* 모바일 장바구니 (가로 배치) */}
-              <Link
-                href="/retailer/cart"
-                className="relative lg:hidden flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                aria-label="장바구니"
-              >
-                <div className="relative">
-                  <ShoppingCart className="w-5 h-5" />
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
-                      {cartItemCount > 99 ? "99+" : cartItemCount}
-                    </span>
-                  )}
-                </div>
-              </Link>
-
-              {/* 모바일: 햄버거 메뉴 버튼 */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                aria-label="메뉴 열기/닫기"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
+              {/* 아이콘 메뉴들 (나의상회, 장바구니) */}
+              <div className="flex items-center gap-4 lg:gap-6">
+                {/* 나의상회 (세로 배치) */}
+                {mounted && isLoaded && user && (
+                  <button
+                    onClick={handleMyShopClick}
+                    className="hidden lg:flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                    aria-label="나의상회"
+                  >
+                    <User className="w-5 h-5" />
+                    <span className="text-xs">나의상회</span>
+                  </button>
                 )}
-              </button>
+
+                {/* 로그아웃 (모바일에서만 표시) */}
+                {mounted && isLoaded && user && (
+                  <button
+                    onClick={handleSignOut}
+                    className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+                    aria-label="로그아웃"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* 장바구니 (세로 배치 + 숫자 배지) */}
+                <Link
+                  href="/retailer/cart"
+                  className="relative hidden lg:flex flex-col items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  aria-label="장바구니"
+                >
+                  <div className="relative">
+                    <ShoppingCart className="w-5 h-5" />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
+                        {cartItemCount > 99 ? "99+" : cartItemCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs">장바구니</span>
+                </Link>
+                
+                {/* 모바일 장바구니 (가로 배치) */}
+                <Link
+                  href="/retailer/cart"
+                  className="relative lg:hidden flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  aria-label="장바구니"
+                >
+                  <div className="relative">
+                    <ShoppingCart className="w-5 h-5" />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-[10px] font-bold rounded-full">
+                        {cartItemCount > 99 ? "99+" : cartItemCount}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+
+                {/* 모바일: 햄버거 메뉴 버튼 */}
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+                  aria-label="메뉴 열기/닫기"
+                >
+                  {mobileMenuOpen ? (
+                    <X className="w-6 h-6" />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
