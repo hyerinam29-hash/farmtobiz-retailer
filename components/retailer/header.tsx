@@ -39,19 +39,19 @@ import { useCartStore } from "@/stores/cart-store";
 import { CommandPalette } from "./command-palette";
 import type { UserRole } from "@/types/database";
 
-// 카테고리 데이터
+// 카테고리 데이터 (헤더 드롭다운용)
+// "전체" 제외, 곡물+견과류 통합
 interface Category {
   id: string;
   label: string;
 }
 
 const CATEGORIES: Category[] = [
-  { id: "VEGETABLE", label: "채소" },
-  { id: "FRUIT", label: "과일" },
-  { id: "SEAFOOD", label: "수산물" },
-  { id: "GRAIN", label: "곡물/견과" },
-  { id: "MEAT", label: "정육/계란" },
-  { id: "PROCESSED", label: "가공식품" },
+  { id: "과일", label: "과일" },
+  { id: "채소", label: "채소" },
+  { id: "수산물", label: "수산물" },
+  { id: "곡물/견과", label: "곡물/견과" },
+  { id: "기타", label: "기타" },
 ];
 
 // 네비게이션 바 메뉴 항목 정의
@@ -291,7 +291,7 @@ function HeaderContent({
                 {CATEGORIES.map((cat) => (
                   <Link
                     key={cat.id}
-                    href={`/retailer/products?category=${cat.id}`}
+                    href={`/retailer/products?category=${encodeURIComponent(cat.id)}`}
                     className="block px-6 py-3.5 text-base text-gray-600 hover:bg-gray-50 hover:text-[#5B9A6F] hover:font-bold transition-colors"
                   >
                     <div className="flex items-center justify-between">

@@ -32,17 +32,22 @@ import {
   Menu,
   X,
   Leaf,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 
-// 네비게이션 바 메뉴 항목 정의
+// 카테고리 데이터 (드롭다운용) - "전체" 제외, 곡물+견과류 통합
+const CATEGORIES = [
+  { id: "과일", label: "과일" },
+  { id: "채소", label: "채소" },
+  { id: "수산물", label: "수산물" },
+  { id: "곡물/견과", label: "곡물/견과" },
+  { id: "기타", label: "기타" },
+];
+
+// 네비게이션 바 메뉴 항목 정의 (카테고리는 별도 드롭다운으로 처리)
 const navBarItems = [
-  {
-    href: "/retailer/products?category=all",
-    label: "카테고리",
-    icon: Menu,
-  },
   {
     href: "/retailer/dashboard",
     label: "홈",
@@ -75,6 +80,7 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   
   // 장바구니 개수 가져오기
   const cartItemCount = useCartStore((state) => state.getSummary().itemCount);
@@ -302,26 +308,63 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
         <div className="bg-gray-50 dark:bg-gray-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav className="flex items-center gap-6 lg:gap-8 h-12">
-            {navBarItems.map((item) => {
-              const active = isActive(item.href);
-              const IconComponent = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-1.5 text-sm font-medium transition-colors",
-                    active
-                      ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 pb-3"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-                  )}
+              {/* 카테고리 드롭다운 */}
+              <div 
+                className="relative"
+                onMouseEnter={() => setCategoryDropdownOpen(true)}
+                onMouseLeave={() => setCategoryDropdownOpen(false)}
+              >
+                <button
+                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                  className="flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 >
-                  {IconComponent && <IconComponent className="w-4 h-4" />}
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+                  <Menu className="w-4 h-4" />
+                  카테고리
+                  <ChevronDown className={cn(
+                    "w-4 h-4 transition-transform duration-200",
+                    categoryDropdownOpen && "rotate-180"
+                  )} />
+                </button>
+
+                {/* 드롭다운 메뉴 */}
+                {categoryDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-40 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                    {CATEGORIES.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/retailer/products?category=${encodeURIComponent(cat.id)}`}
+                        onClick={() => {
+                          setCategoryDropdownOpen(false);
+                          handleLinkClick();
+                        }}
+                        className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+                      >
+                        {cat.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 나머지 네비게이션 메뉴 */}
+              {navBarItems.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-1.5 text-sm font-medium transition-colors",
+                      active
+                        ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 pb-3"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
         </div>
 
@@ -330,6 +373,42 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
           <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
               <div className="flex flex-col gap-1">
+                {/* 카테고리 드롭다운 (모바일) */}
+                <div className="flex flex-col">
+                  <button
+                    onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                    className="flex items-center justify-between px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Menu className="w-4 h-4" />
+                      카테고리
+                    </span>
+                    <ChevronDown className={cn(
+                      "w-4 h-4 transition-transform duration-200",
+                      categoryDropdownOpen && "rotate-180"
+                    )} />
+                  </button>
+                  
+                  {/* 카테고리 하위 메뉴 (모바일) */}
+                  {categoryDropdownOpen && (
+                    <div className="ml-4 flex flex-col gap-1 mt-1">
+                      {CATEGORIES.map((cat) => (
+                        <Link
+                          key={cat.id}
+                          href={`/retailer/products?category=${encodeURIComponent(cat.id)}`}
+                          onClick={() => {
+                            setCategoryDropdownOpen(false);
+                            handleLinkClick();
+                          }}
+                          className="px-4 py-2.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+                        >
+                          {cat.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* 네비게이션 바 메뉴 */}
                 {navBarItems.map((item) => {
                   const active = isActive(item.href);

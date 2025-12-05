@@ -117,14 +117,13 @@ export function ProductSearchClient({
     });
   };
 
-  // 카테고리 목록
+  // 카테고리 목록 (전체 유지, 곡물+견과류 통합)
   const categories = [
     { value: "all", label: "전체" },
     { value: "과일", label: "과일" },
     { value: "채소", label: "채소" },
-    { value: "곡물", label: "곡물" },
-    { value: "견과류", label: "견과류" },
     { value: "수산물", label: "수산물" },
+    { value: "곡물/견과", label: "곡물/견과" },
     { value: "기타", label: "기타" },
   ];
 
