@@ -168,7 +168,7 @@ function HeaderContent({
             className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
           >
             <Image
-              src="/logo.png"
+              src="/farmtobiz_logo.png"
               alt="Farm to Biz Logo"
               width={200}
               height={60}

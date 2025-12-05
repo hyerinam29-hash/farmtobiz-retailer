@@ -171,12 +171,15 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
             {/* 왼쪽: 로고 */}
             <Link
               href="/retailer/dashboard"
-              className="flex items-center gap-1 flex-shrink-0 z-10"
+              className="flex items-center gap-2 flex-shrink-0 z-10"
             >
-              <Leaf className="w-7 h-7 text-green-600 dark:text-green-400" />
-              <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                Farm to Biz
-              </span>
+              <Image
+                src="/farmtobiz_logo.png"
+                alt="Farm to Biz Logo"
+                width={200}
+                height={60}
+                className="h-12 w-auto object-contain"
+              />
             </Link>
 
             {/* 중앙: 검색 바 (절대 위치로 중앙 배치) */}
