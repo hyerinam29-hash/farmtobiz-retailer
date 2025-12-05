@@ -34,7 +34,7 @@ export default function OrderDetailActions({
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-3">
-        {status === "delivered" && (
+        {status === "delivered" && orderId !== "2" && (
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
@@ -42,15 +42,6 @@ export default function OrderDetailActions({
             구매 확정
           </button>
         )}
-        <button className="flex-1 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors">
-          재주문
-        </button>
-        <Link
-          href="/retailer/orders"
-          className="flex-1 py-3 text-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors"
-        >
-          목록으로
-        </Link>
       </div>
 
       <ConfirmPurchaseModal

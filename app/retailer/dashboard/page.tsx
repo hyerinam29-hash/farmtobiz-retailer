@@ -171,6 +171,46 @@ export default function RetailerDashboardPage() {
   // 카운트다운 타이머 상태 (24시간 = 86400초)
   const [timeLeft, setTimeLeft] = useState(86400);
 
+  // URL 해시가 있으면 해당 섹션으로 스크롤
+  useEffect(() => {
+    const scrollToRecentOrders = () => {
+      const element = document.getElementById("recent-orders");
+      if (element) {
+        console.log("📦 [대시보드] 최근 주문 내역 섹션으로 스크롤");
+        // 약간의 오프셋을 주어 헤더에 가려지지 않도록
+        const offset = 100;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    };
+
+    // 해시가 있으면 스크롤
+    if (window.location.hash === "#recent-orders") {
+      // 페이지가 완전히 로드된 후 스크롤 (여러 번 시도)
+      setTimeout(scrollToRecentOrders, 100);
+      setTimeout(scrollToRecentOrders, 300);
+      setTimeout(scrollToRecentOrders, 500);
+    }
+
+    // 해시 변경 감지 (뒤로가기/앞으로가기 등)
+    const handleHashChange = () => {
+      if (window.location.hash === "#recent-orders") {
+        setTimeout(scrollToRecentOrders, 100);
+      }
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
+
   // 1초마다 시간 감소시키는 useEffect
   useEffect(() => {
     console.log("⏰ [대시보드] 타이머 시작, 남은 시간:", timeLeft, "초");
@@ -438,7 +478,7 @@ export default function RetailerDashboardPage() {
           </div>
 
           {/* 주문 내역 */}
-          <div className="bg-white/80 backdrop-blur-xl border border-purple-100 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow">
+          <div id="recent-orders" className="bg-white/80 backdrop-blur-xl border border-purple-100 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Package size={24} className="text-purple-600" /> 최근 주문 내역
@@ -446,7 +486,13 @@ export default function RetailerDashboardPage() {
               <button className="text-sm text-gray-400 hover:text-green-600">더보기</button>
             </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group">
+              <div 
+                onClick={() => {
+                  console.log("📦 [대시보드] 최근 주문 클릭, 주문 상세 페이지로 이동, orderId: 1");
+                  router.push("/retailer/orders/1");
+                }}
+                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group"
+              >
                 <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
                   <Package size={20} />
                 </div>
@@ -456,10 +502,25 @@ export default function RetailerDashboardPage() {
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-gray-800">154,000원</div>
-                  <button className="text-xs text-green-600 font-bold hover:underline mt-1">재주문</button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("🔄 [대시보드] 재주문 버튼 클릭");
+                      // TODO: 재주문 기능 구현
+                    }}
+                    className="text-xs text-green-600 font-bold hover:underline mt-1"
+                  >
+                    재주문
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group">
+              <div 
+                onClick={() => {
+                  console.log("📦 [대시보드] 최근 주문 클릭, 주문 상세 페이지로 이동, orderId: 2");
+                  router.push("/retailer/orders/2");
+                }}
+                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group"
+              >
                 <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
                   <Package size={20} />
                 </div>
@@ -469,7 +530,16 @@ export default function RetailerDashboardPage() {
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-gray-800">150,000원</div>
-                  <button className="text-xs text-green-600 font-bold hover:underline mt-1">재주문</button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("🔄 [대시보드] 재주문 버튼 클릭");
+                      // TODO: 재주문 기능 구현
+                    }}
+                    className="text-xs text-green-600 font-bold hover:underline mt-1"
+                  >
+                    재주문
+                  </button>
                 </div>
               </div>
             </div>
