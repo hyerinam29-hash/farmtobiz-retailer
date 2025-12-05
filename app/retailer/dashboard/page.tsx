@@ -27,67 +27,7 @@ import {
   Truck, 
   Package
 } from 'lucide-react';
-import AIRecommendationList from "@/components/retailer/ai-recommendation-list";
-
-// 임시 목 데이터 - AI 추천 상품 (추후 API로 교체 예정)
-const mockRecommendedProducts = [
-  {
-    id: "1",
-    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    price: 0, // 가격 삭제, 나중에 내용 추가 가능
-    moq: 1,
-    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
-    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  },
-  {
-    id: "2",
-    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    price: 0, // 가격 삭제, 나중에 내용 추가 가능
-    moq: 1,
-    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
-    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  },
-  {
-    id: "3",
-    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    price: 0, // 가격 삭제, 나중에 내용 추가 가능
-    moq: 2,
-    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
-    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  },
-  {
-    id: "4",
-    name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    standardized_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    category: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    specification: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    price: 0, // 가격 삭제, 나중에 내용 추가 가능
-    moq: 1,
-    image_url: null, // 데모 이미지 삭제, 나중에 이미지 추가 가능
-    is_seasonal: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    stock_warning: false, // 배지 표시 안 함, 나중에 내용 추가 가능
-    anonymous_seller_id: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    seller_region: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-  },
-];
+import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
 
 // 임시 목 데이터 - 최근 주문 (추후 API로 교체 예정)
 const mockRecentOrders = [
@@ -174,23 +114,7 @@ export default function RetailerDashboardPage() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 mt-12 relative z-10">
         {/* 섹션 1: 이 상품 어때요? */}
-        <section className="relative pt-8">
-          <div className="text-center mb-10">
-            <div className="inline-block mb-3">
-              <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
-                POPULAR
-              </span>
-            </div>
-            <h2 className="text-2xl md:text-4xl font-black text-gray-900 mb-3">
-              이 상품 어때요?
-            </h2>
-            <p className="text-gray-600 text-lg">가장 인기 있는 상품만 모아봤어요</p>
-          </div>
-          
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-100 shadow-md p-4 md:p-6">
-            <AIRecommendationList products={mockRecommendedProducts} />
-          </div>
-        </section>
+        <ProductRecommendationSection />
 
         {/* 일일 특가 섹션 */}
         <section className="flex flex-col md:flex-row gap-8 md:gap-16 items-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-3xl p-8 md:p-12 border border-red-100 shadow-lg relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
