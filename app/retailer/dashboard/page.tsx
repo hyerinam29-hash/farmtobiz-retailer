@@ -354,12 +354,24 @@ export default function RetailerDashboardPage() {
         </section>
 
         {/* 배너 광고 */}
-        <section className="w-full h-32 md:h-40 rounded-2xl overflow-hidden relative cursor-pointer bg-gray-800 flex items-center justify-center hover:scale-[1.01] transition-transform">
-          <div className="text-center text-white z-10">
+        <section className="w-full h-32 md:h-40 rounded-2xl overflow-hidden relative cursor-pointer flex items-center justify-center hover:scale-[1.01] transition-transform">
+          {/* 배경 이미지 */}
+          <div className="absolute inset-0">
+            <Image
+              src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1920&q=80"
+              alt="신선한 농산물"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          {/* 어두운 오버레이 */}
+          <div className="absolute inset-0 bg-black/60"></div>
+          {/* 텍스트 */}
+          <div className="text-center text-white z-10 relative">
             <h3 className="text-2xl font-bold mb-1">우리 농산물 살리기 프로젝트</h3>
             <p className="text-white/90">산지 직송으로 더 신선하게 만나보세요</p>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-green-900 to-gray-900 opacity-90"></div>
         </section>
 
         {/* 섹션 2: 놓치면 후회할 가격 */}
