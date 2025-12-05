@@ -28,6 +28,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
@@ -476,12 +477,12 @@ export default function SignupForm({ afterSignUpUrl = "/retailer/dashboard" }: S
 
             <div className="text-center text-sm text-gray-600">
               이미 회원이신가요?{" "}
-              <a
+              <Link
                 href="/sign-in"
                 className="text-green-600 hover:text-green-700 font-bold"
               >
                 로그인
-              </a>
+              </Link>
             </div>
           </form>
         </Form>
