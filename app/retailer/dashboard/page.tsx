@@ -21,6 +21,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import { 
   ChevronRight, 
   Clock, 
@@ -165,6 +167,55 @@ export default function RetailerDashboardPage() {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
 
+  // 카운트다운 타이머 상태 (24시간 = 86400초)
+  const [timeLeft, setTimeLeft] = useState(86400);
+
+  // 1초마다 시간 감소시키는 useEffect
+  useEffect(() => {
+    console.log("⏰ [대시보드] 타이머 시작, 남은 시간:", timeLeft, "초");
+    
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 0) {
+          console.log("⏰ [대시보드] 타이머 종료!");
+          clearInterval(timer);
+          return 0;
+        }
+        const newTime = prev - 1;
+        if (newTime % 60 === 0) {
+          console.log("⏰ [대시보드] 타이머 업데이트, 남은 시간:", newTime, "초");
+        }
+        return newTime;
+      });
+    }, 1000);
+
+    // 컴포넌트가 사라질 때 타이머 정리
+    return () => {
+      console.log("⏰ [대시보드] 타이머 정리");
+      clearInterval(timer);
+    };
+  }, []);
+
+  // 초를 시:분:초 형식으로 변환하는 함수
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return {
+      hours: hours.toString().padStart(2, '0'),
+      minutes: minutes.toString().padStart(2, '0'),
+      seconds: secs.toString().padStart(2, '0'),
+    };
+  };
+
+  const { hours, minutes, seconds } = formatTime(timeLeft);
+
+  // 일일특가 상품 상세 페이지 이동 핸들러
+  const handleDailyDealClick = () => {
+    console.log("🍊 [대시보드] 일일특가 상품 클릭, 상세 페이지로 이동");
+    router.push("/retailer/products/b7e0c37e-222e-4d93-bd63-5bde7459b99b");
+  };
+
   // 장바구니 담기 핸들러
   const handleAddToCart = (product: typeof hotDealProducts[0]) => {
     console.log("🛒 [대시보드-HOT DEAL] 장바구니 담기 시도:", {
@@ -228,23 +279,33 @@ export default function RetailerDashboardPage() {
 
             <div className="flex gap-4 pt-4">
               <div className="flex gap-2 text-3xl font-bold text-gray-800 font-mono">
-                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">12</div>
+                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">{hours}</div>
                 <span className="self-center">:</span>
-                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">34</div>
+                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">{minutes}</div>
                 <span className="self-center">:</span>
-                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">56</div>
+                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">{seconds}</div>
               </div>
             </div>
              
-            <Button variant="primary" className="w-full md:w-auto px-10 py-4 text-lg mt-4 bg-red-500 border-red-700 hover:bg-red-600">
+            <Button 
+              variant="primary" 
+              className="w-full md:w-auto px-10 py-4 text-lg mt-4 bg-red-500 border-red-700 hover:bg-red-600"
+              onClick={handleDailyDealClick}
+            >
               지금 바로 구매하기
             </Button>
           </div>
           
           <div className="w-full md:w-1/2">
-            <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-orange-100 flex items-center justify-center text-8xl group-hover:scale-[1.02] transition-transform duration-500">
-              🍊
-              <div className="absolute top-6 left-6 bg-red-500 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg animate-bounce">
+            <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-orange-100 group-hover:scale-[1.02] transition-transform duration-500">
+              <Image
+                src="https://fmqaxnuemcmcjjgodath.supabase.co/storage/v1/object/public/product-images/user_35uP8PkUebv7sUo56uMlk5W0Mt5/products/1764297672342-3xkhizr.jpg"
+                alt="감귤 10kg"
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute top-6 left-6 bg-red-500 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg animate-bounce z-10">
                 -40% OFF
               </div>
             </div>
