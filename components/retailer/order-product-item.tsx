@@ -19,7 +19,7 @@ interface OrderProductItemProps {
 }
 
 export default function OrderProductItem({
-  id,
+  id: _id,
   name,
   image_url,
   quantity,

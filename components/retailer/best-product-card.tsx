@@ -31,6 +31,7 @@ interface BestProductCardProps {
     wholesaler_anonymous_code: string;
     wholesaler_region: string;
     original_name?: string;
+    original_price?: number; // 원가 (할인율 계산용)
   };
   /** 랭킹 번호 (1, 2, 3) */
   rank: number;

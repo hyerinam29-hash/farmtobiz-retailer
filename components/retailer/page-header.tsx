@@ -28,10 +28,8 @@ import {
   Search,
   ShoppingCart,
   User,
-  HelpCircle,
   Menu,
   X,
-  Leaf,
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -71,7 +69,7 @@ interface PageHeaderProps {
   onMenuClick?: () => void;
 }
 
-export default function PageHeader({ onMenuClick }: PageHeaderProps) {
+export default function PageHeader({ onMenuClick: _onMenuClick }: PageHeaderProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -125,12 +123,9 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
       const [path, query] = href.split("?");
       if (pathname !== path) return false;
       
-      const currentQueryString = searchParams.toString();
-      const targetQueryString = query; // 간단한 비교를 위해 그대로 사용 (순서 다르면 매칭 안 될 수 있음, 현재는 단순함)
-      
       // 현재 쿼리 파라미터가 타겟 쿼리 파라미터를 포함하는지 확인
       // 더 정확한 비교를 위해 URLSearchParams 사용
-      const targetParams = new URLSearchParams(targetQueryString);
+      const targetParams = new URLSearchParams(query);
       let isMatch = true;
       targetParams.forEach((value, key) => {
         if (searchParams.get(key) !== value) {
