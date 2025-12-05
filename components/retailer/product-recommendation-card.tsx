@@ -24,6 +24,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, MapPin } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
@@ -62,6 +63,7 @@ export default function ProductRecommendationCard({
   product,
   statusLabel = "인기",
 }: ProductRecommendationCardProps) {
+  const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
   
   const displayName = product.standardized_name || product.name;
@@ -94,7 +96,8 @@ export default function ProductRecommendationCard({
       stock_quantity: product.stock_quantity,
     });
 
-    console.log("✅ [추천상품카드] 장바구니 담기 완료");
+    console.log("✅ [추천상품카드] 장바구니 담기 완료, 장바구니 페이지로 이동");
+    router.push("/retailer/cart");
   };
 
   return (

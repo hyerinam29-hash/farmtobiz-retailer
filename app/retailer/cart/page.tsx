@@ -226,12 +226,18 @@ export default function CartPage() {
 
                   {/* 이미지 */}
                   <div className="relative w-40 h-40 sm:w-48 sm:h-48 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-                    <Image
-                      src={item.product_image}
-                      alt={item.product_name}
-                      fill
-                      className="object-cover"
-                    />
+                    {item.product_image ? (
+                      <Image
+                        src={item.product_image}
+                        alt={item.product_name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
+                        🛒
+                      </div>
+                    )}
                   </div>
                 </div>
 

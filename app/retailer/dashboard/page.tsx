@@ -20,6 +20,7 @@
 
 "use client";
 
+import { useRouter } from "next/navigation";
 import { 
   ChevronRight, 
   Clock, 
@@ -30,6 +31,7 @@ import {
   DollarSign,
   CheckCircle
 } from 'lucide-react';
+import { useCartStore } from "@/stores/cart-store";
 import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
 
 // 임시 목 데이터 - 최근 주문 (추후 API로 교체 예정)
@@ -88,8 +90,64 @@ const mockDeliverySchedules = [
   },
 ];
 
+// 임시 상품 데이터 (놓치면 후회할 가격 섹션용)
+const hotDealProducts = [
+  {
+    id: "hot-deal-1",
+    name: "청송 꿀사과 5kg (가정용)",
+    price: 32000,
+    region: "경북 청송",
+    emoji: "🍎",
+    wholesaler_id: "temp-wholesaler-1",
+    anonymous_seller_id: "Partner #HD-01",
+    seller_region: "경북 청송",
+    specification: "5kg",
+    moq: 1,
+    stock_quantity: 100,
+  },
+  {
+    id: "hot-deal-2",
+    name: "제주 감귤 10kg",
+    price: 28000,
+    region: "제주도",
+    emoji: "🍊",
+    wholesaler_id: "temp-wholesaler-2",
+    anonymous_seller_id: "Partner #HD-02",
+    seller_region: "제주도",
+    specification: "10kg",
+    moq: 1,
+    stock_quantity: 100,
+  },
+  {
+    id: "hot-deal-3",
+    name: "친환경 유기농 상추 1kg",
+    price: 15000,
+    region: "경기도",
+    emoji: "🥬",
+    wholesaler_id: "temp-wholesaler-3",
+    anonymous_seller_id: "Partner #HD-03",
+    seller_region: "경기도",
+    specification: "1kg",
+    moq: 1,
+    stock_quantity: 100,
+  },
+  {
+    id: "hot-deal-4",
+    name: "토마토 3kg 박스",
+    price: 24000,
+    region: "경상남도",
+    emoji: "🍅",
+    wholesaler_id: "temp-wholesaler-4",
+    anonymous_seller_id: "Partner #HD-04",
+    seller_region: "경상남도",
+    specification: "3kg",
+    moq: 1,
+    stock_quantity: 100,
+  },
+];
+
 // 버튼 컴포넌트
-const Button = ({ children, variant = 'primary', className = '' }: { children: React.ReactNode; variant?: 'primary' | 'secondary' | 'outline'; className?: string }) => {
+const Button = ({ children, variant = 'primary', className = '', onClick }: { children: React.ReactNode; variant?: 'primary' | 'secondary' | 'outline'; className?: string; onClick?: () => void }) => {
   const baseStyles = 'font-bold rounded-xl flex items-center justify-center gap-2 relative overflow-hidden transition-all';
   const variants = {
     primary: 'bg-green-600 text-white border-b-4 border-green-800 shadow-lg hover:bg-green-500 active:border-b-0 active:translate-y-1',
@@ -97,13 +155,42 @@ const Button = ({ children, variant = 'primary', className = '' }: { children: R
     outline: 'bg-transparent text-gray-600 border-2 border-b-4 border-gray-300 hover:bg-gray-50 active:border-b-2 active:translate-y-0.5',
   };
   return (
-    <button className={`${baseStyles} ${variants[variant]} ${className}`}>
+    <button className={`${baseStyles} ${variants[variant]} ${className}`} onClick={onClick}>
       {children}
     </button>
   );
 };
 
 export default function RetailerDashboardPage() {
+  const router = useRouter();
+  const addToCart = useCartStore((state) => state.addToCart);
+
+  // 장바구니 담기 핸들러
+  const handleAddToCart = (product: typeof hotDealProducts[0]) => {
+    console.log("🛒 [대시보드-HOT DEAL] 장바구니 담기 시도:", {
+      productId: product.id,
+      productName: product.name,
+    });
+
+    addToCart({
+      product_id: product.id,
+      variant_id: null,
+      quantity: product.moq,
+      unit_price: product.price,
+      delivery_method: "normal",
+      wholesaler_id: product.wholesaler_id,
+      product_name: product.name,
+      anonymous_seller_id: product.anonymous_seller_id,
+      seller_region: product.seller_region,
+      product_image: null,
+      specification: product.specification,
+      moq: product.moq,
+      stock_quantity: product.stock_quantity,
+    });
+
+    console.log("✅ [대시보드-HOT DEAL] 장바구니 담기 완료, 장바구니 페이지로 이동");
+    router.push("/retailer/cart");
+  };
   return (
     <div className="pb-20 relative overflow-hidden min-h-screen font-sans bg-[#F8F9FA]">
       {/* 3D 배경 장식 요소 */}
@@ -192,132 +279,53 @@ export default function RetailerDashboardPage() {
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {/* 상품 카드들은 AI 추천 상품 리스트 재사용 */}
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
-                <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500">
-                  <span className="text-6xl drop-shadow-sm">🍎</span>
+            {hotDealProducts.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500">
+                    <span className="text-6xl drop-shadow-sm">{product.emoji}</span>
+                  </div>
+                  <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
+                    산지직송
+                  </span>
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"
+                  >
+                    <ShoppingCart size={20} />
+                  </button>
                 </div>
-                <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
-                  산지직송
-                </span>
-                <button className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white">
-                  <ShoppingCart size={20} />
-                </button>
+                <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-base text-gray-900 line-clamp-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                      {product.region} · 무료배송
+                    </p>
+                  </div>
+                  <div className="border-t border-gray-100 pt-3">
+                    <div className="font-black text-xl text-green-600 tracking-tight">
+                      {product.price.toLocaleString()}원
+                    </div>
+                    <div className="text-xs text-gray-400 mt-0.5">
+                      {product.specification} (예상)
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full py-2 text-sm h-10 border-gray-200"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    <ShoppingCart size={16} />
+                    <span>담기</span>
+                  </Button>
+                </div>
               </div>
-              <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
-                <div className="flex-1">
-                  <h3 className="font-bold text-base text-gray-900 line-clamp-2">
-                    청송 꿀사과 5kg (가정용)
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    경북 청송 · 무료배송
-                  </p>
-                </div>
-                <div className="border-t border-gray-100 pt-3">
-                  <div className="font-black text-xl text-green-600 tracking-tight">32,000원</div>
-                  <div className="text-xs text-gray-400 mt-0.5">1kg 당 6,400원 (예상)</div>
-                </div>
-                <Button variant="outline" className="w-full py-2 text-sm h-10 border-gray-200">
-                  <ShoppingCart size={16} />
-                  <span>담기</span>
-                </Button>
-              </div>
-            </div>
-            {/* 추가 상품 카드들... */}
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
-                <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500">
-                  <span className="text-6xl drop-shadow-sm">🍊</span>
-                </div>
-                <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
-                  산지직송
-                </span>
-                <button className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white">
-                  <ShoppingCart size={20} />
-                </button>
-              </div>
-              <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
-                <div className="flex-1">
-                  <h3 className="font-bold text-base text-gray-900 line-clamp-2">
-                    제주 감귤 10kg
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    제주도 · 무료배송
-                  </p>
-                </div>
-                <div className="border-t border-gray-100 pt-3">
-                  <div className="font-black text-xl text-green-600 tracking-tight">28,000원</div>
-                  <div className="text-xs text-gray-400 mt-0.5">1kg 당 2,800원 (예상)</div>
-                </div>
-                <Button variant="outline" className="w-full py-2 text-sm h-10 border-gray-200">
-                  <ShoppingCart size={16} />
-                  <span>담기</span>
-                </Button>
-              </div>
-            </div>
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
-                <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500">
-                  <span className="text-6xl drop-shadow-sm">🥬</span>
-                </div>
-                <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
-                  산지직송
-                </span>
-                <button className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white">
-                  <ShoppingCart size={20} />
-                </button>
-              </div>
-              <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
-                <div className="flex-1">
-                  <h3 className="font-bold text-base text-gray-900 line-clamp-2">
-                    친환경 유기농 상추 1kg
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    경기도 · 무료배송
-                  </p>
-                </div>
-                <div className="border-t border-gray-100 pt-3">
-                  <div className="font-black text-xl text-green-600 tracking-tight">15,000원</div>
-                  <div className="text-xs text-gray-400 mt-0.5">1kg 당 15,000원 (예상)</div>
-                </div>
-                <Button variant="outline" className="w-full py-2 text-sm h-10 border-gray-200">
-                  <ShoppingCart size={16} />
-                  <span>담기</span>
-                </Button>
-              </div>
-            </div>
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
-                <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500">
-                  <span className="text-6xl drop-shadow-sm">🍅</span>
-                </div>
-                <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
-                  산지직송
-                </span>
-                <button className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white">
-                  <ShoppingCart size={20} />
-                </button>
-              </div>
-              <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
-                <div className="flex-1">
-                  <h3 className="font-bold text-base text-gray-900 line-clamp-2">
-                    토마토 3kg 박스
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    경상남도 · 무료배송
-                  </p>
-                </div>
-                <div className="border-t border-gray-100 pt-3">
-                  <div className="font-black text-xl text-green-600 tracking-tight">24,000원</div>
-                  <div className="text-xs text-gray-400 mt-0.5">1kg 당 8,000원 (예상)</div>
-                </div>
-                <Button variant="outline" className="w-full py-2 text-sm h-10 border-gray-200">
-                  <ShoppingCart size={16} />
-                  <span>담기</span>
-                </Button>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
