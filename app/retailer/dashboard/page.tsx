@@ -23,6 +23,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { 
   ChevronRight, 
   Clock, 
@@ -473,9 +474,12 @@ export default function RetailerDashboardPage() {
                지금 가입하고 매달 쏟아지는 할인 쿠폰과<br/>
                무료 배송 혜택을 받아보세요!
              </p>
-             <button className="bg-white text-gray-900 px-10 py-4 rounded-full font-black text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105 active:scale-95">
+             <Link 
+               href="/sign-up-custom?type=retailer"
+               className="bg-white text-gray-900 px-10 py-4 rounded-full font-black text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105 active:scale-95 inline-block"
+             >
                멤버십 혜택 자세히 보기
-             </button>
+             </Link>
            </div>
         </section>
 
