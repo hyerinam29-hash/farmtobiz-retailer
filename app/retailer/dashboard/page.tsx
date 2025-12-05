@@ -402,7 +402,13 @@ export default function RetailerDashboardPage() {
               <button className="text-sm text-gray-400 hover:text-green-600">더보기</button>
             </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group">
+              <div 
+                onClick={() => {
+                  console.log("🚚 [대시보드] 배송 카드 클릭, 배송 조회 페이지로 이동");
+                  router.push("/retailer/delivery-tracking");
+                }}
+                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group"
+              >
                 <div className="bg-white p-3 rounded-full shadow-sm text-green-600 group-hover:scale-110 transition-transform">
                   <Truck size={20} />
                 </div>
@@ -412,7 +418,13 @@ export default function RetailerDashboardPage() {
                 </div>
                 <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-lg">배송중</span>
               </div>
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group">
+              <div 
+                onClick={() => {
+                  console.log("🚚 [대시보드] 오후 긴급 배송 카드 클릭, 배송 조회 페이지로 이동");
+                  router.push("/retailer/delivery-tracking");
+                }}
+                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group"
+              >
                 <div className="bg-white p-3 rounded-full shadow-sm text-green-600 group-hover:scale-110 transition-transform">
                   <Truck size={20} />
                 </div>
