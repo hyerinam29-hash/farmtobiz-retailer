@@ -330,14 +330,13 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
         <div className="bg-gray-50 dark:bg-gray-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav className="flex items-center gap-6 lg:gap-8 h-12">
-              {/* 카테고리 드롭다운 */}
-              <div 
-                className="relative category-dropdown-container"
-                onMouseEnter={() => setCategoryDropdownOpen(true)}
-                onMouseLeave={() => setCategoryDropdownOpen(false)}
-              >
+              {/* 카테고리 드롭다운 - 클릭으로만 열림 */}
+              <div className="relative category-dropdown-container">
                 <button
-                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                  onClick={() => {
+                    console.log("📋 [Header] 카테고리 버튼 클릭, 드롭다운 토글:", !categoryDropdownOpen);
+                    setCategoryDropdownOpen(!categoryDropdownOpen);
+                  }}
                   className="flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 >
                   <Menu className="w-4 h-4" />
@@ -356,6 +355,7 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
                         key={cat.id}
                         href={`/retailer/products?category=${encodeURIComponent(cat.id)}`}
                         onClick={() => {
+                          console.log("📋 [Header] 카테고리 선택:", cat.label, "→", `/retailer/products?category=${cat.id}`);
                           setCategoryDropdownOpen(false);
                           handleLinkClick();
                         }}
