@@ -239,3 +239,87 @@ export async function getRetailerProductById(
   return product;
 }
 
+/**
+ * 카테고리별 베스트 상품 조회
+ *
+ * 특정 카테고리의 베스트 상품을 조회합니다.
+ * 현재는 최근 생성된 상품 중 상위 3개를 반환합니다.
+ * 향후 판매량이나 추천 기준으로 변경 예정.
+ *
+ * @param category 카테고리명
+ * @param limit 조회할 상품 개수 (기본값: 3)
+ * @returns 베스트 상품 목록
+ */
+export async function getBestRetailerProducts(
+  category: string,
+  limit: number = 3
+): Promise<RetailerProduct[]> {
+  console.log("🏆 [retailer-products-query] 베스트 상품 조회 시작", {
+    category,
+    limit,
+  });
+
+  const supabase = createClerkSupabaseClient();
+
+  let query = supabase
+    .from("products")
+    .select(
+      `
+      *,
+      wholesalers!inner (
+        anonymous_code,
+        address
+      )
+    `
+    )
+    .eq("is_active", true);
+
+  // 카테고리 필터 적용
+  if (category === "곡물/견과") {
+    query = query.or("category.eq.곡물,category.eq.견과류");
+  } else {
+    query = query.eq("category", category);
+  }
+
+  // 현재는 최근 생성된 순서로 정렬 (향후 판매량/추천 기준으로 변경 예정)
+  query = query.order("created_at", { ascending: false }).limit(limit);
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("❌ [retailer-products-query] 베스트 상품 조회 오류:", error);
+    throw new Error(`베스트 상품 조회 실패: ${error.message}`);
+  }
+
+  // 데이터 변환: 익명화된 도매 정보 포함
+  const products: RetailerProduct[] = (data ?? []).map((item: any) => {
+    const wholesaler = Array.isArray(item.wholesalers)
+      ? item.wholesalers[0]
+      : item.wholesalers;
+
+    const addressParts = wholesaler?.address?.split(" ") || [];
+    const region =
+      addressParts.length >= 2
+        ? `${addressParts[0]} ${addressParts[1]}`
+        : wholesaler?.address || "";
+
+    const deliveryOptions = item.delivery_options || {};
+    const dawnDeliveryAvailable =
+      deliveryOptions.dawn_delivery_available === true;
+
+    return {
+      ...item,
+      wholesaler_anonymous_code: wholesaler?.anonymous_code || "Unknown",
+      wholesaler_region: region,
+      delivery_dawn_available: dawnDeliveryAvailable,
+    };
+  });
+
+  console.log("✅ [retailer-products-query] 베스트 상품 조회 완료", {
+    category,
+    count: products.length,
+  });
+
+  return products;
+}
+

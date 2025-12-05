@@ -90,6 +90,25 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
     setMounted(true);
   }, []);
 
+  // 카테고리 드롭다운 외부 클릭 감지
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (categoryDropdownOpen && !target.closest('.category-dropdown-container')) {
+        console.log("📋 [Header] 카테고리 드롭다운 외부 클릭 감지, 드롭다운 닫기");
+        setCategoryDropdownOpen(false);
+      }
+    };
+
+    if (categoryDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [categoryDropdownOpen]);
+
   // 모바일 메뉴 닫기 (링크 클릭 시)
   const handleLinkClick = () => {
     if (window.innerWidth < 1024) {
@@ -313,7 +332,7 @@ export default function PageHeader({ onMenuClick }: PageHeaderProps) {
             <nav className="flex items-center gap-6 lg:gap-8 h-12">
               {/* 카테고리 드롭다운 */}
               <div 
-                className="relative"
+                className="relative category-dropdown-container"
                 onMouseEnter={() => setCategoryDropdownOpen(true)}
                 onMouseLeave={() => setCategoryDropdownOpen(false)}
               >
