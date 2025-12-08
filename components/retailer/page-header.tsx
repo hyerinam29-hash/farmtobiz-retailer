@@ -64,10 +64,7 @@ const navBarItems = [
   },
 ];
 
-interface PageHeaderProps {
-}
-
-export default function PageHeader({}: PageHeaderProps) {
+export default function PageHeader() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
