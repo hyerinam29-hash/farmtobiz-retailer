@@ -30,7 +30,6 @@ interface BestProductCardProps {
   product: Product & {
     wholesaler_anonymous_code: string;
     wholesaler_region: string;
-    original_name?: string;
     original_price?: number; // 원가 (할인율 계산용)
   };
   /** 랭킹 번호 (1, 2, 3) */
@@ -49,7 +48,7 @@ export default function BestProductCard({
   const handleAddToCart = () => {
     console.log("🛒 [베스트 상품] 상세 페이지로 이동:", {
       product_id: product.id,
-      product_name: product.standardized_name || product.original_name || product.name,
+      product_name: product.standardized_name || product.name,
       rank,
     });
 
@@ -72,7 +71,7 @@ export default function BestProductCard({
         {product.image_url ? (
           <Image
             src={product.image_url}
-            alt={product.standardized_name || product.original_name || product.name}
+            alt={product.standardized_name || product.name}
             fill
             className="object-cover"
           />
@@ -88,7 +87,7 @@ export default function BestProductCard({
       {/* 상품 정보 */}
       <div className="flex-1 flex flex-col justify-center">
         <h4 className="font-bold text-gray-900 mb-1 line-clamp-1">
-          {product.standardized_name || product.original_name || product.name}
+          {product.standardized_name || product.name}
         </h4>
         {product.specification && (
           <p className="text-sm text-gray-500 mb-3 line-clamp-1">

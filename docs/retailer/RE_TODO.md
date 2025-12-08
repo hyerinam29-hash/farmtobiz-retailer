@@ -259,6 +259,18 @@ PRD 3.5 섹션 참조.
 
 ---
 
+### 🛠 최근 수정 로그
+- 2025-12-08: Vercel 빌드 TypeScript 에러 수정 (original_name 필드 제거)
+  - RetailerProduct 타입에 존재하지 않는 original_name 속성 참조 제거
+  - 수정된 파일:
+    - components/retailer/exclusive-product-card.tsx
+    - components/retailer/command-palette.tsx
+    - components/retailer/best-list-item.tsx
+    - components/retailer/best-top-three-card.tsx
+    - components/retailer/best-product-card.tsx
+    - components/retailer/product-card.tsx
+- 2025-12-08: Vercel 빌드 ESLint 경고/에러 정리 (따옴표 이스케이프, 미사용 변수 정리, 의존성 배열 보완)
+
 ## Phase 5 AI & 최적화 🤖
 
 PRD 3.6 섹션 참조.

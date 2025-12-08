@@ -44,7 +44,7 @@ export default function BestTopThreeCard({
         {product.image_url ? (
           <Image
             src={product.image_url}
-            alt={product.standardized_name || product.original_name || product.name}
+            alt={product.standardized_name || product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
@@ -63,7 +63,7 @@ export default function BestTopThreeCard({
       {/* 상품 정보 */}
       <div className="text-center px-2">
         <h3 className="font-bold text-gray-900 text-base md:text-lg mb-1 truncate">
-          {product.standardized_name || product.original_name || product.name}
+          {product.standardized_name || product.name}
         </h3>
         <p className="text-xs md:text-sm text-gray-500 mb-2 line-clamp-1">
           {product.specification || "인기 상품"}

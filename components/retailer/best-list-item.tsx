@@ -24,7 +24,7 @@ export default function BestListItem({ product, rank }: BestListItemProps) {
   const handleAddToCart = () => {
     console.log("🛒 [베스트페이지] 상세 페이지로 이동:", {
       product_id: product.id,
-      product_name: product.standardized_name || product.original_name || product.name,
+      product_name: product.standardized_name || product.name,
       rank,
     });
 
@@ -44,7 +44,7 @@ export default function BestListItem({ product, rank }: BestListItemProps) {
         {product.image_url ? (
           <Image
             src={product.image_url}
-            alt={product.standardized_name || product.original_name || product.name}
+            alt={product.standardized_name || product.name}
             fill
             className="object-cover"
           />
@@ -58,7 +58,7 @@ export default function BestListItem({ product, rank }: BestListItemProps) {
       {/* 상품 정보 */}
       <div className="flex-1 min-w-0">
         <h3 className="font-bold text-base md:text-lg text-gray-900 mb-1 group-hover:text-purple-700 transition-colors line-clamp-1">
-          {product.standardized_name || product.original_name || product.name}
+          {product.standardized_name || product.name}
         </h3>
         <p className="text-xs md:text-sm text-gray-500 mb-2 md:mb-3 line-clamp-2">
           {product.specification || "인기 상품"}

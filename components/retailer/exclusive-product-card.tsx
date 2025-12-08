@@ -18,7 +18,6 @@ interface ExclusiveProductCardProps {
   product: Product & {
     wholesaler_anonymous_code: string;
     wholesaler_region: string;
-    original_name?: string;
   };
   tag?: "Only" | "단독특가" | "선물추천" | "선물용";
 }
@@ -32,7 +31,7 @@ export default function ExclusiveProductCard({
   const handleAddToCart = () => {
     console.log("🛒 [단독관] 상세 페이지로 이동:", {
       product_id: product.id,
-      product_name: product.standardized_name || product.original_name || product.name,
+      product_name: product.standardized_name || product.name,
     });
 
     router.push(`/retailer/products/${product.id}`);
@@ -61,7 +60,7 @@ export default function ExclusiveProductCard({
           {product.image_url ? (
             <Image
               src={product.image_url}
-              alt={product.standardized_name || product.original_name || product.name}
+              alt={product.standardized_name || product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -83,7 +82,7 @@ export default function ExclusiveProductCard({
       <div className="p-4 md:p-5 space-y-3 flex-1 flex flex-col bg-white">
         <div className="flex-1">
           <h3 className="font-bold text-base text-gray-900 line-clamp-2">
-            {product.standardized_name || product.original_name || product.name}
+            {product.standardized_name || product.name}
           </h3>
           {product.specification && (
             <p className="text-xs text-gray-500 mt-1">{product.specification}</p>

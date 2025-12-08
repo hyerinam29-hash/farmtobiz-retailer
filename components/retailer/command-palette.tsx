@@ -78,7 +78,7 @@ export function CommandPalette() {
           )
           .eq("is_active", true)
           .or(
-            `standardized_name.ilike.%${searchQuery}%,original_name.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`
+            `standardized_name.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`
           )
           .limit(5);
 
@@ -208,9 +208,7 @@ export function CommandPalette() {
                   <Search className="w-4 h-4 text-gray-500" />
                   <div className="flex flex-col flex-1">
                     <span className="font-medium">
-                      {product.standardized_name ||
-                        product.original_name ||
-                        product.name}
+                      {product.standardized_name || product.name}
                     </span>
                     <span className="text-xs text-gray-500">
                       {product.price.toLocaleString()}원 ·{" "}

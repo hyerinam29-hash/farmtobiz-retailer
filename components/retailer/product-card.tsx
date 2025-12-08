@@ -19,7 +19,6 @@ interface ProductCardProps {
   product: Product & {
     wholesaler_anonymous_code: string;
     wholesaler_region: string;
-    original_name?: string;
   };
 }
 
@@ -29,7 +28,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = () => {
     console.log("🛒 [상품목록] 상세 페이지로 이동:", {
       product_id: product.id,
-      product_name: product.standardized_name || product.original_name || product.name,
+      product_name: product.standardized_name || product.name,
     });
 
     // 상품 상세 페이지로 이동 (장바구니 추가는 상세 페이지에서 수량 선택 후 진행)
@@ -44,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.image_url ? (
             <Image
               src={product.image_url}
-              alt={product.standardized_name || product.original_name || product.name}
+              alt={product.standardized_name || product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -66,7 +65,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* 상품명 (AI 표준화된 이름 우선 표시) */}
         <Link href={`/retailer/products/${product.id}`}>
           <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-2 hover:text-primary transition-colors">
-            {product.standardized_name || product.original_name || product.name}
+            {product.standardized_name || product.name}
           </h3>
         </Link>
 
