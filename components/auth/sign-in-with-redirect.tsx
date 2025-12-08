@@ -724,29 +724,17 @@ export default function SignInWithRedirect({
               도매점 로그인 페이지를 이용해주세요.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="sm:justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowWholesalerBlockModal(false);
-                // 처음 로그인 화면(소매점 로그인)으로 돌아가기
-                window.location.href = "/sign-in/retailer";
-              }}
-              className="min-w-20"
-            >
-              확인
-            </Button>
-            <Button
-              onClick={() => {
-                setShowWholesalerBlockModal(false);
-                // 처음 로그인 화면(소매점 로그인)으로 돌아가기
-                window.location.href = "/sign-in/retailer";
-              }}
-              className="min-w-20 bg-blue-600 hover:bg-blue-700"
-            >
-              도매 로그인 페이지로 이동
-            </Button>
-          </DialogFooter>
+      <DialogFooter className="sm:justify-center">
+        <Button
+          onClick={() => {
+            setShowWholesalerBlockModal(false);
+            window.location.href = "/sign-in/retailer";
+          }}
+          className="min-w-72 bg-green-600 hover:bg-green-700 text-white"
+        >
+          확인
+        </Button>
+      </DialogFooter>
         </DialogContent>
       </Dialog>
 
