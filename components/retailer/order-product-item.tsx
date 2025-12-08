@@ -19,14 +19,17 @@ interface OrderProductItemProps {
 }
 
 export default function OrderProductItem({
-  id: _id,
+  id,
   name,
   image_url,
   quantity,
   unit_price,
 }: OrderProductItemProps) {
   return (
-    <div className="flex gap-4 py-4 border-b border-gray-100 last:border-0">
+    <div
+      data-order-product-id={id}
+      className="flex gap-4 py-4 border-b border-gray-100 last:border-0"
+    >
       {/* 상품 이미지 */}
       <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
         {image_url ? (

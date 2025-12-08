@@ -23,7 +23,6 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { CreditCard, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { useTossPayment } from "@/hooks/use-toss-payment";
-import { createPayment } from "@/actions/retailer/create-payment";
 
 export default function TossPaymentTestPage() {
   const router = useRouter();

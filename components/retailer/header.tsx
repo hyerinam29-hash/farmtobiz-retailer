@@ -81,15 +81,12 @@ const navBarItems: NavBarItem[] = [
 ];
 
 interface RetailerHeaderProps {
-  /** 사이드바 열기 함수 (모바일용) */
-  onMenuClick?: () => void;
   /** 사용자 역할 (관리자 배지 표시용) */
   role?: UserRole;
 }
 
 // 내부 헤더 컴포넌트 (useSearchParams 사용)
 function HeaderContent({
-  onMenuClick: _onMenuClick,
   role,
 }: RetailerHeaderProps) {
   const pathname = usePathname();

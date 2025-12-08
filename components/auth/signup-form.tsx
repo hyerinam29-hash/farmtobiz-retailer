@@ -27,7 +27,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSignUp } from "@clerk/nextjs";
@@ -47,11 +46,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { signupSchema, type SignupFormData } from "@/lib/validation/signup";
 
-interface SignupFormProps {
-  afterSignUpUrl?: string;
-}
-
-export default function SignupForm({ afterSignUpUrl: _afterSignUpUrl = "/retailer/dashboard" }: SignupFormProps) {
+export default function SignupForm() {
   const { isLoaded, signUp } = useSignUp();
   const [isSubmitting, setIsSubmitting] = useState(false);
 

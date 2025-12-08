@@ -65,11 +65,9 @@ const navBarItems = [
 ];
 
 interface PageHeaderProps {
-  /** 모바일 메뉴 열기 함수 (사용하지 않음, 내부 상태로 관리) */
-  onMenuClick?: () => void;
 }
 
-export default function PageHeader({ onMenuClick: _onMenuClick }: PageHeaderProps) {
+export default function PageHeader({}: PageHeaderProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();

@@ -9,7 +9,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, Package, RefreshCw } from "lucide-react";
+import { Truck, RefreshCw } from "lucide-react";
 
 interface ProductDetailTabsProps {
   product: {

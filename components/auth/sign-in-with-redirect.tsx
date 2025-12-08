@@ -184,7 +184,6 @@ interface SignInWithRedirectProps {
   /**
    * 회원가입 페이지 URL (리다이렉트 대상)
    */
-  redirectToSignUpUrl: string;
   /**
    * 온보딩 페이지 URL (모달 확인 후 이동할 페이지)
    */
@@ -198,7 +197,6 @@ export default function SignInWithRedirect({
   fallbackRedirectUrl,
   forceRedirectUrl,
   appearance,
-  redirectToSignUpUrl: _redirectToSignUpUrl,
   onboardingUrl,
 }: SignInWithRedirectProps) {
   // 🚨 컴포넌트가 렌더링되는지 확인
