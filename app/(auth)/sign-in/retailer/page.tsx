@@ -79,7 +79,7 @@ export default function RetailerSignInPage() {
             <Link href="/sign-up?type=retailer">
               <Button
                 variant="default"
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-green-600 hover:bg-green-700"
               >
                 회원가입하기
               </Button>
