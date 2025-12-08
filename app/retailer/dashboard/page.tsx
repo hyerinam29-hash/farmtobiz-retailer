@@ -37,61 +37,13 @@ import {
 import { useCartStore } from "@/stores/cart-store";
 import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
 
-// 임시 목 데이터 - 최근 주문 (추후 API로 교체 예정)
-const mockRecentOrders = [
-  {
-    id: "1",
-    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    status: "delivered" as const,
-    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    total_price: 0, // 가격 삭제, 나중에 내용 추가 가능
-  },
-  {
-    id: "2",
-    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    status: "shipping" as const,
-    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    total_price: 0, // 가격 삭제, 나중에 내용 추가 가능
-  },
-  {
-    id: "3",
-    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    status: "preparing" as const,
-    status_label: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_method: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_scheduled_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    total_price: 0, // 가격 삭제, 나중에 내용 추가 가능
-  },
-];
+// TODO: 추후 API로 교체 예정
+// 임시 목 데이터 - 최근 주문 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
+// const mockRecentOrders = [...];
 
-// 임시 목 데이터 - 배송 예정 알림 (추후 API로 교체 예정)
-const mockDeliverySchedules = [
-  {
-    id: "2",
-    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_date: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_method: "일반 배송" as const,
-    status: "shipping" as const,
-  },
-  {
-    id: "3",
-    order_number: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    product_name: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_date: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_time: "", // 텍스트 내용 삭제, 나중에 내용 추가 가능
-    delivery_method: "새벽 배송" as const,
-    status: "preparing" as const,
-  },
-];
+// TODO: 추후 API로 교체 예정
+// 임시 목 데이터 - 배송 예정 알림 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
+// const mockDeliverySchedules = [...];
 
 // 임시 상품 데이터 (놓치면 후회할 가격 섹션용)
 const hotDealProducts = [
@@ -212,6 +164,7 @@ export default function RetailerDashboardPage() {
   }, []);
 
   // 1초마다 시간 감소시키는 useEffect
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     console.log("⏰ [대시보드] 타이머 시작, 남은 시간:", timeLeft, "초");
     
@@ -235,6 +188,7 @@ export default function RetailerDashboardPage() {
       console.log("⏰ [대시보드] 타이머 정리");
       clearInterval(timer);
     };
+    // timeLeft는 함수형 업데이트(prev => ...)를 사용하므로 의존성 배열에 포함하지 않음
   }, []);
 
   // 초를 시:분:초 형식으로 변환하는 함수

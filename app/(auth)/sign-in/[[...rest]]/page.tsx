@@ -20,7 +20,7 @@
  * @see {@link https://clerk.com/docs/components/sign-in/sign-in} - Clerk SignIn 문서
  */
 
-import SignInWithRedirect from "@/components/auth/sign-in-with-redirect";
+import SignInWithRedirectWrapper from "@/components/auth/sign-in-with-redirect-wrapper";
 
 interface SignInPageProps {
   searchParams: Promise<{ redirect_url?: string }>;
@@ -38,7 +38,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   if (isRetailerFlow) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-        <SignInWithRedirect
+        <SignInWithRedirectWrapper
           appearance={{
             elements: {},
           }}
@@ -54,7 +54,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   // 일반 로그인 (기본 설정)
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-      <SignInWithRedirect
+      <SignInWithRedirectWrapper
         appearance={{
           elements: {},
         }}

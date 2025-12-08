@@ -12,7 +12,6 @@
 
 "use client";
 
-import { Suspense } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -22,7 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, UserPlus } from "lucide-react";
-import SignInWithRedirect from "@/components/auth/sign-in-with-redirect";
+import SignInWithRedirectWrapper from "@/components/auth/sign-in-with-redirect-wrapper";
 
 export default function RetailerSignInPage() {
   return (
@@ -45,7 +44,7 @@ export default function RetailerSignInPage() {
 
         {/* 로그인 폼 */}
         <div className="flex justify-center">
-          <SignInWithRedirect
+          <SignInWithRedirectWrapper
             appearance={{
               elements: {
                 rootBox: "mx-auto",
