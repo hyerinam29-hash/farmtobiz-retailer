@@ -12,18 +12,17 @@
  * @dependencies
  * - lib/supabase/queries/retailer-products.ts
  * - app/retailer/layout.tsx (레이아웃)
- * - components/retailer/category-sidebar.tsx
  * - components/retailer/category-header.tsx
  * - components/retailer/sub-category-tabs.tsx
  * - components/retailer/best-products-section.tsx
  * - components/retailer/product-list-header.tsx
+ * - components/ui/button.tsx
  *
  * @see {@link PRD.md} - R.SEARCH.01~05 요구사항
  */
 
 import Link from "next/link";
 import { getRetailerProducts, getAllBestRetailerProducts } from "@/lib/supabase/queries/retailer-products";
-import CategorySidebar from "@/components/retailer/category-sidebar";
 import CategoryHeader from "@/components/retailer/category-header";
 import SubCategoryTabs from "@/components/retailer/sub-category-tabs";
 import BestProductsSection from "@/components/retailer/best-products-section";
@@ -39,7 +38,8 @@ import SpecialEventBanner from "@/components/retailer/special-event-banner";
 import SpecialTimerSection from "@/components/retailer/special-timer-section";
 import SpecialProductCard from "@/components/retailer/special-product-card";
 import { PremiumFarmBanner, CategoryBanners } from "@/components/retailer/exclusive-mid-banner";
-import { Zap } from "lucide-react";
+import { Zap, AlertCircle, Search as SearchIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * 소매점 상품 목록 페이지 (서버 컴포넌트)
@@ -343,95 +343,126 @@ export default async function ProductsPage({
     );
   }
 
-  // 일반 상품 목록 페이지 레이아웃
+  // 일반 상품 목록 페이지 레이아웃 (사이드바 제거, 전체 너비 사용)
   return (
     <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA]">
       {/* 배경 장식 요소 */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-green-200/40 to-emerald-100/0 rounded-full blur-3xl -z-10"></div>
       <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-gradient-to-tr from-blue-100/30 to-indigo-50/0 rounded-full blur-3xl -z-10"></div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20 relative z-10">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* 좌측 사이드바 */}
-          <CategorySidebar currentCategory={category} />
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10 pb-20 relative z-10">
+        {/* 검색 결과 헤더 (검색어가 있을 때만 표시) */}
+        {search && (
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2 flex-wrap">
+              <SearchIcon className="text-green-600 w-5 h-5 md:w-6 md:h-6 flex-shrink-0" />
+              <span className="text-green-600">'{search}'</span>
+              <span className="text-gray-800">검색 결과</span>
+              <span className="text-gray-500 text-base md:text-lg font-normal">({total}건)</span>
+            </h1>
+          </div>
+        )}
 
-          {/* 우측 메인 컨텐츠 영역 */}
-          <main className="flex-1 min-w-0">
-            {/* 카테고리 헤더 (카테고리가 선택된 경우만 표시) */}
-            {category && (
-              <>
-                <CategoryHeader category={category} />
-                <SubCategoryTabs category={category} />
-              </>
-            )}
+        {/* 카테고리 헤더 (카테고리가 선택되고 검색어가 없을 때만 표시) */}
+        {category && !search && (
+          <>
+            <CategoryHeader category={category} />
+            <SubCategoryTabs category={category} />
+          </>
+        )}
 
-            {/* 카테고리가 없을 때 기본 헤더 */}
-            {!category && (
-              <div className="mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  상품 목록
-                </h1>
-                <p className="text-base text-gray-600">
-                  AI가 표준화한 상품명으로 투명한 가격 비교
-                </p>
+        {/* 카테고리도 검색어도 없을 때 기본 헤더 */}
+        {!category && !search && (
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+              상품 목록
+            </h1>
+            <p className="text-base text-gray-600">
+              AI가 표준화한 상품명으로 투명한 가격 비교
+            </p>
+          </div>
+        )}
+
+        {/* 베스트 상품 섹션 (카테고리가 선택되고 검색어가 없을 때만 표시) */}
+        {category && !search && <BestProductsSection category={category} />}
+
+        {/* 전체 상품 리스트 */}
+        <section>
+          {/* 정렬 헤더 (검색어가 없을 때만 표시) */}
+          {!search && (
+            <ProductListHeader
+              total={total}
+              currentSortBy={sortBy}
+              currentSortOrder={sortOrder}
+            />
+          )}
+
+          {products.length > 0 ? (
+            <>
+              {/* 상품 그리드 - 모바일 2열, 태블릿 3열, 데스크톱 4열 */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
               </div>
-            )}
 
-            {/* 베스트 상품 섹션 (카테고리가 선택된 경우만 표시) */}
-            {category && <BestProductsSection category={category} />}
-
-            {/* 전체 상품 리스트 */}
-            <section>
-              <ProductListHeader
-                total={total}
-                currentSortBy={sortBy}
-                currentSortOrder={sortOrder}
-              />
-
-              {products.length > 0 ? (
-                <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-6 gap-y-10">
-                    {products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                  </div>
-
-                  {/* 페이지네이션 */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-3 mt-12">
-                      {page > 1 && (
-                        <Link
-                          href={getPaginationLink(page - 1)}
-                          className="px-6 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors"
-                        >
-                          이전
-                        </Link>
-                      )}
-                      <span className="px-6 py-3 text-gray-600">
-                        {page} / {totalPages}
-                      </span>
-                      {page < totalPages && (
-                        <Link
-                          href={getPaginationLink(page + 1)}
-                          className="px-6 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors"
-                        >
-                          다음
-                        </Link>
-                      )}
-                    </div>
+              {/* 페이지네이션 */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-3 mt-8 md:mt-12">
+                  {page > 1 && (
+                    <Link
+                      href={getPaginationLink(page - 1)}
+                      className="px-4 md:px-6 py-2 md:py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors text-sm md:text-base"
+                    >
+                      이전
+                    </Link>
                   )}
-                </>
-              ) : (
-                <div className="w-full flex flex-col items-center justify-center py-[4.5rem]">
-                  <p className="text-gray-500 text-2xl">상품이 없습니다.</p>
-                  <p className="text-gray-400 text-base mt-3">
-                    다른 검색어나 필터를 시도해보세요.
-                  </p>
+                  <span className="px-4 md:px-6 py-2 md:py-3 text-gray-600 text-sm md:text-base">
+                    {page} / {totalPages}
+                  </span>
+                  {page < totalPages && (
+                    <Link
+                      href={getPaginationLink(page + 1)}
+                      className="px-4 md:px-6 py-2 md:py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors text-sm md:text-base"
+                    >
+                      다음
+                    </Link>
+                  )}
                 </div>
               )}
-            </section>
-          </main>
-        </div>
+            </>
+          ) : (
+            // 검색 결과 없음 UI (디자인 정확히 반영 + 모바일 반응형)
+            <div className="max-w-7xl mx-auto mt-4 md:mt-8">
+              <div className="bg-white rounded-xl md:rounded-2xl p-8 md:p-16 lg:p-20 text-center shadow-sm">
+                {/* 아이콘 - 모바일/데스크톱 반응형 */}
+                <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 bg-gray-200 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 md:w-12 md:h-12 text-gray-400" />
+                </div>
+                
+                {/* 제목 - 모바일/데스크톱 반응형 */}
+                <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-2 md:mb-3">
+                  검색 결과가 없습니다
+                </h3>
+                
+                {/* 설명 - 모바일/데스크톱 반응형 */}
+                <p className="text-sm md:text-base lg:text-lg text-gray-600 mb-6 md:mb-8">
+                  다른 검색어로 다시 시도해보세요.
+                </p>
+                
+                {/* 버튼 - 모바일/데스크톱 반응형 */}
+                <Link href="/retailer/dashboard">
+                  <Button 
+                    variant="outline" 
+                    className="px-6 md:px-8 py-2.5 md:py-3 text-sm md:text-base font-medium border-gray-300 hover:bg-gray-50"
+                  >
+                    홈으로 돌아가기
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

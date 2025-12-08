@@ -11,6 +11,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart-store";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 
@@ -19,6 +20,7 @@ interface SpecialProductCardProps {
 }
 
 export default function SpecialProductCard({ product }: SpecialProductCardProps) {
+  const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
   const displayName = product.standardized_name || product.name;
 
@@ -50,7 +52,8 @@ export default function SpecialProductCard({ product }: SpecialProductCardProps)
       stock_quantity: product.stock_quantity,
     });
 
-    console.log("✅ [special-product-card] 장바구니 담기 완료");
+    console.log("✅ [special-product-card] 장바구니 담기 완료, 장바구니 페이지로 이동");
+    router.push("/retailer/cart");
   };
 
   return (
