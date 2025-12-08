@@ -153,7 +153,7 @@ export default async function ProductsPage({
     const giftProducts = products.slice(0, 4); // 선물용 (첫 4개 재사용)
 
     return (
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20 font-sans">
         {/* 상단 히어로 배너 */}
         <ExclusiveEventBanner />
 

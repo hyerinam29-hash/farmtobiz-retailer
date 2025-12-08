@@ -10,7 +10,7 @@ import { ShieldCheck } from "lucide-react";
 
 export default function ExclusiveEventBanner() {
   return (
-    <div className="relative bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-3xl overflow-hidden shadow-xl transform hover:scale-[1.005] transition-all duration-500 group mb-12">
+    <div className="relative bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-3xl overflow-hidden shadow-xl group mb-12 w-full">
       {/* 배경 장식 */}
       <div className="absolute inset-0 bg-gradient-to-br from-violet-400/20 to-fuchsia-700/20"></div>
       
