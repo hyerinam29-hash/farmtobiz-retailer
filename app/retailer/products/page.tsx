@@ -13,7 +13,6 @@
  * - lib/supabase/queries/retailer-products.ts
  * - app/retailer/layout.tsx (레이아웃)
  * - components/retailer/category-header.tsx
- * - components/retailer/sub-category-tabs.tsx
  * - components/retailer/best-products-section.tsx
  * - components/retailer/product-list-header.tsx
  * - components/ui/button.tsx
@@ -24,7 +23,6 @@
 import Link from "next/link";
 import { getRetailerProducts, getAllBestRetailerProducts } from "@/lib/supabase/queries/retailer-products";
 import CategoryHeader from "@/components/retailer/category-header";
-import SubCategoryTabs from "@/components/retailer/sub-category-tabs";
 import BestProductsSection from "@/components/retailer/best-products-section";
 import ProductListHeader from "@/components/retailer/product-list-header";
 import ProductCard from "@/components/retailer/product-card";
@@ -364,12 +362,7 @@ export default async function ProductsPage({
         )}
 
         {/* 카테고리 헤더 (카테고리가 선택되고 검색어가 없을 때만 표시) */}
-        {category && !search && (
-          <>
-            <CategoryHeader category={category} />
-            <SubCategoryTabs category={category} />
-          </>
-        )}
+        {category && !search && <CategoryHeader category={category} />}
 
         {/* 카테고리도 검색어도 없을 때 기본 헤더 */}
         {!category && !search && (
