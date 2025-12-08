@@ -356,7 +356,7 @@ export default async function ProductsPage({
           <div className="mb-6 md:mb-8">
             <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2 flex-wrap">
               <SearchIcon className="text-green-600 w-5 h-5 md:w-6 md:h-6 flex-shrink-0" />
-              <span className="text-green-600">'{search}'</span>
+              <span className="text-green-600">'&apos;{search}&apos;'</span>
               <span className="text-gray-800">검색 결과</span>
               <span className="text-gray-500 text-base md:text-lg font-normal">({total}건)</span>
             </h1>
