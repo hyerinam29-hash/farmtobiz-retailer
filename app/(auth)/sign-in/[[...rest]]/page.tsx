@@ -46,7 +46,6 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           signUpUrl="/sign-up?type=retailer"
           fallbackRedirectUrl="/retailer/dashboard"
           forceRedirectUrl="/retailer/dashboard"
-          redirectToSignUpUrl="/sign-up?type=retailer"
         />
       </div>
     );
@@ -62,7 +61,6 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
         path="/sign-in"
         signUpUrl="/sign-up"
         fallbackRedirectUrl="/"
-        redirectToSignUpUrl="/sign-up"
       />
     </div>
   );

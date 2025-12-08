@@ -260,6 +260,7 @@ PRD 3.5 섹션 참조.
 ---
 
 ### 🛠 최근 수정 로그
+- 2025-12-08: Clerk SignIn props 정리 (redirectToSignUpUrl 제거로 타입 에러 해결)
 - 2025-12-08: page-header 빈 인터페이스 제거로 ESLint 에러 해결
 - 2025-12-08: Vercel 빌드 TypeScript 에러 수정 (original_name 필드 제거)
   - RetailerProduct 타입에 존재하지 않는 original_name 속성 참조 제거
