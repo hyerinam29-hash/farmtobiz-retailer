@@ -32,6 +32,10 @@ import ProductCard from "@/components/retailer/product-card";
 import BestEventBanner from "@/components/retailer/best-event-banner";
 import BestTopThreeCard from "@/components/retailer/best-top-three-card";
 import BestListItem from "@/components/retailer/best-list-item";
+import ExclusiveEventBanner from "@/components/retailer/exclusive-event-banner";
+import ExclusiveCategoryIcons from "@/components/retailer/exclusive-category-icons";
+import ExclusiveProductCard from "@/components/retailer/exclusive-product-card";
+import { PremiumFarmBanner, CategoryBanners } from "@/components/retailer/exclusive-mid-banner";
 
 /**
  * 소매점 상품 목록 페이지 (서버 컴포넌트)
@@ -46,6 +50,7 @@ export default async function ProductsPage({
     sortBy?: string;
     sortOrder?: string;
     sort?: string;
+    exclusive?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -54,6 +59,9 @@ export default async function ProductsPage({
 
   // 베스트 페이지 여부 확인
   const isBestPage = params.sort === "popular";
+  
+  // 단독관 페이지 여부 확인
+  const isExclusivePage = params.exclusive === "true";
 
   // 쿼리 파라미터 파싱
   const page = parseInt(params.page ?? "1", 10);
@@ -126,8 +134,83 @@ export default async function ProductsPage({
     if (sortBy !== "created_at") params.set("sortBy", sortBy);
     if (sortOrder !== "desc") params.set("sortOrder", sortOrder);
     if (isBestPage) params.set("sort", "popular");
+    if (isExclusivePage) params.set("exclusive", "true");
     return `/retailer/products?${params.toString()}`;
   };
+
+  // 단독관 페이지 레이아웃
+  if (isExclusivePage) {
+    // 단독관용 상품 데이터 (전체 상품 사용, 섹션별로 분할)
+    const exclusiveProducts = products.slice(0, 8); // 첫 번째 섹션용
+    const trendingProducts = products.slice(8, 16); // 두 번째 섹션용
+    const giftProducts = products.slice(0, 4); // 선물용 (첫 4개 재사용)
+
+    return (
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
+        {/* 상단 히어로 배너 */}
+        <ExclusiveEventBanner />
+
+        {/* 섹션 제목 */}
+        <h2 className="text-2xl font-bold text-purple-700 mb-6 mt-12">
+          💜 팜투비즈 단독 상품
+        </h2>
+
+        {/* 카테고리 아이콘 메뉴 */}
+        <ExclusiveCategoryIcons />
+
+        {/* 첫 번째 상품 그리드 - 팜투비즈 단독 상품 */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          {exclusiveProducts.length > 0 ? (
+            exclusiveProducts.map((product) => (
+              <ExclusiveProductCard key={product.id} product={product} tag="Only" />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-gray-500">
+              단독 상품이 없습니다.
+            </div>
+          )}
+        </div>
+
+        {/* 중간 이벤트 배너 */}
+        <PremiumFarmBanner
+          title="팜투비즈 X 명품 농장"
+          subtitle="오직 여기서만 만날 수 있는 프리미엄 라인업"
+          imageUrl="https://images.unsplash.com/photo-1593301333770-29d3df13178f?auto=format&fit=crop&w=1600&q=80"
+        />
+
+        {/* 두 번째 상품 그리드 - 지금 뜨는 단독 상품 */}
+        <h3 className="text-xl font-bold text-gray-800 mb-6">👀 지금 뜨는 단독 상품</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          {trendingProducts.length > 0 ? (
+            trendingProducts.map((product) => (
+              <ExclusiveProductCard key={product.id} product={product} tag="단독특가" />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-gray-500">
+              인기 단독 상품이 없습니다.
+            </div>
+          )}
+        </div>
+
+        {/* 카테고리 배너 */}
+        <CategoryBanners />
+
+        {/* 세 번째 상품 그리드 - 선물하기 좋은 패키지 */}
+        <h3 className="text-xl font-bold text-gray-800 mb-6">🎁 선물하기 좋은 패키지</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {giftProducts.length > 0 ? (
+            giftProducts.map((product) => (
+              <ExclusiveProductCard key={product.id} product={product} tag="선물추천" />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-gray-500">
+              선물용 상품이 없습니다.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // 베스트 페이지 레이아웃
   if (isBestPage) {
