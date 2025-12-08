@@ -35,7 +35,11 @@ import BestListItem from "@/components/retailer/best-list-item";
 import ExclusiveEventBanner from "@/components/retailer/exclusive-event-banner";
 import ExclusiveCategoryIcons from "@/components/retailer/exclusive-category-icons";
 import ExclusiveProductCard from "@/components/retailer/exclusive-product-card";
+import SpecialEventBanner from "@/components/retailer/special-event-banner";
+import SpecialTimerSection from "@/components/retailer/special-timer-section";
+import SpecialProductCard from "@/components/retailer/special-product-card";
 import { PremiumFarmBanner, CategoryBanners } from "@/components/retailer/exclusive-mid-banner";
+import { Zap } from "lucide-react";
 
 /**
  * 소매점 상품 목록 페이지 (서버 컴포넌트)
@@ -51,6 +55,7 @@ export default async function ProductsPage({
     sortOrder?: string;
     sort?: string;
     exclusive?: string;
+    special?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -62,6 +67,9 @@ export default async function ProductsPage({
   
   // 단독관 페이지 여부 확인
   const isExclusivePage = params.exclusive === "true";
+
+  // 특가 페이지 여부 확인
+  const isSpecialPage = params.special === "true";
 
   // 쿼리 파라미터 파싱
   const page = parseInt(params.page ?? "1", 10);
@@ -135,6 +143,7 @@ export default async function ProductsPage({
     if (sortOrder !== "desc") params.set("sortOrder", sortOrder);
     if (isBestPage) params.set("sort", "popular");
     if (isExclusivePage) params.set("exclusive", "true");
+    if (isSpecialPage) params.set("special", "true");
     return `/retailer/products?${params.toString()}`;
   };
 
@@ -159,7 +168,7 @@ export default async function ProductsPage({
         <ExclusiveCategoryIcons />
 
         {/* 첫 번째 상품 그리드 - 팜투비즈 단독 상품 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
           {exclusiveProducts.length > 0 ? (
             exclusiveProducts.map((product) => (
               <ExclusiveProductCard key={product.id} product={product} tag="Only" />
@@ -180,7 +189,7 @@ export default async function ProductsPage({
 
         {/* 두 번째 상품 그리드 - 지금 뜨는 단독 상품 */}
         <h3 className="text-xl font-bold text-gray-800 mb-6">👀 지금 뜨는 단독 상품</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
           {trendingProducts.length > 0 ? (
             trendingProducts.map((product) => (
               <ExclusiveProductCard key={product.id} product={product} tag="단독특가" />
@@ -197,7 +206,7 @@ export default async function ProductsPage({
 
         {/* 세 번째 상품 그리드 - 선물하기 좋은 패키지 */}
         <h3 className="text-xl font-bold text-gray-800 mb-6">🎁 선물하기 좋은 패키지</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {giftProducts.length > 0 ? (
             giftProducts.map((product) => (
               <ExclusiveProductCard key={product.id} product={product} tag="선물추천" />
@@ -208,6 +217,65 @@ export default async function ProductsPage({
             </div>
           )}
         </div>
+      </div>
+    );
+  }
+
+  // 특가(연말특가) 페이지 레이아웃
+  if (isSpecialPage) {
+    console.log("🔥 [retailer-products-page] 특가 페이지 렌더링", {
+      productCount: products.length,
+    });
+
+    return (
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
+        {/* 상단 이벤트 배너 */}
+        <SpecialEventBanner />
+
+        {/* 타임세일 타이머 섹션 */}
+        <SpecialTimerSection />
+
+        {/* 실시간 특가 제목 */}
+        <h2 className="text-2xl font-bold text-red-600 mb-6 flex items-center gap-2">
+          <Zap size={24} />
+          실시간 랭킹 특가
+        </h2>
+
+        {/* 특가 상품 그리드 */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {products.length > 0 ? (
+            products.map((product) => <SpecialProductCard key={product.id} product={product} />)
+          ) : (
+            <div className="col-span-full text-center py-12 text-gray-500">
+              특가 상품이 없습니다.
+            </div>
+          )}
+        </div>
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 mt-12">
+            {page > 1 && (
+              <Link
+                href={getPaginationLink(page - 1)}
+                className="px-6 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors"
+              >
+                이전
+              </Link>
+            )}
+            <span className="px-6 py-3 text-gray-600">
+              {page} / {totalPages}
+            </span>
+            {page < totalPages && (
+              <Link
+                href={getPaginationLink(page + 1)}
+                className="px-6 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors"
+              >
+                다음
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     );
   }

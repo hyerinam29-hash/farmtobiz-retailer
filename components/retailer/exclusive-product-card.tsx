@@ -80,7 +80,7 @@ export default function ExclusiveProductCard({
       </Link>
 
       {/* 상품 정보 */}
-      <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
+      <div className="p-4 md:p-5 space-y-3 flex-1 flex flex-col bg-white">
         <div className="flex-1">
           <h3 className="font-bold text-base text-gray-900 line-clamp-2">
             {product.standardized_name || product.original_name || product.name}

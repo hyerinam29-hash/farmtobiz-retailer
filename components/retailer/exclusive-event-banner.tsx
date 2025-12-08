@@ -23,12 +23,12 @@ export default function ExclusiveEventBanner() {
           </div>
           
           {/* 메인 타이틀 */}
-          <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight drop-shadow-lg tracking-tight whitespace-pre-wrap break-keep">
+          <h2 className="text-2xl md:text-4xl font-black mb-5 md:mb-6 leading-tight drop-shadow-lg tracking-tight whitespace-pre-wrap break-keep">
             💜 팜투비즈 단독<br/>오직 여기서만 만나요!
           </h2>
           
           {/* 설명 텍스트 */}
-          <p className="text-lg md:text-xl font-medium mb-10 text-white/95 drop-shadow-md leading-relaxed whitespace-pre-wrap break-keep">
+          <p className="text-base md:text-lg font-medium mb-8 md:mb-10 text-white/95 drop-shadow-md leading-relaxed whitespace-pre-wrap break-keep">
             산지 직송 독점 계약 상품<br/>최대 혜택으로 준비했습니다
           </p>
           
