@@ -127,7 +127,7 @@ export function CommandPalette() {
     // 디바운스: 300ms 후 검색 실행
     const timeoutId = setTimeout(searchProductsAndOrders, 300);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, supabase]);
 
   // 상품 클릭 핸들러
   const handleProductClick = (productId: string) => {

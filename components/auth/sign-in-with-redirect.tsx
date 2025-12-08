@@ -198,7 +198,7 @@ export default function SignInWithRedirect({
   fallbackRedirectUrl,
   forceRedirectUrl,
   appearance,
-  redirectToSignUpUrl,
+  redirectToSignUpUrl: _redirectToSignUpUrl,
   onboardingUrl,
 }: SignInWithRedirectProps) {
   // 🚨 컴포넌트가 렌더링되는지 확인

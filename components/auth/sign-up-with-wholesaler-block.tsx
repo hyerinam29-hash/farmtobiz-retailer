@@ -52,7 +52,7 @@ export default function SignUpWithWholesalerBlock({
     useState(false);
   const [showDuplicateAccountModal, setShowDuplicateAccountModal] =
     useState(false);
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
   const prevSignedInRef = useRef(false);

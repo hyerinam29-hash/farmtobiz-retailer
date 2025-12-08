@@ -13,7 +13,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import ConfirmPurchaseModal from "@/components/retailer/confirm-purchase-modal";
 
 interface OrderDetailActionsProps {

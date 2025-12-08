@@ -89,7 +89,7 @@ interface RetailerHeaderProps {
 
 // 내부 헤더 컴포넌트 (useSearchParams 사용)
 function HeaderContent({
-  onMenuClick,
+  onMenuClick: _onMenuClick,
   role,
 }: RetailerHeaderProps) {
   const pathname = usePathname();

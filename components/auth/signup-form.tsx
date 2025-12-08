@@ -46,15 +46,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { signupSchema, type SignupFormData } from "@/lib/validation/signup";
-import { cn } from "@/lib/utils";
 
 interface SignupFormProps {
   afterSignUpUrl?: string;
 }
 
-export default function SignupForm({ afterSignUpUrl = "/retailer/dashboard" }: SignupFormProps) {
-  const router = useRouter();
-  const { isLoaded, signUp, setActive } = useSignUp();
+export default function SignupForm({ afterSignUpUrl: _afterSignUpUrl = "/retailer/dashboard" }: SignupFormProps) {
+  const { isLoaded, signUp } = useSignUp();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SignupFormData>({
