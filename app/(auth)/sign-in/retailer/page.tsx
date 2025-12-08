@@ -12,6 +12,7 @@
 
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   Card,
@@ -21,7 +22,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, UserPlus } from "lucide-react";
-import SignInWithRedirectWrapper from "@/components/auth/sign-in-with-redirect-wrapper";
+
+const SignInWithRedirectWrapper = dynamic(
+  () => import("@/components/auth/sign-in-with-redirect-wrapper"),
+  { ssr: false },
+);
 
 export default function RetailerSignInPage() {
   return (
