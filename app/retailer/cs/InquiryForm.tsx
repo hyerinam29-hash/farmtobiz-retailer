@@ -15,16 +15,14 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Upload, Bot, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Upload, Bot, ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { createInquiry } from "@/actions/retailer/create-inquiry";
 import { updateInquiryFeedback } from "@/actions/retailer/inquiry-feedback";
 import { cn } from "@/lib/utils";
 
 const inquirySchema = z.object({
-  type: z.string().min(1, "문의 유형을 선택해주세요"),
   title: z.string().min(1, "제목을 입력해주세요").max(200, "제목은 200자 이하로 입력해주세요"),
   content: z.string().min(10, "내용을 10자 이상 입력해주세요"),
 });
@@ -47,19 +45,14 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-    watch,
     reset,
   } = useForm<InquiryFormData>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
-      type: "",
       title: "",
       content: "",
     },
   });
-
-  const inquiryType = watch("type");
 
   const onSubmit = async (data: InquiryFormData) => {
     console.log("📝 [InquiryForm] 문의 제출 시작", { data, userId });
@@ -68,7 +61,7 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
     try {
       // Server Action 호출
       const result = await createInquiry({
-        type: data.type,
+        type: "general",
         title: data.title,
         content: data.content,
       });
@@ -152,99 +145,69 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* 문의 작성 폼 */}
-      <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-sm">
-        <h2 className="text-[22px] font-bold leading-tight tracking-[-0.015em] text-gray-900 dark:text-gray-100 mb-3">
-          무엇을 도와드릴까요?
-        </h2>
-        <p className="text-base font-normal leading-normal text-gray-600 dark:text-gray-400 mb-6">
-          문의를 제출하시면 AI가 먼저 답변을 드립니다. AI의 답변이 만족스럽지 않을 경우, 사람 상담원에게 연결할 수 있습니다.
+      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div className="flex items-center gap-2 mb-4">
+          <MessageSquare className="w-6 h-6 text-green-600" />
+          <h2 className="text-2xl font-black text-gray-900">1:1 문의하기</h2>
+        </div>
+        <p className="text-sm md:text-base font-normal leading-normal text-gray-600 mb-6">
+          문의를 제출하시면 AI가 먼저 답변을 드립니다. AI의 답변이 만족스럽지 않을 경우 사람 상담원에게 연결할 수 있습니다.
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 문의 유형 */}
-            <div>
-              <Label htmlFor="inquiry-type" className="mb-2">
-                문의 유형
-              </Label>
-              <Select
-                value={inquiryType}
-                onValueChange={(value) => setValue("type", value)}
-              >
-                <SelectTrigger id="inquiry-type" className="h-12">
-                  <SelectValue placeholder="문의 유형을 선택해주세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="account">계정 문의</SelectItem>
-                  <SelectItem value="order">주문/결제</SelectItem>
-                  <SelectItem value="delivery">배송 관련</SelectItem>
-                  <SelectItem value="system">시스템 오류</SelectItem>
-                  <SelectItem value="other">기타</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.type && (
-                <p className="text-sm text-red-500 mt-1">{errors.type.message}</p>
-              )}
-            </div>
-
-            {/* 제목 */}
-            <div>
-              <Label htmlFor="inquiry-title" className="mb-2">
-                제목
-              </Label>
-              <Input
-                id="inquiry-title"
-                placeholder="문의 제목을 입력해주세요."
-                className="h-12"
-                {...register("title")}
-              />
-              {errors.title && (
-                <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-              )}
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          {/* 제목 */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="inquiry-title" className="text-sm font-semibold text-gray-800">
+              제목
+            </Label>
+            <Input
+              id="inquiry-title"
+              placeholder="제목을 입력하세요"
+              className="h-12 bg-gray-50 focus:bg-white"
+              {...register("title")}
+            />
+            {errors.title && (
+              <p className="text-sm text-red-500">{errors.title.message}</p>
+            )}
           </div>
 
           {/* 내용 */}
-          <div>
-            <Label htmlFor="inquiry-content" className="mb-2">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="inquiry-content" className="text-sm font-semibold text-gray-800">
               내용
             </Label>
             <Textarea
               id="inquiry-content"
-              placeholder="상세한 문의 내용을 작성해주세요."
+              placeholder="문의 내용을 입력하세요"
               rows={6}
-              className="resize-none"
+              className="resize-none bg-gray-50 focus:bg-white"
               {...register("content")}
             />
             {errors.content && (
-              <p className="text-sm text-red-500 mt-1">{errors.content.message}</p>
+              <p className="text-sm text-red-500">{errors.content.message}</p>
             )}
           </div>
 
           {/* 파일 첨부 */}
-          <div>
-            <Label htmlFor="file-upload" className="mb-2">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="file-upload" className="text-sm font-semibold text-gray-800">
               파일 첨부 (선택)
             </Label>
             <div className="flex items-center justify-center w-full">
               <label
                 htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-10 h-10 text-gray-500 dark:text-gray-400 mb-2" />
-                  <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                  <Upload className="w-10 h-10 text-gray-500 mb-2" />
+                  <p className="mb-2 text-sm text-gray-600">
                     <span className="font-semibold">클릭하여 업로드</span>하거나 파일을 드래그하세요.
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    PNG, JPG, PDF (MAX. 5MB)
-                  </p>
+                  <p className="text-xs text-gray-500">PNG, JPG, PDF (MAX. 5MB)</p>
                   {file && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
-                      선택된 파일: {file.name}
-                    </p>
+                    <p className="text-xs text-blue-600 mt-2">선택된 파일: {file.name}</p>
                   )}
                 </div>
                 <input
@@ -259,13 +222,13 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
           </div>
 
           {/* 제출 버튼 */}
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-end">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="min-w-[140px] h-12 px-6"
+              className="min-w-[140px] h-12 px-6 bg-green-500 hover:bg-green-400"
             >
-              {isSubmitting ? "제출 중..." : "AI에게 문의하기"}
+              {isSubmitting ? "제출 중..." : "문의하기"}
             </Button>
           </div>
         </form>
@@ -273,18 +236,18 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
 
       {/* AI 답변 섹션 */}
       {aiResponse && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-6 sm:p-8 rounded-xl border border-blue-200 dark:border-blue-800">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-4">
+        <div className="bg-blue-50 p-6 sm:p-8 rounded-2xl border border-blue-100">
+          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
             <Bot className="w-6 h-6 text-blue-500" />
             AI 챗봇의 답변입니다.
           </h3>
-          <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-700 dark:text-gray-300 text-base font-normal leading-relaxed whitespace-pre-line">
+          <div className="mt-4 p-4 bg-white rounded-lg border border-blue-100">
+            <p className="text-gray-700 text-base font-normal leading-relaxed whitespace-pre-line">
               {aiResponse}
             </p>
           </div>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <p className="text-sm font-medium text-gray-900">
               이 답변이 도움이 되셨나요?
             </p>
             <div className="flex items-center gap-2">
@@ -296,17 +259,19 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
                 className={cn(
                   "min-w-[80px]",
                   selectedFeedback === true
-                    ? "bg-green-500 dark:bg-green-600 text-black dark:text-black border-green-500 dark:border-green-600"
+                    ? "bg-green-500 text-white border-green-500"
                     : "",
                   (isSubmittingFeedback || selectedFeedback !== null) && selectedFeedback !== true
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 )}
               >
-                <ThumbsUp className={cn(
-                  "w-4 h-4 mr-2",
-                  selectedFeedback === true ? "text-green-600 dark:text-green-700" : "text-green-500"
-                )} />
+                <ThumbsUp
+                  className={cn(
+                    "w-4 h-4 mr-2",
+                    selectedFeedback === true ? "text-white" : "text-green-600"
+                  )}
+                />
                 네
               </Button>
               <Button
@@ -317,17 +282,19 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
                 className={cn(
                   "min-w-[80px]",
                   selectedFeedback === false
-                    ? "bg-red-500 dark:bg-red-600 text-black dark:text-black border-red-500 dark:border-red-600"
+                    ? "bg-red-500 text-white border-red-500"
                     : "",
                   (isSubmittingFeedback || selectedFeedback !== null) && selectedFeedback !== false
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 )}
               >
-                <ThumbsDown className={cn(
-                  "w-4 h-4 mr-2",
-                  selectedFeedback === false ? "text-red-600 dark:text-red-700" : "text-red-500"
-                )} />
+                <ThumbsDown
+                  className={cn(
+                    "w-4 h-4 mr-2",
+                    selectedFeedback === false ? "text-white" : "text-red-600"
+                  )}
+                />
                 아니요
               </Button>
               {/* 사람 상담 연결 버튼은 나중에 구현 */}
@@ -335,7 +302,7 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
                 variant="outline"
                 size="sm"
                 disabled
-                className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 opacity-50 cursor-not-allowed"
+                className="bg-blue-100 text-blue-600 opacity-50 cursor-not-allowed"
               >
                 <span className="mr-2">💬</span>
                 사람 상담 연결
