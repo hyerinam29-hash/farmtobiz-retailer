@@ -55,7 +55,6 @@ export default function RetailerSignInPage() {
               signUpUrl="/sign-up?type=retailer"
               fallbackRedirectUrl="/retailer-onboarding"
               forceRedirectUrl="/retailer-onboarding"
-              redirectToSignUpUrl="/sign-up?type=retailer"
               onboardingUrl="/retailer-onboarding"
             />
           </Suspense>

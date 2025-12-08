@@ -26,14 +26,6 @@ export default async function SignUpCustomPage({
 }: SignUpCustomPageProps) {
   const { type } = await searchParams;
 
-  // 역할별 리다이렉트 URL 결정
-  const afterSignUpUrl =
-    type === "retailer"
-      ? "/retailer/dashboard" // 소매점: 바로 대시보드로 이동
-      : type === "wholesaler"
-        ? "/wholesaler/onboarding" // 도매점: 온보딩 페이지
-        : "/retailer/dashboard"; // 기본값: 소매점 대시보드
-
   return (
     <div className="min-h-screen bg-[#F8F9FA] py-12 px-4 font-sans">
       <div className="max-w-2xl mx-auto">
@@ -48,7 +40,7 @@ export default async function SignUpCustomPage({
         </div>
 
         {/* 회원가입 폼 */}
-        <SignupForm afterSignUpUrl={afterSignUpUrl} />
+        <SignupForm />
       </div>
     </div>
   );
