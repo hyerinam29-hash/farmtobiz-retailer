@@ -22,13 +22,16 @@
  */
 
 import Link from "next/link";
-import { getRetailerProducts } from "@/lib/supabase/queries/retailer-products";
+import { getRetailerProducts, getAllBestRetailerProducts } from "@/lib/supabase/queries/retailer-products";
 import CategorySidebar from "@/components/retailer/category-sidebar";
 import CategoryHeader from "@/components/retailer/category-header";
 import SubCategoryTabs from "@/components/retailer/sub-category-tabs";
 import BestProductsSection from "@/components/retailer/best-products-section";
 import ProductListHeader from "@/components/retailer/product-list-header";
 import ProductCard from "@/components/retailer/product-card";
+import BestEventBanner from "@/components/retailer/best-event-banner";
+import BestTopThreeCard from "@/components/retailer/best-top-three-card";
+import BestListItem from "@/components/retailer/best-list-item";
 
 /**
  * 소매점 상품 목록 페이지 (서버 컴포넌트)
@@ -42,11 +45,15 @@ export default async function ProductsPage({
     search?: string;
     sortBy?: string;
     sortOrder?: string;
+    sort?: string;
   }>;
 }) {
   const params = await searchParams;
 
   console.log("🔍 [retailer-products-page] 페이지 로드", { params });
+
+  // 베스트 페이지 여부 확인
+  const isBestPage = params.sort === "popular";
 
   // 쿼리 파라미터 파싱
   const page = parseInt(params.page ?? "1", 10);
@@ -95,6 +102,21 @@ export default async function ProductsPage({
 
   const { products, total, totalPages } = productsData;
 
+  // 베스트 페이지 데이터 조회
+  let bestProducts: typeof products = [];
+  if (isBestPage) {
+    try {
+      console.log("🏆 [retailer-products-page] 베스트 상품 조회 시작");
+      bestProducts = await getAllBestRetailerProducts(10);
+      console.log("✅ [retailer-products-page] 베스트 상품 조회 완료", {
+        count: bestProducts.length,
+      });
+    } catch (error) {
+      console.error("❌ [retailer-products-page] 베스트 상품 조회 실패:", error);
+      bestProducts = [];
+    }
+  }
+
   // 페이지네이션 링크 생성 헬퍼 함수
   const getPaginationLink = (newPage: number) => {
     const params = new URLSearchParams();
@@ -103,9 +125,74 @@ export default async function ProductsPage({
     if (search) params.set("search", search);
     if (sortBy !== "created_at") params.set("sortBy", sortBy);
     if (sortOrder !== "desc") params.set("sortOrder", sortOrder);
+    if (isBestPage) params.set("sort", "popular");
     return `/retailer/products?${params.toString()}`;
   };
 
+  // 베스트 페이지 레이아웃
+  if (isBestPage) {
+    const topThree = bestProducts.slice(0, 3);
+    const restProducts = bestProducts.slice(3, 10);
+
+    return (
+      <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA]">
+        {/* 배경 장식 요소 */}
+        <div className="absolute -top-20 left-0 w-96 h-96 bg-gradient-to-br from-purple-100/40 to-transparent rounded-full blur-3xl -z-10"></div>
+        <div className="absolute top-1/2 right-0 w-80 h-80 bg-gradient-to-bl from-indigo-100/30 to-transparent rounded-full blur-3xl -z-10"></div>
+
+        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10 pb-20 relative z-10">
+          {/* 이벤트 배너 */}
+          <BestEventBanner />
+
+          {/* 실시간 베스트 랭킹 섹션 */}
+          <div className="mt-8 md:mt-12">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8 text-center flex items-center justify-center gap-2">
+              <span className="text-2xl md:text-3xl">👑</span>
+              <span>실시간 베스트 랭킹</span>
+            </h2>
+
+            {/* 1~3위 Top Rank */}
+            {topThree.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8 mb-12 md:mb-16">
+                {topThree.map((product, index) => (
+                  <BestTopThreeCard
+                    key={product.id}
+                    product={product}
+                    rank={(index + 1) as 1 | 2 | 3}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* 4~10위 List */}
+            {restProducts.length > 0 && (
+              <div className="space-y-4 md:space-y-6 max-w-4xl mx-auto">
+                {restProducts.map((product, index) => (
+                  <BestListItem
+                    key={product.id}
+                    product={product}
+                    rank={index + 4}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* 상품이 없을 때 */}
+            {bestProducts.length === 0 && (
+              <div className="w-full flex flex-col items-center justify-center py-[4.5rem]">
+                <p className="text-gray-500 text-xl md:text-2xl">베스트 상품이 없습니다.</p>
+                <p className="text-gray-400 text-sm md:text-base mt-3">
+                  곧 인기 상품을 만나보실 수 있습니다.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 일반 상품 목록 페이지 레이아웃
   return (
     <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA]">
       {/* 배경 장식 요소 */}

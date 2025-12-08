@@ -323,3 +323,73 @@ export async function getBestRetailerProducts(
   return products;
 }
 
+/**
+ * 전체 베스트 상품 조회 (인기순)
+ *
+ * 모든 카테고리의 베스트 상품을 조회합니다.
+ * 현재는 최근 생성된 순서로 정렬하지만, 향후 판매량이나 추천 기준으로 변경 예정.
+ *
+ * @param limit 조회할 상품 개수 (기본값: 10)
+ * @returns 베스트 상품 목록
+ */
+export async function getAllBestRetailerProducts(
+  limit: number = 10
+): Promise<RetailerProduct[]> {
+  console.log("🏆 [retailer-products-query] 전체 베스트 상품 조회 시작", {
+    limit,
+  });
+
+  const supabase = createClerkSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      `
+      *,
+      wholesalers!inner (
+        anonymous_code,
+        address
+      )
+    `
+    )
+    .eq("is_active", true)
+    // 현재는 최근 생성된 순서로 정렬 (향후 판매량/추천 기준으로 변경 예정)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("❌ [retailer-products-query] 전체 베스트 상품 조회 오류:", error);
+    throw new Error(`전체 베스트 상품 조회 실패: ${error.message}`);
+  }
+
+  // 데이터 변환: 익명화된 도매 정보 포함
+  const products: RetailerProduct[] = (data ?? []).map((item: any) => {
+    const wholesaler = Array.isArray(item.wholesalers)
+      ? item.wholesalers[0]
+      : item.wholesalers;
+
+    const addressParts = wholesaler?.address?.split(" ") || [];
+    const region =
+      addressParts.length >= 2
+        ? `${addressParts[0]} ${addressParts[1]}`
+        : wholesaler?.address || "";
+
+    const deliveryOptions = item.delivery_options || {};
+    const dawnDeliveryAvailable =
+      deliveryOptions.dawn_delivery_available === true;
+
+    return {
+      ...item,
+      wholesaler_anonymous_code: wholesaler?.anonymous_code || "Unknown",
+      wholesaler_region: region,
+      delivery_dawn_available: dawnDeliveryAvailable,
+    };
+  });
+
+  console.log("✅ [retailer-products-query] 전체 베스트 상품 조회 완료", {
+    count: products.length,
+  });
+
+  return products;
+}
+
