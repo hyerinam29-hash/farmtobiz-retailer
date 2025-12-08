@@ -3,10 +3,10 @@
  * @description 소매점 주문/결제 페이지
  *
  * 주요 기능:
- * 1. 배송 옵션 선택 (R.ORDER.01)
- * 2. 배송 시간 지정 (R.ORDER.02)
+ * 1. 결제 처리 및 금액 계산
+ * 2. 배송 요청사항 입력
  * 3. Toss Payments 연동 (R.ORDER.03)
- * 4. 수취인 플랫폼 (R.ORDER.04)
+ * 4. 수취인 정보 표시 (R.ORDER.04)
  * 5. 데이터 무결성 (R.ORDER.05)
  */
 
@@ -16,7 +16,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { Clock, Package, CreditCard } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { useTossPayment } from "@/hooks/use-toss-payment";
 import { createPayment } from "@/actions/retailer/create-payment";
@@ -39,9 +39,9 @@ export default function CheckoutPage() {
     };
   }, [items]);
 
-  // 배송 옵션 상태
-  const [deliveryOption, setDeliveryOption] = useState<"dawn" | "normal">("dawn");
-  const [deliveryTime, setDeliveryTime] = useState("06:00-07:00");
+  // 배송 옵션은 고정 (UI 제거)
+  const deliveryOption: "dawn" | "normal" = "dawn";
+  const deliveryTime = "06:00-07:00";
   const [deliveryNote, setDeliveryNote] = useState("");
 
   // 결제 수단 상태
@@ -250,68 +250,6 @@ export default function CheckoutPage() {
                   <p>{mockUserInfo.addressDetail}</p>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* 배송 옵션 */}
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-              배송 옵션
-            </h2>
-
-            <div className="space-y-3">
-              <label className="flex items-start gap-3 p-4 border-2 border-green-600 rounded-lg cursor-pointer bg-green-50 dark:bg-green-900/20">
-                <input
-                  type="radio"
-                  name="delivery-option"
-                  checked={deliveryOption === "dawn"}
-                  onChange={() => setDeliveryOption("dawn")}
-                  className="mt-0.5 w-5 h-5 text-green-600 focus:ring-green-500"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-4 h-4 text-green-600" />
-                    <span className="font-bold text-gray-900 dark:text-gray-100">
-                      새벽 배송
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    다음날 오전 7시 전 도착
-                  </p>
-                  {/* 시간 선택 */}
-                  {deliveryOption === "dawn" && (
-                    <select
-                      value={deliveryTime}
-                      onChange={(e) => setDeliveryTime(e.target.value)}
-                      className="mt-3 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm"
-                    >
-                      <option value="06:00-07:00">오전 6:00 ~ 7:00</option>
-                      <option value="07:00-08:00">오전 7:00 ~ 8:00</option>
-                    </select>
-                  )}
-                </div>
-              </label>
-
-              <label className="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <input
-                  type="radio"
-                  name="delivery-option"
-                  checked={deliveryOption === "normal"}
-                  onChange={() => setDeliveryOption("normal")}
-                  className="mt-0.5 w-5 h-5 text-green-600 focus:ring-green-500"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Package className="w-4 h-4 text-gray-600" />
-                    <span className="font-bold text-gray-900 dark:text-gray-100">
-                      일반 배송
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    2-3일 소요
-                  </p>
-                </div>
-              </label>
             </div>
           </div>
 

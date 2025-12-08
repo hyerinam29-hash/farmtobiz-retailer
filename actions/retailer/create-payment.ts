@@ -114,6 +114,21 @@ export async function createPayment(
       };
     }
 
+    // 2-1. 상품 ID 유효성 검증 (빈 값/undefined 방지)
+    const invalidItems = request.items.filter(
+      (item) => !item.product_id || typeof item.product_id !== "string"
+    );
+    if (invalidItems.length > 0) {
+      console.error("❌ 상품 ID 누락/유효하지 않음", {
+        invalidItems,
+      });
+      console.groupEnd();
+      return {
+        success: false,
+        error: "상품 정보가 올바르지 않습니다. 장바구니를 비우고 다시 담아주세요.",
+      };
+    }
+
     // 3. 서버 측 가격/재고 검증 (R.ORDER.05)
     console.log("🔍 서버 측 상품 검증 시작...");
     const supabase = getServiceRoleClient();
@@ -125,11 +140,14 @@ export async function createPayment(
       .in("id", productIds);
 
     if (productError) {
-      console.error("❌ 상품 조회 실패:", productError);
+      console.error("❌ 상품 조회 실패:", {
+        productError,
+        productIds,
+      });
       console.groupEnd();
       return {
         success: false,
-        error: "상품 정보 조회에 실패했습니다.",
+        error: `상품 정보 조회에 실패했습니다. (${productError.message || "알 수 없는 오류"})`,
       };
     }
 
