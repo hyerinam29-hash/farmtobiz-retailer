@@ -76,25 +76,6 @@ export default async function ProfileEditPage() {
           <Card className="border-gray-200 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                계정 관리
-              </CardTitle>
-              <CardDescription className="text-sm text-gray-600 dark:text-gray-300">
-                로그인 또는 계정 삭제를 진행할 수 있습니다.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-800 transition-colors dark:bg-gray-800 dark:text-gray-100">
-                로그아웃
-              </div>
-              <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 transition-colors dark:bg-red-900/40 dark:text-red-200">
-                계정 삭제
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-gray-200 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">
                 기타 설정
               </CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-gray-300">
@@ -151,6 +132,25 @@ export default async function ProfileEditPage() {
                   </div>
                 </div>
                 <span className="text-gray-400">›</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-200 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                계정 관리
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-600 dark:text-gray-300">
+                로그인 또는 계정 삭제를 진행할 수 있습니다.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-800 transition-colors dark:bg-gray-800 dark:text-gray-100">
+                로그아웃
+              </div>
+              <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 transition-colors dark:bg-red-900/40 dark:text-red-200">
+                계정 삭제
               </div>
             </CardContent>
           </Card>
