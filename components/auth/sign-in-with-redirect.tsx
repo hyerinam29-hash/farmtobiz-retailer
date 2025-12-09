@@ -47,16 +47,6 @@ if (typeof window !== "undefined") {
       const allText = document.body.textContent || "";
       const allTextLower = allText.toLowerCase();
 
-      // 20번마다 로그 (1초마다)
-      if (globalCheckCount % 20 === 0) {
-        console.log(
-          `🔍 [Global System] 체크 #${globalCheckCount} (${(
-            (globalCheckCount * 50) /
-            1000
-          ).toFixed(1)}초) - 텍스트 길이: ${allText.length}`,
-        );
-      }
-
       // 에러 패턴 체크
       const errorPatterns = [
         "the external account was not found",
@@ -212,24 +202,31 @@ export default function SignInWithRedirect({
   const { isSignedIn, isLoaded } = useUser();
   const { signOut } = useClerk();
   const [showSignUpModal, setShowSignUpModal] = useState(false);
-  const [showWholesalerBlockModal, setShowWholesalerBlockModal] = useState(false);
-  const [showDuplicateAccountModal, setShowDuplicateAccountModal] = useState(false);
+  const [showWholesalerBlockModal, setShowWholesalerBlockModal] =
+    useState(false);
+  const [showDuplicateAccountModal, setShowDuplicateAccountModal] =
+    useState(false);
+  const [isWholesalerChecking, setIsWholesalerChecking] = useState(false); // 도매 계정 확인 중 상태
+  const [roleCheckComplete, setRoleCheckComplete] = useState(false); // 역할 확인 완료 상태
   const prevSignedInRef = useRef(false);
   const duplicateCheckRef = useRef(false);
+  const roleCheckStartedRef = useRef(false); // 역할 확인 시작 여부
 
   // 🎯 /sign-in/create 경로 감지: 소셜 로그인 중복 가입 시도 시 Clerk가 리다이렉트하는 경로
   useEffect(() => {
     if (duplicateCheckRef.current) return;
 
     // 현재 경로가 /sign-in/create인지 확인
-    const isCreatePath = pathname?.includes("/sign-in/create") ||
-                         pathname?.includes("/sign-in/sso-callback") ||
-                         window.location.pathname.includes("/sign-in/create");
+    const isCreatePath =
+      pathname?.includes("/sign-in/create") ||
+      pathname?.includes("/sign-in/sso-callback") ||
+      window.location.pathname.includes("/sign-in/create");
 
     // redirect_url에 sign-up/create/sso-callback이 포함되어 있는지 확인
     const redirectUrl = searchParams?.get("redirect_url") || "";
-    const hasSsoCallback = redirectUrl.includes("sso-callback") ||
-                          redirectUrl.includes("sign_up_force_redirect");
+    const hasSsoCallback =
+      redirectUrl.includes("sso-callback") ||
+      redirectUrl.includes("sign_up_force_redirect");
 
     console.log("🔍 [Duplicate Check] 경로 확인:", {
       pathname,
@@ -240,7 +237,9 @@ export default function SignInWithRedirect({
 
     // /sign-in/create로 리다이렉트되었고 SSO 콜백 관련 URL이면 중복 가입 시도
     if (isCreatePath && hasSsoCallback) {
-      console.log("🚫 [Duplicate Check] 소셜 로그인 중복 가입 감지 - 모달 표시");
+      console.log(
+        "🚫 [Duplicate Check] 소셜 로그인 중복 가입 감지 - 모달 표시",
+      );
       duplicateCheckRef.current = true;
       setShowDuplicateAccountModal(true);
     }
@@ -248,17 +247,8 @@ export default function SignInWithRedirect({
 
   // 🎯 전역 에러 감지: Clerk가 DOM에 렌더링하는 에러 메시지를 감지
   useEffect(() => {
-    console.log("=".repeat(60));
-    console.log("🚨 [useEffect] 실행됨!");
-    console.log("🔍 [Global Listener] 에러 감지 리스너 시작");
-    console.log("=".repeat(60));
-
     // 🔥 전역 이벤트 리스너 등록 (전역 시스템에서 발생한 이벤트 감지)
     const handleGlobalError = (event: CustomEvent) => {
-      console.log("=".repeat(60));
-      console.log("✅✅✅ [Component] 전역 시스템에서 에러 감지 이벤트 수신!");
-      console.log("📝 [Component] 패턴:", event.detail);
-      console.log("=".repeat(60));
       setShowSignUpModal(true);
     };
 
@@ -290,14 +280,6 @@ export default function SignInWithRedirect({
 
       // 🔥 로그 출력 빈도 조절 (20번마다 - 50ms * 20 = 1초마다)
       const shouldLog = checkCount % 20 === 0;
-      if (shouldLog) {
-        console.log(
-          `🔍 [Global Listener] 체크 #${checkCount} (${(
-            (checkCount * 50) /
-            1000
-          ).toFixed(1)}초) - 전체 텍스트 길이: ${allText.length}`,
-        );
-      }
 
       // 🔥 더 많은 에러 메시지 변형 체크
       const errorPatterns = [
@@ -349,13 +331,6 @@ export default function SignInWithRedirect({
       for (const selector of errorSelectors) {
         const elements = document.querySelectorAll(selector);
         if (elements.length > 0) {
-          // 에러 요소 발견 시 로그 출력
-          if (shouldLog) {
-            console.log(
-              `🔍 [Global Listener] "${selector}" 발견: ${elements.length}개`,
-            );
-          }
-
           elements.forEach((element, index) => {
             const text = element.textContent?.toLowerCase() || "";
             if (text.length > 0) {
@@ -364,33 +339,30 @@ export default function SignInWithRedirect({
                 text.includes("external") ||
                 text.includes("account") ||
                 text.includes("not found")
-              ) {
-                console.log(
-                  `🔍 [Global Listener] 요소 ${index} 텍스트:`,
-                  text.substring(0, 200),
-                );
-              }
+              )
+                if (
+                  text.includes("external account") &&
+                  text.includes("not found")
+                ) {
+                  console.log("=".repeat(60));
+                  console.log(
+                    `✅✅✅ [Global Listener] 요소 ${index}에서 에러 감지!`,
+                  );
+                  console.log(
+                    `📝 [Global Listener] 전체 텍스트: ${text.substring(
+                      0,
+                      300,
+                    )}`,
+                  );
+                  console.log("=".repeat(60));
 
-              if (
-                text.includes("external account") &&
-                text.includes("not found")
-              ) {
-                console.log("=".repeat(60));
-                console.log(
-                  `✅✅✅ [Global Listener] 요소 ${index}에서 에러 감지!`,
-                );
-                console.log(
-                  `📝 [Global Listener] 전체 텍스트: ${text.substring(0, 300)}`,
-                );
-                console.log("=".repeat(60));
-
-                if (!modalShown) {
-                  hasDetected = true;
-                  modalShown = true;
-                  setShowSignUpModal(true);
+                  if (!modalShown) {
+                    hasDetected = true;
+                    modalShown = true;
+                    setShowSignUpModal(true);
+                  }
+                  return true; // 감지 성공
                 }
-                return true; // 감지 성공
-              }
             }
           });
         }
@@ -578,16 +550,21 @@ export default function SignInWithRedirect({
   }, [showSignUpModal]);
 
   // 도매점 계정 차단 로직: 로그인 성공 후 역할 확인
+  // ⚠️ 핵심: 로그인 상태가 되면 즉시 역할 확인, Clerk 리다이렉트보다 먼저 실행
   useEffect(() => {
     // 소매점 로그인 페이지에서만 체크
-    if (!pathname?.includes("/retailer") && !path?.includes("/retailer")) {
+    const isRetailerPage =
+      pathname?.includes("/retailer") || path?.includes("/retailer");
+    if (!isRetailerPage) {
       return;
     }
 
-    // 로그인 성공 감지
-    if (isLoaded && isSignedIn && !prevSignedInRef.current) {
-      console.log("🔍 [Wholesaler Block] 로그인 성공 감지 - 역할 확인 시작");
-      
+    // 로그인 완료 상태이고, 아직 역할 확인을 시작하지 않았으면
+    if (isLoaded && isSignedIn && !roleCheckStartedRef.current) {
+      console.log("🔍 [Wholesaler Block] 로그인 상태 감지 - 역할 확인 시작");
+      roleCheckStartedRef.current = true; // 중복 실행 방지
+      setIsWholesalerChecking(true);
+
       // 역할 확인 API 호출
       const checkUserRole = async () => {
         try {
@@ -603,25 +580,90 @@ export default function SignInWithRedirect({
       };
 
       checkUserRole().then((role) => {
+        setRoleCheckComplete(true);
+
         if (role === "wholesaler") {
-          console.log("🚫 [Wholesaler Block] 도매점 계정 감지 - 차단 모달 표시");
+          console.log(
+            "🚫 [Wholesaler Block] 도매점 계정 감지 - 차단 모달 표시",
+          );
           setShowWholesalerBlockModal(true);
-          
-          // Clerk 세션 종료 (로그아웃 처리)
-          signOut({ redirectUrl: window.location.href }).catch((error) => {
-            console.error("❌ [Wholesaler Block] 로그아웃 실패:", error);
-          });
+          // signOut은 모달에서 확인 버튼 클릭 시 실행
         } else {
-          console.log("✅ [Wholesaler Block] 소매점 계정 또는 역할 없음 - 정상 진행");
+          console.log(
+            "✅ [Wholesaler Block] 소매점 계정 또는 역할 없음 - 정상 진행",
+          );
+          setIsWholesalerChecking(false);
+
+          // 소매점 계정이면 수동으로 리다이렉트
+          const targetUrl =
+            forceRedirectUrl || fallbackRedirectUrl || "/retailer/dashboard";
+          console.log(
+            "🔀 [Wholesaler Block] 소매점 계정 - 수동 리다이렉트:",
+            targetUrl,
+          );
+          window.location.href = targetUrl;
         }
       });
     }
 
     // 이전 로그인 상태 업데이트
     if (isLoaded) {
-      prevSignedInRef.current = isSignedIn;
+      prevSignedInRef.current = isSignedIn ?? false;
     }
-  }, [isSignedIn, isLoaded, pathname, path, signOut]);
+  }, [
+    isSignedIn,
+    isLoaded,
+    pathname,
+    path,
+    forceRedirectUrl,
+    fallbackRedirectUrl,
+  ]);
+
+  // 도매 계정 확인 중일 때 페이지 이탈(리다이렉트) 방지
+  useEffect(() => {
+    if (!isWholesalerChecking && !showWholesalerBlockModal) return;
+
+    console.log("🛡️ [Wholesaler Block] 페이지 이탈 방지 활성화");
+
+    // history.pushState를 가로채서 리다이렉트 방지
+    const originalPushState = history.pushState.bind(history);
+    const originalReplaceState = history.replaceState.bind(history);
+
+    history.pushState = function (...args) {
+      if (isWholesalerChecking || showWholesalerBlockModal) {
+        console.log("🛡️ [Wholesaler Block] pushState 차단:", args[2]);
+        return;
+      }
+      return originalPushState(...args);
+    };
+
+    history.replaceState = function (...args) {
+      if (isWholesalerChecking || showWholesalerBlockModal) {
+        console.log("🛡️ [Wholesaler Block] replaceState 차단:", args[2]);
+        return;
+      }
+      return originalReplaceState(...args);
+    };
+
+    // window.location 변경 감지 (완전한 차단은 불가능하지만 로그는 가능)
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (showWholesalerBlockModal) {
+        console.log("🛡️ [Wholesaler Block] beforeunload 이벤트 발생");
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      history.pushState = originalPushState;
+      history.replaceState = originalReplaceState;
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      console.log("🛡️ [Wholesaler Block] 페이지 이탈 방지 해제");
+    };
+  }, [isWholesalerChecking, showWholesalerBlockModal]);
 
   // 소매사업자 확인 로직 (사용하지 않지만 타입 호환성을 위해 유지)
 
@@ -631,8 +673,8 @@ export default function SignInWithRedirect({
     console.log("📝 [Modal] 확인 버튼 클릭!");
 
     // 모달 확인 후 소매 로그인 페이지로 리다이렉트
-    const redirectUrl = pathname?.includes("/retailer") 
-      ? pathname 
+    const redirectUrl = pathname?.includes("/retailer")
+      ? pathname
       : path?.includes("/retailer")
       ? path
       : "/sign-in/retailer";
@@ -649,18 +691,40 @@ export default function SignInWithRedirect({
     window.location.href = redirectUrl;
   };
 
-  const userTypeMessage = "소매사업자로 시작하려면 먼저 회원가입을 진행해주세요.";
+  const userTypeMessage =
+    "소매사업자로 시작하려면 먼저 회원가입을 진행해주세요.";
+
+  // 소매점 로그인 페이지인지 확인
+  const isRetailerSignIn =
+    pathname?.includes("/retailer") || path?.includes("/retailer");
+
+  // ⚠️ 핵심: 로그인 완료 상태에서는 SignIn 컴포넌트를 렌더링하지 않음
+  // Clerk SignIn 컴포넌트가 isSignedIn=true일 때 자동 리다이렉트하는 것을 방지
+  const shouldHideSignIn = isRetailerSignIn && isLoaded && isSignedIn;
 
   return (
     <>
-      <SignIn
-        appearance={appearance}
-        routing="path"
-        path={path}
-        signUpUrl={signUpUrl}
-        fallbackRedirectUrl={fallbackRedirectUrl || afterSignInUrl}
-        forceRedirectUrl={forceRedirectUrl}
-      />
+      {/* 역할 확인 중일 때 로딩 표시 */}
+      {shouldHideSignIn && !roleCheckComplete && (
+        <div className="flex flex-col items-center justify-center p-8 min-h-[300px]">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent mb-4"></div>
+          <p className="text-gray-600">계정 정보를 확인하고 있습니다...</p>
+        </div>
+      )}
+
+      {/* 로그인 완료 상태가 아닐 때만 SignIn 컴포넌트 렌더링 */}
+      {!shouldHideSignIn && (
+        <SignIn
+          appearance={appearance}
+          routing="path"
+          path={path}
+          signUpUrl={signUpUrl}
+          fallbackRedirectUrl={
+            isRetailerSignIn ? undefined : fallbackRedirectUrl || afterSignInUrl
+          }
+          forceRedirectUrl={isRetailerSignIn ? undefined : forceRedirectUrl}
+        />
+      )}
 
       {/* 회원가입 안내 모달 */}
       <Dialog
@@ -724,17 +788,23 @@ export default function SignInWithRedirect({
               도매점 로그인 페이지를 이용해주세요.
             </DialogDescription>
           </DialogHeader>
-      <DialogFooter className="sm:justify-center">
-        <Button
-          onClick={() => {
-            setShowWholesalerBlockModal(false);
-            window.location.href = "/sign-in/retailer";
-          }}
-          className="min-w-72 bg-green-600 hover:bg-green-700 text-white"
-        >
-          확인
-        </Button>
-      </DialogFooter>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              onClick={async () => {
+                setShowWholesalerBlockModal(false);
+                // 모달 확인 후 로그아웃 처리
+                try {
+                  await signOut({ redirectUrl: "/sign-in/retailer" });
+                } catch (error) {
+                  console.error("❌ [Wholesaler Block] 로그아웃 실패:", error);
+                  window.location.href = "/sign-in/retailer";
+                }
+              }}
+              className="min-w-72 bg-green-600 hover:bg-green-700 text-white"
+            >
+              확인
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
