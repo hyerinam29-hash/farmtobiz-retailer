@@ -20,14 +20,14 @@ import { CreditCard } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { useTossPayment } from "@/hooks/use-toss-payment";
 import { createPayment } from "@/actions/retailer/create-payment";
-import type { DeliveryAddress } from "@/types/database";
+import type { RetailerInfo } from "@/actions/retailer/get-retailer-info";
 
 interface CheckoutPageClientProps {
-  defaultAddress: DeliveryAddress | null;
+  retailerInfo: RetailerInfo | null;
 }
 
 export default function CheckoutPageClient({
-  defaultAddress,
+  retailerInfo,
 }: CheckoutPageClientProps) {
   const router = useRouter();
   const { user } = useUser();
@@ -125,15 +125,10 @@ export default function CheckoutPageClient({
   const totalProductPrice = summary.totalProductPrice;
   const totalPrice = summary.totalPrice;
 
-  const hasDefaultAddress = Boolean(defaultAddress);
-
   // 배송지 정보 문자열 생성
   const getDeliveryAddressString = () => {
-    if (!defaultAddress) return "";
-    const detail = defaultAddress.address_detail
-      ? ` ${defaultAddress.address_detail}`
-      : "";
-    return `${defaultAddress.recipient_name} | ${defaultAddress.recipient_phone} | ${defaultAddress.address}${detail}`;
+    if (!retailerInfo) return "";
+    return `${retailerInfo.business_name} | ${retailerInfo.phone} | ${retailerInfo.address}`;
   };
 
   // 결제 처리 함수
@@ -149,8 +144,8 @@ export default function CheckoutPageClient({
       })),
     });
 
-    if (!defaultAddress) {
-      alert("배송지를 등록하거나 선택해주세요.");
+    if (!retailerInfo) {
+      alert("소매점 정보를 불러올 수 없습니다. 다시 시도해주세요.");
       return;
     }
 
@@ -220,10 +215,6 @@ export default function CheckoutPageClient({
     }
   };
 
-  const addressDetailText = defaultAddress?.address_detail
-    ? defaultAddress.address_detail
-    : "";
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* 헤더 */}
@@ -236,51 +227,45 @@ export default function CheckoutPageClient({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* 왼쪽: 주문 정보 */}
         <div className="lg:col-span-2 space-y-8">
-          {/* 배송 정보 */}
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                배송 정보
-              </h2>
-              <button className="text-sm text-green-600 dark:text-green-400 font-medium hover:underline">
-                변경
-              </button>
-            </div>
-
-            <div className="space-y-3 text-sm">
-              {hasDefaultAddress ? (
-                <>
-                  <div className="grid grid-cols-[100px_1fr] gap-4">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      받는 분
-                    </span>
-                    <span className="text-gray-900 dark:text-gray-100">
-                      {defaultAddress?.recipient_name}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[100px_1fr] gap-4">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      연락처
-                    </span>
-                    <span className="text-gray-900 dark:text-gray-100">
-                      {defaultAddress?.recipient_phone}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[100px_1fr] gap-4">
-                    <span className="text-gray-600 dark:text-gray-400">주소</span>
-                    <div className="text-gray-900 dark:text-gray-100">
-                      <p>{defaultAddress?.address}</p>
-                      {addressDetailText && <p>{addressDetailText}</p>}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-gray-700 dark:text-gray-300">
-                  등록된 배송지가 없습니다. 배송지를 추가하고 기본 배송지를 설정해 주세요.
+          {/* 배송지 정보 (소매점 기본 정보 사용) */}
+          {retailerInfo && (
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  배송지 정보
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log("배송지 변경 버튼 클릭");
+                  }}
+                  className="text-sm text-green-600 dark:text-green-400 font-medium hover:underline"
+                >
+                  변경
+                </button>
+              </div>
+              <div className="space-y-3 text-sm">
+                <div className="grid grid-cols-[100px_1fr] gap-4">
+                  <span className="text-gray-600 dark:text-gray-400">상호명</span>
+                  <span className="text-gray-900 dark:text-gray-100">
+                    {retailerInfo.business_name}
+                  </span>
                 </div>
-              )}
+                <div className="grid grid-cols-[100px_1fr] gap-4">
+                  <span className="text-gray-600 dark:text-gray-400">연락처</span>
+                  <span className="text-gray-900 dark:text-gray-100">
+                    {retailerInfo.phone}
+                  </span>
+                </div>
+                <div className="grid grid-cols-[100px_1fr] gap-4">
+                  <span className="text-gray-600 dark:text-gray-400">사업장 주소</span>
+                  <span className="text-gray-900 dark:text-gray-100">
+                    {retailerInfo.address}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* 배송 요청사항 */}
           <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -436,15 +421,15 @@ export default function CheckoutPageClient({
                   !isPaymentReady ||
                   isPaymentLoading ||
                   (paymentMethod === "toss" && !TOSS_CLIENT_KEY) ||
-                  !hasDefaultAddress
+                  !retailerInfo
                 }
                 className="w-full py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
               >
-                {hasDefaultAddress
+                {retailerInfo
                   ? isPaymentLoading
                     ? "결제 진행 중..."
                     : `${summary.totalPrice.toLocaleString()}원 결제하기`
-                  : "배송지를 등록해주세요"}
+                  : "소매점 정보를 불러오지 못했습니다"}
               </button>
 
               <p className="mt-3 text-xs text-center text-gray-500 dark:text-gray-400">
