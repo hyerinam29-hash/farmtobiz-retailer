@@ -261,6 +261,7 @@ PRD 3.5 섹션 참조.
 ---
 
 ### 🛠 최근 수정 로그
+- 2025-12-09: 소매 프로필 페이지에서 배송지 관리 탭 제거 (회원정보 수정만 노출)
 - 2025-12-08: Clerk SignIn props 정리 (redirectToSignUpUrl 제거로 타입 에러 해결)
 - 2025-12-08: page-header 빈 인터페이스 제거로 ESLint 에러 해결
 - 2025-12-08: Vercel 빌드 TypeScript 에러 수정 (original_name 필드 제거)
