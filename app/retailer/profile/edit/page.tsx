@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/card";
 import NotificationSettingsCard from "@/components/retailer/profile/notification-settings-card";
 import ProfileEditFormClient from "@/components/retailer/profile/profile-edit-form-client";
+import LogoutButton from "@/components/retailer/profile/logout-button";
 
 export default async function ProfileEditPage() {
   // 소매점 권한 확인
@@ -146,8 +147,8 @@ export default async function ProfileEditPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-800 transition-colors dark:bg-gray-800 dark:text-gray-100">
-                로그아웃
+              <div className="rounded-lg bg-gray-50 px-4 py-3 transition-colors dark:bg-gray-800">
+                <LogoutButton />
               </div>
               <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 transition-colors dark:bg-red-900/40 dark:text-red-200">
                 계정 삭제
