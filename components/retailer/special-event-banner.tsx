@@ -16,7 +16,7 @@ const HERO_IMAGE =
 
 export default function SpecialEventBanner() {
   return (
-    <div className="relative bg-gradient-to-br from-red-600 to-orange-600 rounded-3xl overflow-hidden shadow-xl transition-all duration-500 group">
+    <div className="relative bg-gradient-to-br from-red-600 to-orange-600 rounded-3xl overflow-hidden shadow-xl">
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-8 md:p-16 gap-8 md:gap-12">
         {/* 왼쪽 텍스트 영역 */}
         <div className="text-white max-w-xl relative z-20 text-center md:text-left space-y-6">
@@ -50,7 +50,7 @@ export default function SpecialEventBanner() {
 
         {/* 오른쪽 이미지 영역 */}
         <div className="relative z-20 perspective-1000">
-          <div className="w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 transform -rotate-3 group-hover:rotate-0 transition-all duration-500 bg-white/10">
+          <div className="w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 bg-white/10">
             <Image
               src={HERO_IMAGE}
               alt="신선한 샐러드 특가 이미지"

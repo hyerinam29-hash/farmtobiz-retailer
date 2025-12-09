@@ -268,7 +268,7 @@ export default function RetailerDashboardPage() {
             <p className="text-gray-600 text-lg">제주의 햇살을 머금은 달콤한 감귤</p>
             
             <div className="flex items-end gap-3">
-              <span className="text-4xl font-black text-gray-900">18,900원</span>
+              <span className="text-4xl font-black text-gray-900">11,000원</span>
               <span className="text-xl text-gray-400 line-through mb-1">31,500원</span>
             </div>
 

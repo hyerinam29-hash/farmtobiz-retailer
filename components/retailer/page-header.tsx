@@ -366,9 +366,9 @@ export default function PageHeader() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-1.5 text-sm font-medium transition-colors",
+                      "flex h-full items-center gap-1.5 text-sm font-medium transition-colors border-b-2 border-transparent",
                       active
-                        ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 pb-3"
+                        ? "text-green-600 dark:text-green-400 border-green-600 dark:border-green-400"
                         : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                     )}
                   >

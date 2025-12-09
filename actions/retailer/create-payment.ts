@@ -134,6 +134,23 @@ export async function createPayment(
     const supabase = getServiceRoleClient();
     
     const productIds = request.items.map(item => item.product_id);
+
+    // UUID 형식 검증 (대시보드 임시 핫딜 목데이터 등 문자열 ID 방지)
+    const isUuid = (value: string) =>
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+        value
+      );
+    const invalidUuidIds = productIds.filter((id) => !isUuid(id));
+    if (invalidUuidIds.length > 0) {
+      console.error("❌ 상품 ID가 UUID 형식이 아님:", invalidUuidIds);
+      console.groupEnd();
+      return {
+        success: false,
+        error:
+          "장바구니에 테스트 상품이 포함되어 있어 결제를 진행할 수 없습니다. 장바구니를 비우고 실제 상품을 다시 담아주세요.",
+      };
+    }
+
     const { data: products, error: productError } = await supabase
       .from("products")
       .select("id, standardized_name, original_name, price, stock_quantity, wholesaler_id, shipping_fee, is_active")

@@ -27,7 +27,7 @@ export default function RetailerLayoutClient({
       <PageHeader />
 
       {/* 메인 컨텐츠 */}
-      <main className="flex-1 max-w-none mx-0 pt-0 px-0">{children}</main>
+      <main className="flex-1 max-w-none mx-0 pt-0 px-0 -mt-[11px]">{children}</main>
     </div>
   );
 }

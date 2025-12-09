@@ -10,7 +10,7 @@ import { RefreshCw } from "lucide-react";
 
 export default function BestEventBanner() {
   return (
-    <div className="relative bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl overflow-hidden shadow-xl transform hover:scale-[1.005] transition-all duration-500 group mb-12">
+    <div className="relative bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl overflow-hidden shadow-xl group mb-12">
       {/* 배경 장식 */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-indigo-700/20"></div>
       
@@ -50,7 +50,7 @@ export default function BestEventBanner() {
 
         {/* 오른쪽 이미지 영역 (모바일에서는 숨김) */}
         <div className="relative z-20 perspective-1000 mt-4 md:mt-0">
-          <div className="w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 transform -rotate-3 hover:rotate-0 transition-all duration-500 bg-purple-200 flex items-center justify-center">
+          <div className="w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 bg-purple-200 flex items-center justify-center">
             <span className="text-6xl">👑</span>
           </div>
         </div>

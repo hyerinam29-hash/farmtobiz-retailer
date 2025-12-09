@@ -71,6 +71,7 @@ export default function CheckoutPageClient({
     isReady: isPaymentReady,
     isLoading: isPaymentLoading,
     renderPaymentMethods,
+    renderAgreements,
     requestPayment,
     updateAmount,
   } = useTossPayment({
@@ -97,8 +98,9 @@ export default function CheckoutPageClient({
   useEffect(() => {
     if (isPaymentReady && paymentMethodsRef.current && paymentMethod === "toss") {
       renderPaymentMethods("#payment-methods-widget");
+      renderAgreements("#payment-agreements-widget");
     }
-  }, [isPaymentReady, paymentMethod, renderPaymentMethods]);
+  }, [isPaymentReady, paymentMethod, renderAgreements, renderPaymentMethods]);
 
   // 금액 변경 시 위젯 업데이트
   useEffect(() => {
@@ -202,6 +204,12 @@ export default function CheckoutPageClient({
           alert("결제 위젯이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
           return;
         }
+
+        // 서버 금액 기준으로 위젯 금액 업데이트 및 위젯 재렌더 보강
+        const serverAmount = paymentResult.amount || summary.totalPrice;
+        updateAmount(serverAmount);
+        renderPaymentMethods("#payment-methods-widget");
+        renderAgreements("#payment-agreements-widget");
 
         // 위젯에 주문 정보 업데이트 후 결제 요청
         await requestPayment(paymentResult.orderId, paymentResult.orderName);
@@ -370,6 +378,12 @@ export default function CheckoutPageClient({
                       )}
                     </>
                   )}
+                </div>
+                <div
+                  id="payment-agreements-widget"
+                  className="mb-4 min-h-[120px] rounded-lg border border-dashed border-gray-200 dark:border-gray-700 p-3 text-sm text-gray-500 dark:text-gray-400"
+                >
+                  {!isPaymentReady && paymentMethod === "toss" && "약관 위젯을 불러오는 중..."}
                 </div>
 
                 <div className="space-y-2">

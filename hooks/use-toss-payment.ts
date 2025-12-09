@@ -39,6 +39,7 @@ export function useTossPayment({
   const [isLoading, setIsLoading] = useState(false);
   const paymentWidgetRef = useRef<PaymentWidgetInstance | null>(null);
   const paymentMethodsWidgetRef = useRef<ReturnType<PaymentWidgetInstance["renderPaymentMethods"]> | null>(null);
+  const agreementWidgetRenderedRef = useRef(false);
 
   // 위젯 초기화
   useEffect(() => {
@@ -95,6 +96,27 @@ export function useTossPayment({
       console.log("✅ [토스페이먼츠] 결제 수단 위젯 렌더링 완료");
     } catch (error) {
       console.error("❌ [토스페이먼츠] 결제 수단 위젯 렌더링 실패:", error);
+    }
+  };
+
+  // 약관 위젯 렌더링 (V2 필수)
+  const renderAgreements = (selector: string) => {
+    if (!paymentWidgetRef.current || !isReady) {
+      console.warn("⚠️ [토스페이먼츠] 약관 위젯이 준비되지 않았습니다.");
+      return;
+    }
+
+    try {
+      if (agreementWidgetRenderedRef.current) {
+        console.log("ℹ️ [토스페이먼츠] 약관 위젯은 이미 렌더링되었습니다.");
+        return;
+      }
+
+      paymentWidgetRef.current.renderAgreement(selector, { variantKey: "AGREEMENT" });
+      agreementWidgetRenderedRef.current = true;
+      console.log("✅ [토스페이먼츠] 약관 위젯 렌더링 완료");
+    } catch (error) {
+      console.error("❌ [토스페이먼츠] 약관 위젯 렌더링 실패:", error);
     }
   };
 
@@ -175,6 +197,7 @@ export function useTossPayment({
     isReady,
     isLoading,
     renderPaymentMethods,
+    renderAgreements,
     requestPayment,
     updateAmount,
   };
