@@ -285,113 +285,123 @@ export default function ProfileEditForm() {
         }}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-4xl">내 정보 수정</CardTitle>
-          <CardDescription className="text-2xl">
-            소매점의 기본 정보를 수정할 수 있습니다.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
-            {/* 상호명 */}
-            <FormField
-              control={form.control}
-              name="business_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-2xl">상호명</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="예: 강남식자재마트"
-                      {...field}
-                      disabled={isLoading}
-                      className="h-16 text-2xl"
-                    />
-                  </FormControl>
-                  <FormDescription className="text-2xl">
-                    현재 상호명: {initialData?.business_name || "없음"}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* 전화번호 */}
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-2xl">전화번호</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="010-1234-5678"
-                      {...field}
-                      onChange={(e) => {
-                        handlePhoneChange(e.target.value);
-                      }}
-                      disabled={isLoading}
-                      className="h-16 text-2xl"
-                    />
-                  </FormControl>
-                  <FormDescription className="text-2xl">
-                    현재 전화번호: {initialData?.phone || "없음"}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* 주소 */}
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-2xl">주소</FormLabel>
-                  <FormControl>
-                    <div className="flex gap-3">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card className="border-gray-200 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="space-y-1">
+                <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-50">
+                  프로필 정보
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-600 dark:text-gray-300">
+                  소매점의 기본 정보를 수정하세요.
+                </CardDescription>
+              </div>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="h-11 px-6 text-sm font-semibold bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-600 transition-colors"
+              >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                저장
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* 상호명 */}
+              <FormField
+                control={form.control}
+                name="business_name"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      상호명
+                    </FormLabel>
+                    <FormControl>
                       <Input
-                        placeholder="예: 서울시 강남구 테헤란로 123"
+                        placeholder="예: 강남식자재마트"
                         {...field}
                         disabled={isLoading}
-                        className="h-16 text-2xl flex-1"
-                        readOnly
-                        onClick={handleAddressSearch}
+                        className="h-12 text-base bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-50"
                       />
-                      <Button
-                        type="button"
-                        onClick={handleAddressSearch}
-                        disabled={isLoading || !isPostcodeLoaded}
-                        className="h-16 px-8 text-2xl"
-                        variant="outline"
-                      >
-                        <MapPin className="w-6 h-6 mr-3" />
-                        주소 검색
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormDescription className="text-2xl">
-                    현재 주소: {initialData?.address || "없음"}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
+                      현재 상호명: {initialData?.business_name || "없음"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* 제출 버튼 */}
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isLoading} className="h-16 text-2xl px-12 py-6">
-                {isLoading && <Loader2 className="mr-6 h-10 w-10 animate-spin" />}
-                수정하기
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              {/* 전화번호 */}
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      전화번호
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="010-1234-5678"
+                        {...field}
+                        onChange={(e) => {
+                          handlePhoneChange(e.target.value);
+                        }}
+                        disabled={isLoading}
+                        className="h-12 text-base bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-50"
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
+                      현재 전화번호: {initialData?.phone || "없음"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 주소 */}
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      주소
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex flex-col gap-3 md:flex-row">
+                        <Input
+                          placeholder="예: 서울시 강남구 테헤란로 123"
+                          {...field}
+                          disabled={isLoading}
+                          className="h-12 flex-1 text-base bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-50"
+                          readOnly
+                          onClick={handleAddressSearch}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleAddressSearch}
+                          disabled={isLoading || !isPostcodeLoaded}
+                          className="h-12 px-5 text-sm"
+                          variant="outline"
+                        >
+                          <MapPin className="mr-2 h-4 w-4" />
+                          주소 검색
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
+                      현재 주소: {initialData?.address || "없음"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+        </form>
+      </Form>
     </>
   );
 }
