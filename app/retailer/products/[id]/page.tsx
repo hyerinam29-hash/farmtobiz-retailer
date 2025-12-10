@@ -15,13 +15,13 @@
  * @see {@link PRD.md} - R.SEARCH.04, R.SEARCH.05 요구사항
  */
 
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, Truck, Package } from "lucide-react";
 import { getRetailerProductById } from "@/lib/supabase/queries/retailer-products";
 import { ProductDetailTabs } from "./product-detail-tabs";
 import { ProductActions } from "./product-actions";
+import ProductImageGallery from "./product-image-gallery";
 
 export default async function ProductDetailPage({
   params,
@@ -72,21 +72,13 @@ export default async function ProductDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
         {/* 왼쪽: 이미지 */}
         <div className="flex flex-col gap-4">
-          <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-700">
-            {product.image_url ? (
-              <Image
-                src={product.image_url}
-                alt={product.standardized_name || product.name}
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-gray-400 text-base">이미지 없음</span>
-              </div>
-            )}
-          </div>
+          <ProductImageGallery
+            images={[
+              product.image_url,
+              ...(((product as { images?: string[] }).images) ?? []),
+            ].filter(Boolean)}
+            productName={product.standardized_name || product.name}
+          />
         </div>
 
         {/* 오른쪽: 정보 */}
