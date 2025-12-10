@@ -73,10 +73,8 @@ export default async function ProductDetailPage({
         {/* 왼쪽: 이미지 */}
         <div className="flex flex-col gap-4">
           <ProductImageGallery
-            images={[
-              product.image_url,
-              ...(((product as { images?: string[] }).images) ?? []),
-            ].filter(Boolean)}
+            mainImage={product.image_url}
+            thumbnails={((product as { images?: string[] }).images) ?? []}
             productName={product.standardized_name || product.name}
           />
         </div>

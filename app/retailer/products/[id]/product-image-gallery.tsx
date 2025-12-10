@@ -18,25 +18,28 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface ProductImageGalleryProps {
-  images: string[];
+  mainImage?: string | null;
+  thumbnails: string[];
   productName: string;
 }
 
-export default function ProductImageGallery({ images, productName }: ProductImageGalleryProps) {
-  const safeImages = images.filter(Boolean);
+export default function ProductImageGallery({ mainImage, thumbnails, productName }: ProductImageGalleryProps) {
+  const safeThumbnails = thumbnails.filter(Boolean);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const displayedMain = mainImage || safeThumbnails[activeIndex];
 
   console.log("🖼️ [product-image-gallery] 이미지 변경", {
     activeIndex,
-    image: safeImages[activeIndex],
+    image: displayedMain,
   });
 
   return (
     <div className="flex flex-col gap-4">
       <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-200">
-        {safeImages[activeIndex] ? (
+        {displayedMain ? (
           <Image
-            src={safeImages[activeIndex]}
+            src={displayedMain}
             alt={`${productName} 대표 이미지`}
             fill
             className="object-cover"
@@ -49,9 +52,9 @@ export default function ProductImageGallery({ images, productName }: ProductImag
         )}
       </div>
 
-      {safeImages.length > 1 && (
+      {safeThumbnails.length > 0 && (
         <div className="flex gap-3 overflow-x-auto pb-1">
-          {safeImages.map((src, idx) => (
+          {safeThumbnails.map((src, idx) => (
             <button
               key={`${src}-${idx}`}
               type="button"
