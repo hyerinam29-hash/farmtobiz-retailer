@@ -9,14 +9,14 @@
  * 1. 결제 성공 확인
  * 2. 주문 생성 (Server Action 호출)
  * 3. 장바구니 비우기
- * 4. 주문 내역 페이지로 이동
+ * 4. 주문 완료 UI 표시 및 주문/쇼핑 이동 버튼
  */
 
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle, Loader2, AlertCircle, FileText, ShoppingBag } from "lucide-react";
 import { createOrder } from "@/actions/retailer/create-order";
 import { useCartStore } from "@/stores/cart-store";
 
@@ -124,21 +124,19 @@ export default function PaymentSuccessPage() {
   // 로딩 상태
   if (status === "loading") {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-16">
-        <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-              <Loader2 className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin" />
-            </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+        <div className="w-full max-w-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg p-8 text-center space-y-4">
+          <div className="mx-auto flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30">
+            <Loader2 className="w-12 h-12 text-blue-600 dark:text-blue-300 animate-spin" />
           </div>
-          
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            주문을 처리하고 있습니다...
-          </h1>
-          
-          <p className="text-gray-600 dark:text-gray-400">
-            잠시만 기다려주세요.
-          </p>
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+              주문을 처리하고 있습니다...
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-base">
+              잠시만 기다려주세요.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -147,37 +145,34 @@ export default function PaymentSuccessPage() {
   // 에러 상태
   if (status === "error") {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-16">
-        <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
-              <AlertCircle className="w-12 h-12 text-red-600 dark:text-red-400" />
-            </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+        <div className="w-full max-w-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg p-8 text-center space-y-4">
+          <div className="mx-auto flex items-center justify-center w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30">
+            <AlertCircle className="w-12 h-12 text-red-600 dark:text-red-300" />
           </div>
-          
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            주문 처리 중 문제가 발생했습니다
-          </h1>
-          
-          <p className="text-gray-600 dark:text-gray-400 mb-2">
-            {errorMessage}
-          </p>
-          
-          <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">
-            결제는 완료되었으나 주문 생성에 실패했습니다.<br />
-            고객센터로 문의해주세요.
-          </p>
-          
+
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+              주문 처리 중 문제가 발생했습니다
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-base">
+              {errorMessage}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              결제는 완료되었으나 주문 생성에 실패했습니다. 고객센터로 문의해주세요.
+            </p>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => router.push("/retailer/cs")}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              className="flex-1 px-6 py-3 rounded-xl font-semibold bg-red-600 hover:bg-red-700 text-white transition-colors"
             >
               고객센터 문의
             </button>
             <button
               onClick={() => router.push("/retailer/dashboard")}
-              className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
+              className="flex-1 px-6 py-3 rounded-xl font-semibold bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               홈으로 이동
             </button>
@@ -189,48 +184,48 @@ export default function PaymentSuccessPage() {
 
   // 성공 상태
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16">
-      <div className="text-center">
-        <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-12 md:py-16">
+      <div className="w-full max-w-3xl">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-6 md:p-10 text-center space-y-8">
+          <div className="flex justify-center">
+            <div className="w-24 h-24 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
+            </div>
           </div>
-        </div>
-        
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          주문이 완료되었습니다!
-        </h1>
-        
-        {orderNumbers.length > 0 && (
-          <div className="mb-4">
-            <p className="text-gray-600 dark:text-gray-400 mb-2">
-              주문번호
+
+          <div className="space-y-3">
+            <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100">
+              주문이 완료되었습니다!
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 text-base md:text-lg leading-relaxed">
+              고객님의 주문이 성공적으로 접수되었습니다.<br className="hidden md:block" />
+              빠르고 안전하게 배송해 드리겠습니다.
             </p>
-            {orderNumbers.map((num) => (
-              <p key={num} className="font-semibold text-gray-900 dark:text-gray-100">
-                {num}
-              </p>
-            ))}
           </div>
-        )}
-        
-        <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">
-          주문 내역에서 배송 상태를 확인하실 수 있습니다.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={() => router.push("/retailer/orders")}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          >
-            주문 내역 보기
-          </button>
-          <button
-            onClick={() => router.push("/retailer/products")}
-            className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
-          >
-            쇼핑 계속하기
-          </button>
+
+          <div className="w-full max-w-md mx-auto bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400">주문번호</p>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-wider font-mono">
+              {orderNumbers[0] || orderId}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => router.push("/retailer/orders")}
+              className="w-full sm:w-auto flex-1 sm:flex-initial px-6 py-3 md:px-8 md:py-3.5 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-transparent text-gray-700 dark:text-gray-100 font-bold flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <FileText className="w-5 h-5" />
+              주문 내역 확인
+            </button>
+            <button
+              onClick={() => router.push("/retailer/products")}
+              className="w-full sm:w-auto flex-1 sm:flex-initial px-6 py-3 md:px-8 md:py-3.5 rounded-xl font-bold text-white bg-green-500 hover:bg-green-600 border-b-4 border-green-700 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              쇼핑 계속하기
+            </button>
+          </div>
         </div>
       </div>
     </div>
