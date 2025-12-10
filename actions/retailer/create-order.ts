@@ -144,7 +144,7 @@ export async function createOrder(
         ? request.orderId
         : `${request.orderId}-${i + 1}`;
 
-      const itemTotalAmount = item.unit_price * item.quantity + item.shipping_fee;
+      const itemTotalAmount = item.unit_price * item.quantity + (item.shipping_fee ?? 0);
 
       // 주문 데이터 생성
       const orderData = {
@@ -154,7 +154,7 @@ export async function createOrder(
         order_number: orderNumber,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        shipping_fee: item.shipping_fee,
+        shipping_fee: item.shipping_fee ?? 0,
         total_amount: itemTotalAmount,
         delivery_address: request.deliveryAddress,
         request_note: request.deliveryNote || null,

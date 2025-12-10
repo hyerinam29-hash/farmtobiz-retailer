@@ -80,7 +80,11 @@ export default function PaymentSuccessPage() {
         const result = await createOrder({
           paymentKey,
           orderId,
-          items: pendingOrder.items,
+          // 배송비를 사용하지 않는 현재 정책에 맞춰 0으로 보정
+          items: pendingOrder.items.map((item: any) => ({
+            ...item,
+            shipping_fee: item.shipping_fee ?? 0,
+          })),
           deliveryOption: pendingOrder.deliveryOption,
           deliveryTime: pendingOrder.deliveryTime,
           deliveryNote: pendingOrder.deliveryNote,
@@ -219,7 +223,7 @@ export default function PaymentSuccessPage() {
               주문 내역 확인
             </button>
             <button
-              onClick={() => router.push("/retailer/products")}
+              onClick={() => router.push("/retailer/dashboard")}
               className="w-full sm:w-auto flex-1 sm:flex-initial px-6 py-3 md:px-8 md:py-3.5 rounded-xl font-bold text-white bg-green-500 hover:bg-green-600 border-b-4 border-green-700 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
             >
               <ShoppingBag className="w-5 h-5" />

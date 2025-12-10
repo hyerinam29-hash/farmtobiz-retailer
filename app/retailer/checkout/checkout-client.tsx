@@ -177,9 +177,15 @@ export default function CheckoutPageClient({
       setPaymentOrderName(paymentResult.orderName || "주문");
 
       // localStorage 저장 로직
+      // 배송비를 사용하지 않는 정책에 맞춰 shipping_fee를 0으로 보정
+      const itemsForOrder = (paymentResult.validatedItems ?? items).map((item) => ({
+        ...item,
+        shipping_fee: item.shipping_fee ?? 0,
+      }));
+
       const pendingOrderData = {
         orderId: paymentResult.orderId,
-        items: items,
+        items: itemsForOrder,
         deliveryOption,
         deliveryTime,
         deliveryNote,

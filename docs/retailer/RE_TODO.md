@@ -200,6 +200,10 @@ PRD 3.4 섹션 참조.
   - [X] 토스 결제 테스트 페이지 구현 (`/retailer/payment/test`)
     - [X] 임시 토스 결제 테스트 페이지 생성
     - [X] 나중에 실제 결제 플로우와 연결 가능하도록 구조화
+- [X] 배송비 0원 정책 반영
+  - [X] 주문 생성 시 shipping_fee 기본값 0으로 보정 (pendingOrder → createOrder)
+  - [X] 결제 요청 저장 시 shipping_fee 0 보정 (pendingOrderData)
+  - [X] create-order 서버 액션 shipping_fee 기본 0 보정
 - [X] 주문 생성 (R.ORDER.05)
   - [X] 주문 데이터 검증 및 DB 생성 (Server Action)
     - [X] DB 마이그레이션: orders 테이블에 delivery_option, delivery_time, payment_key, paid_at 필드 추가
@@ -265,6 +269,7 @@ PRD 3.5 섹션 참조.
 ---
 
 ### 🛠 최근 수정 로그
+- 2025-12-10: 주문 완료 화면의 "쇼핑 계속하기" 이동 경로를 `/retailer/dashboard`로 변경
 - 2025-12-10: pnpm-lock.yaml 동기화로 Vercel `pnpm install` 실패 해결 (@tosspayments/tosspayments-sdk 교체 반영)
 - 2025-12-10: 결제 완료 시 주문 완료 페이지 디자인 적용 및 즉시 노출
 - 2025-12-09: 주문/결제 페이지에 소매점 정보(상호/주소/연락처) 표시
