@@ -28,13 +28,13 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
             value="details"
             className="data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-600 data-[state=active]:bg-transparent rounded-none pb-4 px-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           >
-            상세 정보
+            상세정보
           </TabsTrigger>
           <TabsTrigger
             value="delivery"
             className="data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-600 data-[state=active]:bg-transparent rounded-none pb-4 px-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           >
-            배송 안내
+            배송안내
           </TabsTrigger>
           <TabsTrigger
             value="return"

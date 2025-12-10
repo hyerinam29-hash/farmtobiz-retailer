@@ -125,6 +125,7 @@ export function ProductActions({ product }: ProductActionsProps) {
 
   return (
     <div className="flex flex-col gap-6">
+
       {/* 수량 선택 */}
       <div className="flex flex-col gap-3">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">

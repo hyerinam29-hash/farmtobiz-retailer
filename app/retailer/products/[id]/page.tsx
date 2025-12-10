@@ -90,84 +90,77 @@ export default async function ProductDetailPage({
         </div>
 
         {/* 오른쪽: 정보 */}
-        <div className="flex flex-col gap-6">
-          {/* 판매자 정보 */}
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <Package className="w-4 h-4" />
-            <span>
-              {product.wholesaler_anonymous_code} · {product.wholesaler_region}
-            </span>
-          </div>
-
-          {/* 상품명 */}
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
-              {product.standardized_name || product.name}
-            </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              {product.category} {product.specification ? `· ${product.specification}` : ""}
-            </p>
-          </div>
-
-          {/* 설명 */}
-          {product.description && (
-            <p className="text-gray-700 dark:text-gray-300">
-              {product.description}
-            </p>
-          )}
-
-          {/* 구분선 */}
-          <div className="border-t border-gray-200 dark:border-gray-700" />
-
-          {/* 가격 정보 */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-green-600 dark:text-green-400">
-                {product.price.toLocaleString()}원
-              </span>
-              {product.specification && (
-                <span className="text-gray-500 dark:text-gray-400">
-                  / {product.specification}
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-6 md:p-7 space-y-6">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <Package className="w-4 h-4" />
+                <span>
+                  {product.wholesaler_anonymous_code} · {product.wholesaler_region}
                 </span>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-full bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-200 px-3 py-1 text-xs font-medium">
+                    신선상품
+                  </span>
+                  {product.delivery_dawn_available && (
+                    <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 px-3 py-1 text-xs font-medium">
+                      새벽 배송 가능
+                    </span>
+                  )}
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+                  {product.standardized_name || product.name}
+                </h1>
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+                  {product.category} {product.specification ? `· ${product.specification}` : ""}
+                </p>
+              </div>
+
+              {product.description && (
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {product.description}
+                </p>
               )}
             </div>
-            {product.moq > 1 && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                최소 주문 수량: {product.moq}개
-              </p>
-            )}
-            {product.stock_quantity > 0 && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                재고: {product.stock_quantity}개
-              </p>
-            )}
-            {product.stock_quantity === 0 && (
-              <p className="text-sm text-red-600 dark:text-red-400">
-                품절
-              </p>
-            )}
-          </div>
 
-          {/* 배송 정보 */}
-          <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <Truck className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-1 text-sm">
-              <p className="font-medium text-gray-900 dark:text-gray-100">
-                배송방법
-              </p>
-              <p className="text-gray-600 dark:text-gray-400">
-                {deliveryMethodText}
-              </p>
-              {product.delivery_dawn_available && (
-                <p className="text-green-600 dark:text-green-400 font-medium mt-1">
-                  새벽 배송 가능
-                </p>
-              )}
-              {product.shipping_fee > 0 && (
-                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  배송비: {product.shipping_fee.toLocaleString()}원
-                </p>
-              )}
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl md:text-4xl font-bold text-green-600 dark:text-green-400">
+                    {product.price.toLocaleString()}원
+                  </span>
+                  {product.specification && (
+                    <span className="text-gray-500 dark:text-gray-400">
+                      / {product.specification}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200 px-3 py-1">
+                    {product.stock_quantity > 0 ? `재고 ${product.stock_quantity}개` : "품절"}
+                  </span>
+                  {product.moq > 1 && (
+                    <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200 px-3 py-1">
+                      최소 {product.moq}개
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">원산지</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{product.wholesaler_region || "국내"}</p>
+                </div>
+                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">배송방법</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{deliveryMethodText}</p>
+                  
+                </div> 
+              </div>
             </div>
           </div>
 
