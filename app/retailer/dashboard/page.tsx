@@ -112,10 +112,7 @@ export default function RetailerDashboardPage() {
   }, []);
 
   // 1초마다 시간 감소시키는 useEffect
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    console.log("⏰ [대시보드] 타이머 시작, 남은 시간:", timeLeft, "초");
-    
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {

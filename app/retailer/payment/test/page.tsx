@@ -135,7 +135,10 @@ export default function TossPaymentTestPage() {
       const testOrderId = `TEST-${dateStr}-${timeStr}-${randomStr}`;
       
       // 결제 요청
-      await requestPayment(testOrderId, testOrderName);
+      await requestPayment({
+        orderId: testOrderId,
+        orderName: testOrderName,
+      });
       
       console.log("✅ [토스 결제 테스트] 결제 요청 완료");
     } catch (error) {

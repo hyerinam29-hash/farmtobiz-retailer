@@ -248,7 +248,7 @@ export default function SignInWithRedirect({
   // 🎯 전역 에러 감지: Clerk가 DOM에 렌더링하는 에러 메시지를 감지
   useEffect(() => {
     // 🔥 전역 이벤트 리스너 등록 (전역 시스템에서 발생한 이벤트 감지)
-    const handleGlobalError = (event: CustomEvent) => {
+    const handleGlobalError = () => {
       setShowSignUpModal(true);
     };
 
@@ -277,9 +277,6 @@ export default function SignInWithRedirect({
       // 전체 document에서 에러 메시지 찾기
       const allText = document.body.textContent || "";
       const allTextLower = allText.toLowerCase();
-
-      // 🔥 로그 출력 빈도 조절 (20번마다 - 50ms * 20 = 1초마다)
-      const shouldLog = checkCount % 20 === 0;
 
       // 🔥 더 많은 에러 메시지 변형 체크
       const errorPatterns = [

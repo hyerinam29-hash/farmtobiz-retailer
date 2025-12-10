@@ -92,6 +92,13 @@ function HeaderContent({
   const { signOut } = useClerk();
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const handleLogoClick = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+    console.log("🧭 [Header] 로고 클릭 → /retailer/dashboard");
+    router.push("/retailer/dashboard");
+  };
 
   // 장바구니 개수 가져오기
   const cartItemCount = useCartStore((state) => state.getSummary().itemCount);
@@ -158,6 +165,7 @@ function HeaderContent({
           {/* 로고 */}
           <Link
             href="/retailer/dashboard"
+            onClick={handleLogoClick}
             className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
           >
             <Image

@@ -17,7 +17,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Truck, Package } from "lucide-react";
+import { ChevronLeft, Package } from "lucide-react";
 import { getRetailerProductById } from "@/lib/supabase/queries/retailer-products";
 import { ProductDetailTabs } from "./product-detail-tabs";
 import { ProductActions } from "./product-actions";

@@ -70,6 +70,14 @@ export default function PageHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const handleLogoClick = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+    console.log("🧭 [PageHeader] 로고 클릭 → /retailer/dashboard");
+    setMobileMenuOpen(false);
+    router.push("/retailer/dashboard");
+  };
   
   // 장바구니 개수 가져오기
   const cartItemCount = useCartStore((state) => state.getSummary().itemCount);
@@ -176,6 +184,7 @@ export default function PageHeader() {
             {/* 왼쪽: 로고 */}
             <Link
               href="/retailer/dashboard"
+              onClick={handleLogoClick}
               className="flex items-center gap-2 flex-shrink-0 z-10"
             >
               <Image
