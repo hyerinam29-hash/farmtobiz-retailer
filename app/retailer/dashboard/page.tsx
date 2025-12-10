@@ -36,6 +36,8 @@ import {
 } from 'lucide-react';
 import { useCartStore } from "@/stores/cart-store";
 import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
+import { getHotDealProducts } from "@/actions/retailer/get-hot-deal-products";
+import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 
 // TODO: 추후 API로 교체 예정
 // 임시 목 데이터 - 최근 주문 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
@@ -44,62 +46,6 @@ import ProductRecommendationSection from "@/components/retailer/product-recommen
 // TODO: 추후 API로 교체 예정
 // 임시 목 데이터 - 배송 예정 알림 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
 // const mockDeliverySchedules = [...];
-
-// 임시 상품 데이터 (놓치면 후회할 가격 섹션용)
-const hotDealProducts = [
-  {
-    id: "hot-deal-1",
-    name: "청송 꿀사과 5kg (가정용)",
-    price: 32000,
-    region: "경북 청송",
-    emoji: "🍎",
-    wholesaler_id: "temp-wholesaler-1",
-    anonymous_seller_id: "Partner #HD-01",
-    seller_region: "경북 청송",
-    specification: "5kg",
-    moq: 1,
-    stock_quantity: 100,
-  },
-  {
-    id: "hot-deal-2",
-    name: "제주 감귤 10kg",
-    price: 28000,
-    region: "제주도",
-    emoji: "🍊",
-    wholesaler_id: "temp-wholesaler-2",
-    anonymous_seller_id: "Partner #HD-02",
-    seller_region: "제주도",
-    specification: "10kg",
-    moq: 1,
-    stock_quantity: 100,
-  },
-  {
-    id: "hot-deal-3",
-    name: "친환경 유기농 상추 1kg",
-    price: 15000,
-    region: "경기도",
-    emoji: "🥬",
-    wholesaler_id: "temp-wholesaler-3",
-    anonymous_seller_id: "Partner #HD-03",
-    seller_region: "경기도",
-    specification: "1kg",
-    moq: 1,
-    stock_quantity: 100,
-  },
-  {
-    id: "hot-deal-4",
-    name: "토마토 3kg 박스",
-    price: 24000,
-    region: "경상남도",
-    emoji: "🍅",
-    wholesaler_id: "temp-wholesaler-4",
-    anonymous_seller_id: "Partner #HD-04",
-    seller_region: "경상남도",
-    specification: "3kg",
-    moq: 1,
-    stock_quantity: 100,
-  },
-];
 
 // 버튼 컴포넌트
 const Button = ({ children, variant = 'primary', className = '', onClick }: { children: React.ReactNode; variant?: 'primary' | 'secondary' | 'outline'; className?: string; onClick?: () => void }) => {
@@ -122,6 +68,8 @@ export default function RetailerDashboardPage() {
 
   // 카운트다운 타이머 상태 (24시간 = 86400초)
   const [timeLeft, setTimeLeft] = useState(86400);
+  const [hotDeals, setHotDeals] = useState<RetailerProduct[]>([]);
+  const [isHotDealsLoading, setIsHotDealsLoading] = useState(true);
 
   // URL 해시가 있으면 해당 섹션으로 스크롤
   useEffect(() => {
@@ -191,6 +139,26 @@ export default function RetailerDashboardPage() {
     // timeLeft는 함수형 업데이트(prev => ...)를 사용하므로 의존성 배열에 포함하지 않음
   }, []);
 
+  // HOT DEAL 데이터 로드
+  useEffect(() => {
+    const fetchHotDeals = async () => {
+      try {
+        console.log("🔥 [대시보드-HOT DEAL] 실데이터 불러오기 시작");
+        const products = await getHotDealProducts();
+        setHotDeals(products);
+        console.log("🔥 [대시보드-HOT DEAL] 실데이터 불러오기 완료", {
+          count: products.length,
+        });
+      } catch (error) {
+        console.error("❌ [대시보드-HOT DEAL] 불러오기 실패", error);
+      } finally {
+        setIsHotDealsLoading(false);
+      }
+    };
+
+    fetchHotDeals();
+  }, []);
+
   // 초를 시:분:초 형식으로 변환하는 함수
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -212,7 +180,7 @@ export default function RetailerDashboardPage() {
   };
 
   // 장바구니 담기 핸들러
-  const handleAddToCart = (product: typeof hotDealProducts[0]) => {
+  const handleAddToCart = (product: RetailerProduct) => {
     console.log("🛒 [대시보드-HOT DEAL] 장바구니 담기 시도:", {
       productId: product.id,
       productName: product.name,
@@ -221,14 +189,14 @@ export default function RetailerDashboardPage() {
     addToCart({
       product_id: product.id,
       variant_id: null,
-      quantity: product.moq,
+      quantity: product.moq ?? 1,
       unit_price: product.price,
       delivery_method: "normal",
       wholesaler_id: product.wholesaler_id,
       product_name: product.name,
-      anonymous_seller_id: product.anonymous_seller_id,
-      seller_region: product.seller_region,
-      product_image: null,
+      anonymous_seller_id: product.wholesaler_anonymous_code,
+      seller_region: product.wholesaler_region,
+      product_image: product.image_url,
       specification: product.specification,
       moq: product.moq,
       stock_quantity: product.stock_quantity,
@@ -347,53 +315,81 @@ export default function RetailerDashboardPage() {
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {hotDealProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
-              >
-                <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500">
-                    <span className="text-6xl drop-shadow-sm">{product.emoji}</span>
+            {isHotDealsLoading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white/80 rounded-2xl h-full border border-gray-100 shadow-md animate-pulse"
+                >
+                  <div className="aspect-square bg-gray-100" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 bg-gray-100 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 rounded w-1/2" />
+                    <div className="h-4 bg-gray-100 rounded w-1/3" />
                   </div>
-                  <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
-                    산지직송
-                  </span>
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"
-                  >
-                    <ShoppingCart size={20} />
-                  </button>
                 </div>
-                <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-base text-gray-900 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                      {product.region} · 무료배송
-                    </p>
-                  </div>
-                  <div className="border-t border-gray-100 pt-3">
-                    <div className="font-black text-xl text-green-600 tracking-tight">
-                      {product.price.toLocaleString()}원
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      {product.specification} (예상)
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="w-full py-2 text-sm h-10 border-gray-200"
-                    onClick={() => handleAddToCart(product)}
+              ))
+            ) : (
+              hotDeals.map((product) => {
+                const imageSrc = product.image_url;
+                return (
+                  <div
+                    key={product.id}
+                    className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
                   >
-                    <ShoppingCart size={16} />
-                    <span>담기</span>
-                  </Button>
-                </div>
-              </div>
-            ))}
+                    <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
+                      {imageSrc ? (
+                        <Image
+                          src={imageSrc}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500 text-4xl">
+                          🛒
+                        </div>
+                      )}
+                      <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
+                        산지직송
+                      </span>
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"
+                      >
+                        <ShoppingCart size={20} />
+                      </button>
+                    </div>
+                    <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-base text-gray-900 line-clamp-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                          {product.wholesaler_region || "산지 미정"} · 무료배송
+                        </p>
+                      </div>
+                      <div className="border-t border-gray-100 pt-3">
+                        <div className="font-black text-xl text-green-600 tracking-tight">
+                          {product.price.toLocaleString()}원
+                        </div>
+                        <div className="text-xs text-gray-400 mt-0.5">
+                          {product.specification || "규격 정보 준비중"}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="w-full py-2 text-sm h-10 border-gray-200"
+                        onClick={() => handleAddToCart(product)}
+                      >
+                        <ShoppingCart size={16} />
+                        <span>담기</span>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </section>
 

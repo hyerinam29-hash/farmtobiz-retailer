@@ -71,10 +71,6 @@ const navBarItems: NavBarItem[] = [
     label: "베스트",
   },
   {
-    href: "/retailer/products?exclusive=true",
-    label: "단독",
-  },
-  {
     href: "/retailer/products?special=true",
     label: "연말특가",
   },
