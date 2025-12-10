@@ -6,7 +6,7 @@
  * 디자인 핸드오프 이미지 기반으로 구현되었습니다.
  */
 
-import { RefreshCw } from "lucide-react";
+import Image from "next/image";
 
 export default function BestEventBanner() {
   return (
@@ -37,9 +37,6 @@ export default function BestEventBanner() {
           {/* 랭킹 업데이트 정보 */}
           <div className="flex flex-col items-center md:items-start gap-3">
             <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex items-center gap-3 shadow-lg">
-              <div className="bg-white rounded-full p-2">
-                <RefreshCw className="text-purple-600 w-6 h-6" />
-              </div>
               <div>
                 <p className="text-purple-100 text-xs font-medium">랭킹 업데이트</p>
                 <p className="text-white font-bold">매일 아침 09:00 기준</p>
@@ -50,8 +47,19 @@ export default function BestEventBanner() {
 
         {/* 오른쪽 이미지 영역 (모바일에서는 숨김) */}
         <div className="relative z-20 perspective-1000 mt-4 md:mt-0">
-          <div className="w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 bg-purple-200 flex items-center justify-center">
-            <span className="text-6xl">👑</span>
+          <div className="relative w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 bg-purple-200">
+            <Image
+              src="https://images.unsplash.com/photo-1761054189536-15ddd7ad9f11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTU3ODB8MHwxfHNlYXJjaHwxfHxmcmVzaCUyMGZydWl0cyUyMGFuZCUyMHZlZ2V0YWJsZXMlMjBhc3NvcnRtZW50JTIwbWFya2V0fGVufDB8fHx8MTc2NTM2MTY1Mnww&ixlib=rb-4.1.0&q=80&w=1080"
+              alt="신선한 과일과 채소가 진열된 베스트 상품"
+              fill
+              sizes="(min-width: 768px) 384px, 288px"
+              className="object-cover"
+              priority
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30"
+              aria-hidden="true"
+            />
           </div>
         </div>
       </div>
