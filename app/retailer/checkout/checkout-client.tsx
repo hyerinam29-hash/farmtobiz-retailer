@@ -21,6 +21,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { useTossPayment } from "@/hooks/use-toss-payment";
 import { createPayment } from "@/actions/retailer/create-payment";
 import type { RetailerInfo } from "@/actions/retailer/get-retailer-info";
+import { updateRetailerProfile } from "@/actions/retailer/update-profile";
 
 interface CheckoutPageClientProps {
   retailerInfo: RetailerInfo | null;
@@ -54,6 +55,19 @@ export default function CheckoutPageClient({
   // 결제 수단 상태
   const [paymentMethod, setPaymentMethod] =
     useState<"toss" | "card" | "transfer">("toss");
+
+  // 배송지 정보 상태 (표시/수정용)
+  const [deliveryInfo, setDeliveryInfo] = useState(() =>
+    retailerInfo
+      ? {
+          businessName: retailerInfo.business_name,
+          phone: retailerInfo.phone,
+          address: retailerInfo.address,
+        }
+      : { businessName: "", phone: "", address: "" }
+  );
+  const [isEditingDelivery, setIsEditingDelivery] = useState(false);
+  const [isSavingDelivery, setIsSavingDelivery] = useState(false);
 
   // 결제 요청 상태
   const [paymentOrderId, setPaymentOrderId] = useState("");
@@ -245,33 +259,115 @@ export default function CheckoutPageClient({
                 <button
                   type="button"
                   onClick={() => {
-                    console.log("배송지 변경 버튼 클릭");
+                    console.log("🚚 [배송지] 변경 버튼 클릭");
+                    setIsEditingDelivery((prev) => !prev);
                   }}
                   className="text-sm text-green-600 dark:text-green-400 font-medium hover:underline"
                 >
-                  변경
+                  {isEditingDelivery ? "닫기" : "변경"}
                 </button>
               </div>
-              <div className="space-y-3 text-sm">
-                <div className="grid grid-cols-[100px_1fr] gap-4">
-                  <span className="text-gray-600 dark:text-gray-400">상호명</span>
-                  <span className="text-gray-900 dark:text-gray-100">
-                    {retailerInfo.business_name}
-                  </span>
+              {!isEditingDelivery ? (
+                <div className="space-y-3 text-sm">
+                  <div className="grid grid-cols-[100px_1fr] gap-4">
+                    <span className="text-gray-600 dark:text-gray-400">상호명</span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {deliveryInfo.businessName}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr] gap-4">
+                    <span className="text-gray-600 dark:text-gray-400">연락처</span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {deliveryInfo.phone}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-[100px_1fr] gap-4">
+                    <span className="text-gray-600 dark:text-gray-400">사업장 주소</span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {deliveryInfo.address}
+                    </span>
+                  </div>
                 </div>
-                <div className="grid grid-cols-[100px_1fr] gap-4">
-                  <span className="text-gray-600 dark:text-gray-400">연락처</span>
-                  <span className="text-gray-900 dark:text-gray-100">
-                    {retailerInfo.phone}
-                  </span>
+              ) : (
+                <div className="space-y-3">
+                  <input
+                    value={deliveryInfo.businessName}
+                    onChange={(e) =>
+                      setDeliveryInfo((prev) => ({
+                        ...prev,
+                        businessName: e.target.value,
+                      }))
+                    }
+                    placeholder="상호명"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+                  />
+                  <input
+                    value={deliveryInfo.phone}
+                    onChange={(e) =>
+                      setDeliveryInfo((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                    placeholder="연락처"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+                  />
+                  <textarea
+                    value={deliveryInfo.address}
+                    onChange={(e) =>
+                      setDeliveryInfo((prev) => ({
+                        ...prev,
+                        address: e.target.value,
+                      }))
+                    }
+                    rows={2}
+                    placeholder="사업장 주소"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (
+                        !deliveryInfo.businessName ||
+                        !deliveryInfo.phone ||
+                        !deliveryInfo.address
+                      ) {
+                        alert("상호명, 연락처, 주소를 모두 입력해주세요.");
+                        return;
+                      }
+
+                      try {
+                        setIsSavingDelivery(true);
+                        console.log("💾 [배송지] Supabase 업데이트 요청:", deliveryInfo);
+
+                        const result = await updateRetailerProfile({
+                          business_name: deliveryInfo.businessName,
+                          phone: deliveryInfo.phone,
+                          address: deliveryInfo.address,
+                        });
+
+                        if (!result.success) {
+                          alert(result.error || "배송지 정보를 저장하지 못했습니다.");
+                          console.error("❌ [배송지] Supabase 업데이트 실패:", result.error);
+                          return;
+                        }
+
+                        console.log("✅ [배송지] Supabase 업데이트 완료");
+                        setIsEditingDelivery(false);
+                      } catch (error) {
+                        console.error("❌ [배송지] Supabase 업데이트 예외:", error);
+                        alert("배송지 저장 중 오류가 발생했습니다.");
+                      } finally {
+                        setIsSavingDelivery(false);
+                      }
+                    }}
+                    disabled={isSavingDelivery}
+                    className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                  >
+                    {isSavingDelivery ? "저장 중..." : "저장"}
+                  </button>
                 </div>
-                <div className="grid grid-cols-[100px_1fr] gap-4">
-                  <span className="text-gray-600 dark:text-gray-400">사업장 주소</span>
-                  <span className="text-gray-900 dark:text-gray-100">
-                    {retailerInfo.address}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
           )}
 
