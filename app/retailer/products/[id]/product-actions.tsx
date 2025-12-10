@@ -26,11 +26,11 @@ export function ProductActions({ product }: ProductActionsProps) {
   const addToCart = useCartStore((state) => state.addToCart);
   
   // 수량 상태 (1부터 시작)
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(product.moq);
 
   // 수량 감소
   const handleDecreaseQuantity = () => {
-    if (quantity > 1) {
+    if (quantity > product.moq) {
       setQuantity(quantity - 1);
       console.log("➖ [상품상세] 수량 감소:", quantity - 1);
     }
