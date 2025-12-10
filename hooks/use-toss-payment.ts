@@ -1,20 +1,10 @@
 /**
  * @file hooks/use-toss-payment.ts
- * @description 토스 페이먼츠 결제 위젯 관리 훅
- *
- * 주요 기능:
- * 1. 토스 페이먼츠 위젯 초기화
- * 2. 결제 요청 처리
- * 3. 결제 성공/실패 처리
- *
- * @dependencies
- * - @tosspayments/payment-widget-sdk
  */
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { loadPaymentWidget, PaymentWidgetInstance } from "@tosspayments/payment-widget-sdk";
+import { loadTossPayments, TossPaymentsWidgets } from "@tosspayments/tosspayments-sdk";
 
 interface UseTossPaymentOptions {
   clientKey: string;
@@ -26,150 +16,101 @@ interface UseTossPaymentOptions {
   onFail?: (error: { code: string; message: string }) => void;
 }
 
+// ✨ [추가] 결제 요청 시 받을 파라미터 타입 정의
+interface RequestPaymentParams {
+    orderId?: string;
+    orderName?: string;
+    customerName?: string;
+    customerEmail?: string;
+}
+
 export function useTossPayment({
   clientKey,
   customerKey,
   amount,
   orderId,
   orderName,
-  onSuccess,
   onFail,
 }: UseTossPaymentOptions) {
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const paymentWidgetRef = useRef<PaymentWidgetInstance | null>(null);
-  const paymentMethodsWidgetRef = useRef<ReturnType<PaymentWidgetInstance["renderPaymentMethods"]> | null>(null);
+
+  const widgetsRef = useRef<TossPaymentsWidgets | null>(null);
   const agreementWidgetRenderedRef = useRef(false);
 
-  // 위젯 초기화
   useEffect(() => {
     let mounted = true;
-
     async function initWidget() {
       try {
-        console.log("🔧 [토스페이먼츠] 위젯 초기화 시작:", { clientKey, customerKey });
-        
-        const paymentWidget = await loadPaymentWidget(clientKey, customerKey);
-        
+        const tossPayments = await loadTossPayments(clientKey);
+        const widgets = tossPayments.widgets({ customerKey });
+
         if (!mounted) return;
-        
-        paymentWidgetRef.current = paymentWidget;
+
+        await widgets.setAmount({
+          currency: "KRW",
+          value: amount,
+        });
+
+        widgetsRef.current = widgets;
         setIsReady(true);
-        
-        console.log("✅ [토스페이먼츠] 위젯 초기화 완료");
       } catch (error) {
-        console.error("❌ [토스페이먼츠] 위젯 초기화 실패:", error);
-        if (onFail) {
-          onFail({
-            code: "INIT_FAILED",
-            message: "결제 위젯 초기화에 실패했습니다.",
-          });
-        }
+        console.error("❌ [V2] 위젯 초기화 실패:", error);
       }
     }
-
     initWidget();
+    return () => { mounted = false; };
+  }, [clientKey, customerKey]); // amount 제외 (updateAmount로 처리)
 
-    return () => {
-      mounted = false;
-    };
-  }, [clientKey, customerKey, onFail]);
-
-  // 결제 위젯 렌더링
-  const renderPaymentMethods = (selector: string) => {
-    if (!paymentWidgetRef.current || !isReady) {
-      console.warn("⚠️ [토스페이먼츠] 위젯이 준비되지 않았습니다.");
-      return;
-    }
-
+  const renderPaymentMethods = async (selector: string) => {
+    if (!widgetsRef.current || !isReady) return;
     try {
-      console.log("🎨 [토스페이먼츠] 결제 수단 위젯 렌더링:", selector);
-      
-      const paymentMethodsWidget = paymentWidgetRef.current.renderPaymentMethods(
+      await widgetsRef.current.renderPaymentMethods({
         selector,
-        { value: amount },
-        { variantKey: "DEFAULT" }
-      );
-      
-      paymentMethodsWidgetRef.current = paymentMethodsWidget;
-      
-      console.log("✅ [토스페이먼츠] 결제 수단 위젯 렌더링 완료");
+        variantKey: "DEFAULT",
+      });
     } catch (error) {
-      console.error("❌ [토스페이먼츠] 결제 수단 위젯 렌더링 실패:", error);
+      console.error("❌ [V2] 결제 수단 렌더링 실패:", error);
     }
   };
 
-  // 약관 위젯 렌더링 (V2 필수)
-  const renderAgreements = (selector: string) => {
-    if (!paymentWidgetRef.current || !isReady) {
-      console.warn("⚠️ [토스페이먼츠] 약관 위젯이 준비되지 않았습니다.");
-      return;
-    }
-
+  const renderAgreements = async (selector: string) => {
+    if (!widgetsRef.current || !isReady) return;
     try {
-      if (agreementWidgetRenderedRef.current) {
-        console.log("ℹ️ [토스페이먼츠] 약관 위젯은 이미 렌더링되었습니다.");
-        return;
-      }
-
-      paymentWidgetRef.current.renderAgreement(selector, { variantKey: "AGREEMENT" });
+      if (agreementWidgetRenderedRef.current) return;
+      await widgetsRef.current.renderAgreement({
+        selector,
+        variantKey: "AGREEMENT",
+      });
       agreementWidgetRenderedRef.current = true;
-      console.log("✅ [토스페이먼츠] 약관 위젯 렌더링 완료");
     } catch (error) {
-      console.error("❌ [토스페이먼츠] 약관 위젯 렌더링 실패:", error);
+      console.error("❌ [V2] 약관 위젯 렌더링 실패:", error);
     }
   };
 
-  // 결제 요청
-  const requestPayment = async (customOrderId?: string, customOrderName?: string) => {
-    if (!paymentWidgetRef.current || !isReady) {
-      console.error("❌ [토스페이먼츠] 위젯이 준비되지 않았습니다.");
-      if (onFail) {
-        onFail({
-          code: "WIDGET_NOT_READY",
-          message: "결제 위젯이 준비되지 않았습니다.",
-        });
-      }
-      return;
-    }
+  // ✨ [수정] 파라미터를 객체 형태로 받고, 사용자 정보를 동적으로 처리
+  const requestPayment = async (params?: RequestPaymentParams) => {
+    if (!widgetsRef.current || !isReady) return;
 
-    const finalOrderId = customOrderId || orderId;
-    const finalOrderName = customOrderName || orderName;
-
-    if (!finalOrderId || !finalOrderName) {
-      console.error("❌ [토스페이먼츠] 주문 정보가 없습니다.");
-      if (onFail) {
-        onFail({
-          code: "ORDER_INFO_MISSING",
-          message: "주문 정보가 없습니다.",
-        });
-      }
-      return;
-    }
+    const finalOrderId = params?.orderId || orderId;
+    const finalOrderName = params?.orderName || orderName;
+    // ✨ 실제 유저 정보가 없으면 기본값 사용
+    const finalCustomerName = params?.customerName || "구매자"; 
+    const finalCustomerEmail = params?.customerEmail || "customer@example.com";
 
     setIsLoading(true);
 
     try {
-      console.log("💳 [토스페이먼츠] 결제 요청 시작:", {
-        orderId: finalOrderId,
-        orderName: finalOrderName,
-        amount,
-      });
-
-      // 결제 승인 요청
-      await paymentWidgetRef.current.requestPayment({
+      await widgetsRef.current.requestPayment({
         orderId: finalOrderId,
         orderName: finalOrderName,
         successUrl: `${window.location.origin}/retailer/payment/success`,
         failUrl: `${window.location.origin}/retailer/payment/fail`,
-        customerEmail: "", // 나중에 실제 사용자 이메일로 교체
-        customerName: "", // 나중에 실제 사용자 이름으로 교체
+        customerEmail: finalCustomerEmail, // ✨ 동적 할당
+        customerName: finalCustomerName,   // ✨ 동적 할당
       });
-
-      console.log("✅ [토스페이먼츠] 결제 요청 완료");
     } catch (error: any) {
-      console.error("❌ [토스페이먼츠] 결제 요청 실패:", error);
-      
+      console.error("❌ [V2] 결제 요청 실패:", error);
       if (onFail) {
         onFail({
           code: error.code || "PAYMENT_FAILED",
@@ -181,15 +122,15 @@ export function useTossPayment({
     }
   };
 
-  // 위젯 업데이트 (금액 변경 시)
-  const updateAmount = (newAmount: number) => {
-    if (paymentMethodsWidgetRef.current) {
-      try {
-        console.log("💰 [토스페이먼츠] 결제 금액 업데이트:", newAmount);
-        paymentMethodsWidgetRef.current.updateAmount(newAmount);
-      } catch (error) {
-        console.error("❌ [토스페이먼츠] 금액 업데이트 실패:", error);
-      }
+  const updateAmount = async (newAmount: number) => {
+    if (!widgetsRef.current) return;
+    try {
+      await widgetsRef.current.setAmount({
+        currency: "KRW",
+        value: newAmount,
+      });
+    } catch (error) {
+      console.error("❌ [V2] 금액 업데이트 실패:", error);
     }
   };
 
@@ -202,4 +143,3 @@ export function useTossPayment({
     updateAmount,
   };
 }
-
