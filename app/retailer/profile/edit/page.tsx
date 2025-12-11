@@ -143,13 +143,10 @@ export default async function ProfileEditPage() {
                 계정 관리
               </CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-gray-300">
-                로그인 또는 계정 삭제를 진행할 수 있습니다.
+                계정 삭제를 진행할 수 있습니다.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="rounded-lg bg-gray-50 px-4 py-3 transition-colors dark:bg-gray-800">
-                <LogoutButton />
-              </div>
               <div className="rounded-lg bg-red-50 px-4 py-3 transition-colors dark:bg-red-900/40">
                 <AccountDeleteModal />
               </div>
