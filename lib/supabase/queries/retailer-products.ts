@@ -92,9 +92,9 @@ export async function getRetailerProducts(
 
   // 필터 적용
   if (filter.category) {
-    // "곡물/견과류" 카테고리는 "곡물" 또는 "견과류"를 모두 포함
+    // "곡물/견과류"는 정확히 해당 값만 조회 (하위 카테고리 포함하지 않음)
     if (filter.category === "곡물/견과류" || filter.category === "곡물/견과") {
-      query = query.or("category.eq.곡물,category.eq.견과류");
+      query = query.eq("category", "곡물/견과류");
     } else {
       query = query.eq("category", filter.category);
     }
@@ -276,7 +276,7 @@ export async function getBestRetailerProducts(
 
   // 카테고리 필터 적용
   if (category === "곡물/견과류" || category === "곡물/견과") {
-    query = query.or("category.eq.곡물,category.eq.견과류");
+    query = query.eq("category", "곡물/견과류");
   } else {
     query = query.eq("category", category);
   }
