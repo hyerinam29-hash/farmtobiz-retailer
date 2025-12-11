@@ -97,6 +97,7 @@ PRD 3.1, 3.2, 3.3 섹션 참조.
   - [X] 서버 프록시(API) → Gemini Flash 2.x 호출 (env: `GEMINI_API_KEY`, 선택 `GEMINI_MODEL_NAME`)
   - [X] 다크/라이트 대응, 전송/응답 로그 최소 노출
   - 위치: `/retailer/dashboard` 화면 오른쪽 하단 원형 버튼 → 패널
+  - [X] 관리자 문의 전송 지원 (제목/내용, 주문 ID 옵션) → Supabase `inquiries` 저장
 
 ### 2.2 상품 검색 (R.SEARCH)
 
