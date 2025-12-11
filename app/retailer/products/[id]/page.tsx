@@ -45,12 +45,16 @@ export default async function ProductDetailPage({
     productId: id,
     productName: product.standardized_name || product.name,
   });
+  console.log("📂 [product-detail-page] 상품 카테고리", {
+    productId: id,
+    category: product.category,
+  });
 
   const categoryQueryMap: Record<string, string> = {
     과일: "과일",
     채소: "채소",
     수산물: "수산물",
-    "곡물/견과": "곡물/견과",
+    "곡물/견과류": "곡물/견과류",
     기타: "기타",
   };
 

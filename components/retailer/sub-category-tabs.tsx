@@ -47,7 +47,7 @@ const subCategoriesByCategory: Record<string, Array<{ value: string; label: stri
     { value: "shellfish", label: "조개류" },
     { value: "crustacean", label: "갑각류" },
   ],
-  "곡물/견과": [
+  "곡물/견과류": [
     { value: "all", label: "전체보기" },
     { value: "grain", label: "곡물" },
     { value: "nut", label: "견과류" },

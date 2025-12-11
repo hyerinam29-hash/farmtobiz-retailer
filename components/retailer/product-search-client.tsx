@@ -123,7 +123,7 @@ export function ProductSearchClient({
     { value: "과일", label: "과일" },
     { value: "채소", label: "채소" },
     { value: "수산물", label: "수산물" },
-    { value: "곡물/견과", label: "곡물/견과" },
+    { value: "곡물/견과류", label: "곡물/견과류" },
     { value: "기타", label: "기타" },
   ];
 

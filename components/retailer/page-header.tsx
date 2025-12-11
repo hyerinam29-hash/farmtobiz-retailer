@@ -40,7 +40,7 @@ const CATEGORIES = [
   { id: "과일", label: "과일" },
   { id: "채소", label: "채소" },
   { id: "수산물", label: "수산물" },
-  { id: "곡물/견과", label: "곡물/견과" },
+  { id: "곡물/견과류", label: "곡물/견과류" },
   { id: "기타", label: "기타" },
 ];
 
