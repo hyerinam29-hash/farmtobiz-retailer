@@ -67,7 +67,7 @@ export default async function ProductDetailPage({
     direct: "직배송",
     quick: "퀵서비스",
     freight: "화물",
-    pickup: "픽업",
+    dawn: "새벽배송",
   };
 
   const deliveryMethodText = deliveryMethodMap[product.delivery_method] || product.delivery_method;

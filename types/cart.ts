@@ -13,7 +13,12 @@
 /**
  * 배송 방법 타입
  */
-export type DeliveryMethod = "normal" | "dawn";
+export type DeliveryMethod =
+  | "courier"
+  | "direct"
+  | "quick"
+  | "freight"
+  | "dawn";
 
 /**
  * 장바구니 아이템 타입
@@ -30,7 +35,7 @@ export interface CartItem {
   quantity: number;
   /** 단가 (주문 당시 가격) */
   unit_price: number;
-  /** 배송 방법 ("normal": 일반 배송, "dawn": 새벽배송) */
+  /** 배송 방법 */
   delivery_method: DeliveryMethod;
   /** 도매상 ID */
   wholesaler_id: string;

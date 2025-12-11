@@ -73,8 +73,10 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
                       {product.delivery_method === "direct" && "직배송"}
                       {product.delivery_method === "quick" && "퀵서비스"}
                       {product.delivery_method === "freight" && "화물"}
-                      {product.delivery_method === "pickup" && "픽업"}
-                      {!["courier", "direct", "quick", "freight", "pickup"].includes(product.delivery_method) && product.delivery_method}
+                      {product.delivery_method === "dawn" && "새벽배송"}
+                      {!["courier", "direct", "quick", "freight", "dawn"].includes(
+                        product.delivery_method,
+                      ) && product.delivery_method}
                     </p>
                   </div>
                   {product.delivery_dawn_available && (

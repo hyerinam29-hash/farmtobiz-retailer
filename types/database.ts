@@ -66,7 +66,7 @@ export type DeliveryMethod =
   | "direct"
   | "quick"
   | "freight"
-  | "pickup";
+  | "dawn";
 
 /**
  * 프로필 테이블 타입

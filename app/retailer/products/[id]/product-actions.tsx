@@ -65,7 +65,8 @@ export function ProductActions({ product }: ProductActionsProps) {
       variant_id: null,
       quantity: quantityToAdd, // Number로 보장
       unit_price: product.price,
-      delivery_method: "normal" as const,
+      shipping_fee: product.shipping_fee,
+      delivery_method: product.delivery_method ?? "courier",
       wholesaler_id: product.wholesaler_id,
       product_name: product.standardized_name || product.name,
       anonymous_seller_id: product.wholesaler_anonymous_code,
@@ -103,7 +104,8 @@ export function ProductActions({ product }: ProductActionsProps) {
       variant_id: null,
       quantity: quantityToAdd, // Number로 보장
       unit_price: product.price,
-      delivery_method: "normal" as const,
+      shipping_fee: product.shipping_fee,
+      delivery_method: product.delivery_method ?? "courier",
       wholesaler_id: product.wholesaler_id,
       product_name: product.standardized_name || product.name,
       anonymous_seller_id: product.wholesaler_anonymous_code,

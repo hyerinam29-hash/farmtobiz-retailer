@@ -86,7 +86,7 @@ export const DELIVERY_METHODS = {
   DIRECT: { value: "direct", label: "직배송" },
   QUICK: { value: "quick", label: "퀵서비스" },
   FREIGHT: { value: "freight", label: "화물" },
-  PICKUP: { value: "pickup", label: "픽업" },
+  DAWN: { value: "dawn", label: "새벽배송" },
 } as const satisfies Record<string, { value: DeliveryMethod; label: string }>;
 
 /**

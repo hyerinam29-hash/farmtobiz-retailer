@@ -64,6 +64,7 @@ export default function BestProductCard({
       variant_id: null,
       quantity: quantityToAdd,
       unit_price: product.price,
+      shipping_fee: product.shipping_fee,
       delivery_method: product.delivery_method,
       wholesaler_id: product.wholesaler_id,
       product_name: displayName,
