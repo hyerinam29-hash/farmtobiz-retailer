@@ -70,10 +70,6 @@ const navBarItems: NavBarItem[] = [
     href: "/retailer/products?sort=popular",
     label: "베스트",
   },
-  {
-    href: "/retailer/products?special=true",
-    label: "연말특가",
-  },
 ];
 
 interface RetailerHeaderProps {

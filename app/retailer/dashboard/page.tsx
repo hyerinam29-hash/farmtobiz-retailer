@@ -220,36 +220,24 @@ export default function RetailerDashboardPage() {
         {/* 일일 특가 섹션 */}
         <section className="flex flex-col md:flex-row gap-8 md:gap-16 items-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-3xl p-8 md:p-12 border border-red-100 shadow-lg relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
           <div className="w-full md:w-1/2 space-y-6">
-            <div className="flex items-center gap-2 text-red-500 font-bold text-lg md:text-xl">
+            <div className="flex items-center gap-2 text-red-500 font-bold text-xl md:text-2xl">
               <Clock size={24} />
               <span>일일특가 24시간 한정</span>
             </div>
             
             <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
-              제주 노지 감귤 10kg<br />
-              <span className="text-green-600">40% 초특가 할인</span>
+              제주 노지 감귤 10kg
             </h2>
             
             <p className="text-gray-600 text-lg">제주의 햇살을 머금은 달콤한 감귤</p>
             
             <div className="flex items-end gap-3">
               <span className="text-4xl font-black text-gray-900">11,000원</span>
-              <span className="text-xl text-gray-400 line-through mb-1">31,500원</span>
-            </div>
-
-            <div className="flex gap-4 pt-4">
-              <div className="flex gap-2 text-3xl font-bold text-gray-800 font-mono">
-                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">{hours}</div>
-                <span className="self-center">:</span>
-                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">{minutes}</div>
-                <span className="self-center">:</span>
-                <div className="bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100">{seconds}</div>
-              </div>
             </div>
              
             <Button 
               variant="primary" 
-              className="w-full md:w-auto px-10 py-4 text-lg mt-4 bg-red-500 border-red-700 hover:bg-red-600"
+              className="w-full md:w-auto px-10 py-4 text-lg mt-10 bg-red-500 border-red-700 hover:bg-red-600"
               onClick={handleDailyDealClick}
             >
               지금 바로 구매하기
@@ -265,9 +253,6 @@ export default function RetailerDashboardPage() {
                 className="object-cover"
                 priority
               />
-              <div className="absolute top-6 left-6 bg-red-500 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg animate-bounce z-10">
-                -40% OFF
-              </div>
             </div>
           </div>
         </section>
