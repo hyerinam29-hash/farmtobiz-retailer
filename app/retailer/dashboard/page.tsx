@@ -21,7 +21,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -48,7 +48,17 @@ import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 // const mockDeliverySchedules = [...];
 
 // 버튼 컴포넌트
-const Button = ({ children, variant = 'primary', className = '', onClick }: { children: React.ReactNode; variant?: 'primary' | 'secondary' | 'outline'; className?: string; onClick?: () => void }) => {
+const Button = ({
+  children,
+  variant = "primary",
+  className = "",
+  onClick,
+}: {
+  children: React.ReactNode;
+  variant?: "primary" | "secondary" | "outline";
+  className?: string;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+}) => {
   const baseStyles = 'font-bold rounded-xl flex items-center justify-center gap-2 relative overflow-hidden transition-all';
   const variants = {
     primary: 'bg-green-600 text-white border-b-4 border-green-800 shadow-lg hover:bg-green-500 active:border-b-0 active:translate-y-1',
@@ -176,8 +186,20 @@ export default function RetailerDashboardPage() {
     router.push("/retailer/products/b7e0c37e-222e-4d93-bd63-5bde7459b99b");
   };
 
+  // HOT DEAL 카드 클릭 시 상품 상세 이동
+  const handleProductClick = (productId: string) => {
+    console.log("🛒 [대시보드-HOT DEAL] 상품 카드 클릭, 상세 페이지 이동", {
+      productId,
+    });
+    router.push(`/retailer/products/${productId}`);
+  };
+
   // 장바구니 담기 핸들러
-  const handleAddToCart = (product: RetailerProduct) => {
+  const handleAddToCart = (product: RetailerProduct, event?: MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+
     console.log("🛒 [대시보드-HOT DEAL] 장바구니 담기 시도:", {
       productId: product.id,
       productName: product.name,
@@ -292,7 +314,13 @@ export default function RetailerDashboardPage() {
               </h2>
               <p className="text-gray-600 text-lg">최대 50% 할인된 특가 상품을 만나보세요</p>
             </div>
-            <button className="text-gray-400 hover:text-green-600 font-medium flex items-center gap-1 transition-colors">
+            <button
+              className="text-gray-400 hover:text-green-600 font-medium flex items-center gap-1 transition-colors"
+              onClick={() => {
+                console.log("🔥 [대시보드-HOT DEAL] 전체보기 클릭 -> 상품 목록 이동");
+                router.push("/retailer/products");
+              }}
+            >
               전체보기 <ChevronRight size={16} />
             </button>
           </div>
@@ -317,6 +345,7 @@ export default function RetailerDashboardPage() {
                 return (
                   <div
                     key={product.id}
+                    onClick={() => handleProductClick(product.id)}
                     className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
                   >
                     <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
@@ -336,7 +365,7 @@ export default function RetailerDashboardPage() {
                         산지직송
                       </span>
                       <button
-                        onClick={() => handleAddToCart(product)}
+                        onClick={(event) => handleAddToCart(product, event)}
                         className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"
                       >
                         <ShoppingCart size={20} />
@@ -362,7 +391,7 @@ export default function RetailerDashboardPage() {
                       <Button
                         variant="outline"
                         className="w-full py-2 text-sm h-10 border-gray-200"
-                        onClick={() => handleAddToCart(product)}
+                        onClick={(event) => handleAddToCart(product, event)}
                       >
                         <ShoppingCart size={16} />
                         <span>담기</span>
@@ -427,7 +456,15 @@ export default function RetailerDashboardPage() {
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Package size={24} className="text-purple-600" /> 최근 주문 내역
               </h3>
-              <button className="text-sm text-gray-400 hover:text-green-600">더보기</button>
+              <button
+                className="text-sm text-gray-400 hover:text-green-600"
+                onClick={() => {
+                  console.log("📦 [대시보드] 최근 주문 더보기 클릭, 프로필 페이지로 이동");
+                  router.push("/retailer/profile");
+                }}
+              >
+                더보기
+              </button>
             </div>
             <div className="space-y-4">
               <div 
