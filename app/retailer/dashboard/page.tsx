@@ -412,7 +412,15 @@ export default function RetailerDashboardPage() {
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Truck size={24} className="text-green-600" /> 배송 조회
               </h3>
-              <button className="text-sm text-gray-400 hover:text-green-600">더보기</button>
+            <button
+              className="text-sm text-gray-400 hover:text-green-600"
+              onClick={() => {
+                console.log("🚚 [대시보드] 배송 조회 더보기 클릭, 주문 내역 페이지로 이동");
+                router.push("/retailer/orders");
+              }}
+            >
+              더보기
+            </button>
             </div>
             <div className="space-y-4">
               <div 

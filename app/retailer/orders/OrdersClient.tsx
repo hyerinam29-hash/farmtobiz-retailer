@@ -99,7 +99,10 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
   }, [orders, searchQuery, selectedStatus]);
 
   return (
-    <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 pb-12 md:pb-16">
+    <div
+      className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 pb-12 md:pb-16"
+      style={{ paddingTop: "2cm" }}
+    >
       {/* 헤더 */}
       <div className="mb-12 md:mb-16">
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-gray-100">
