@@ -20,6 +20,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { calculateTotals } from "@/lib/utils/shipping";
 import type {
   CartItem,
   CartSummary,
@@ -27,35 +28,6 @@ import type {
   UpdateCartItemInput,
   DeliveryMethod,
 } from "@/types/cart";
-
-/**
- * 배송비 포함 금액 계산 헬퍼
- * shipping_fee는 박스/수량당 부과, 총액은 unit_price * quantity + shipping_fee * quantity
- */
-function calculateTotals({
-  unitPrice,
-  quantity,
-  shippingFee,
-}: {
-  unitPrice: number;
-  quantity: number;
-  shippingFee: number;
-}) {
-  const totalProductPrice = unitPrice * quantity;
-  const totalShippingFee = shippingFee * quantity;
-  const totalPrice = totalProductPrice + totalShippingFee;
-
-  console.log("🧮 [cart-store] 금액 계산", {
-    unitPrice,
-    quantity,
-    shippingFee,
-    totalProductPrice,
-    totalShippingFee,
-    totalPrice,
-  });
-
-  return { totalProductPrice, totalShippingFee, totalPrice };
-}
 
 /**
  * 장바구니 스토어 상태 타입
@@ -124,17 +96,24 @@ export const useCartStore = create<CartStore>()(
       getSummary: (): CartSummary => {
         const { items } = get();
 
-        // 상품 총액 계산: 각 아이템의 (단가 * 수량) 합계
-        const totalProductPrice = items.reduce(
-          (sum, item) => sum + item.unit_price * item.quantity,
-          0
+        const totals = items.reduce(
+          (sum, item) => {
+            const { productTotal, shippingFee } = calculateTotals({
+              unitPrice: item.unit_price,
+              shippingUnitFee: item.shipping_fee ?? 0,
+              quantity: item.quantity,
+            });
+
+            return {
+              product: sum.product + productTotal,
+              shipping: sum.shipping + shippingFee,
+            };
+          },
+          { product: 0, shipping: 0 }
         );
 
-        // 배송비 총액: 각 아이템의 (배송비 * 수량) 합계
-        const totalShippingFee = items.reduce(
-          (sum, item) => sum + (item.shipping_fee ?? 0) * item.quantity,
-          0
-        );
+        const totalProductPrice = totals.product;
+        const totalShippingFee = totals.shipping;
 
         // 총 결제 예상 금액 = 상품 총액 + 배송비 총액
         const totalPrice = totalProductPrice + totalShippingFee;
@@ -162,7 +141,7 @@ export const useCartStore = create<CartStore>()(
         // quantity를 명시적으로 Number로 변환하여 타입 보장
         const inputQuantity = Number(input.quantity);
         const shippingFee = Number(input.shipping_fee ?? 0);
-        
+
         if (isNaN(inputQuantity) || inputQuantity <= 0) {
           console.error("❌ [cart-store] 잘못된 수량:", inputQuantity);
           return;
@@ -189,7 +168,11 @@ export const useCartStore = create<CartStore>()(
           // 같은 상품이 있으면 수량 증가
           const existingQuantity = Number(items[existingItemIndex].quantity);
           const newQuantity = existingQuantity + inputQuantity;
-          const shippingFeeTotal = shippingFee * newQuantity;
+          const { shippingFee: shippingFeeTotal } = calculateTotals({
+            unitPrice: input.unit_price,
+            shippingUnitFee: shippingFee,
+            quantity: newQuantity,
+          });
           
           console.log("🔄 [cart-store] 기존 상품 수량 증가:", {
             productId: input.product_id,
@@ -223,7 +206,11 @@ export const useCartStore = create<CartStore>()(
             shippingFee,
           });
 
-          const shippingFeeTotal = input.shipping_fee * inputQuantity;
+          const { shippingFee: shippingFeeTotal } = calculateTotals({
+            unitPrice: input.unit_price,
+            shippingUnitFee: shippingFee,
+            quantity: inputQuantity,
+          });
           const newItem: CartItem = {
             id: generateCartItemId(),
             ...input,
@@ -253,6 +240,19 @@ export const useCartStore = create<CartStore>()(
         }
 
         const updatedItems = [...items];
+        const nextQuantity =
+          input.quantity !== undefined ? input.quantity : updatedItems[itemIndex].quantity;
+        const nextUnitPrice =
+          input.unit_price !== undefined ? input.unit_price : updatedItems[itemIndex].unit_price;
+        const nextShippingFee =
+          updatedItems[itemIndex].shipping_fee ?? 0;
+
+        const { shippingFee: shippingFeeTotal } = calculateTotals({
+          unitPrice: nextUnitPrice,
+          shippingUnitFee: nextShippingFee,
+          quantity: nextQuantity,
+        });
+
         updatedItems[itemIndex] = {
           ...updatedItems[itemIndex],
           ...(input.quantity !== undefined && { quantity: input.quantity }),
@@ -262,6 +262,7 @@ export const useCartStore = create<CartStore>()(
           ...(input.delivery_method !== undefined && {
             delivery_method: input.delivery_method,
           }),
+          shipping_fee_total: shippingFeeTotal,
         };
 
         set({ items: updatedItems });

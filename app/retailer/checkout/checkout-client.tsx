@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useCartStore } from "@/stores/cart-store";
+import { calculateTotals } from "@/lib/utils/shipping";
 import { useTossPayment } from "@/hooks/use-toss-payment";
 import { createPayment } from "@/actions/retailer/create-payment";
 import type { RetailerInfo } from "@/actions/retailer/get-retailer-info";
@@ -28,15 +29,29 @@ export default function CheckoutPageClient({
   
   const items = useCartStore((state) => state.items);
 
-  // items를 직접 사용하여 summary 계산
+  // items를 직접 사용하여 summary 계산 (배송비 포함)
   const summary = useMemo(() => {
-    const totalProductPrice = items.reduce(
-      (sum, item) => sum + item.unit_price * item.quantity,
-      0
+    const totals = items.reduce(
+      (sum, item) => {
+        const { productTotal, shippingFee, total } = calculateTotals({
+          unitPrice: item.unit_price,
+          shippingUnitFee: item.shipping_fee ?? 0,
+          quantity: item.quantity,
+        });
+
+        return {
+          product: sum.product + productTotal,
+          shipping: sum.shipping + shippingFee,
+          total: sum.total + total,
+        };
+      },
+      { product: 0, shipping: 0, total: 0 }
     );
+
     return {
-      totalProductPrice,
-      totalPrice: totalProductPrice,
+      totalProductPrice: totals.product,
+      totalShippingFee: totals.shipping,
+      totalPrice: totals.total,
       itemCount: items.length,
     };
   }, [items]);
@@ -135,6 +150,7 @@ export default function CheckoutPageClient({
 
   const totalProductPrice = summary.totalProductPrice;
   const totalPrice = summary.totalPrice;
+  const totalShippingFee = summary.totalShippingFee;
 
   const getDeliveryAddressString = () => {
     if (!retailerInfo) return "";
@@ -286,6 +302,10 @@ export default function CheckoutPageClient({
                             <div className="flex justify-between">
                                 <span className="text-gray-600 dark:text-gray-400">총 상품 금액</span>
                                 <span className="text-gray-900 dark:text-gray-100">{totalProductPrice.toLocaleString()}원</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">배송비</span>
+                                <span className="text-gray-900 dark:text-gray-100">{totalShippingFee.toLocaleString()}원</span>
                             </div>
                             <div className="border-t border-gray-200 pt-3 flex justify-between text-base font-bold">
                                 <span className="text-gray-900 dark:text-gray-100">총 결제 예정 금액</span>

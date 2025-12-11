@@ -10,12 +10,13 @@
 
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { toast } from "sonner";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
+import { calculateTotals } from "@/lib/utils/shipping";
 
 interface ProductActionsProps {
   product: RetailerProduct;
@@ -124,6 +125,15 @@ export function ProductActions({ product }: ProductActionsProps) {
 
   const isOutOfStock = product.stock_quantity === 0;
   const maxQuantity = product.stock_quantity;
+  const totals = useMemo(
+    () =>
+      calculateTotals({
+        unitPrice: product.price,
+        shippingUnitFee: product.shipping_fee ?? 0,
+        quantity,
+      }),
+    [product.price, product.shipping_fee, quantity]
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -158,6 +168,23 @@ export function ProductActions({ product }: ProductActionsProps) {
           >
             <Plus className="w-5 h-5" />
           </button>
+        </div>
+      </div>
+
+      <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/60 space-y-2 transition-colors duration-200">
+        <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-200">
+          <span>상품 금액</span>
+          <span className="font-semibold">₩{totals.productTotal.toLocaleString()}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-200">
+          <span>배송비 (₩{(product.shipping_fee ?? 0).toLocaleString()}/개)</span>
+          <span className="font-semibold">₩{totals.shippingFee.toLocaleString()}</span>
+        </div>
+        <div className="border-t border-gray-200 dark:border-gray-800 pt-3 flex items-center justify-between">
+          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">총 예상 결제액</span>
+          <span className="text-lg font-extrabold text-green-600 dark:text-green-400">
+            ₩{totals.total.toLocaleString()}
+          </span>
         </div>
       </div>
 

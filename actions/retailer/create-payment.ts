@@ -17,6 +17,7 @@
 
 import { getUserProfile } from "@/lib/clerk/auth";
 import { getServiceRoleClient } from "@/lib/supabase/service-role";
+import { calculateTotals } from "@/lib/utils/shipping";
 
 export interface PaymentItem {
   product_id: string;
@@ -37,6 +38,10 @@ export interface ValidatedItem extends PaymentItem {
   product_name: string;
   wholesaler_id: string;
   shipping_fee: number;
+  /** 배송비 총액 (shipping_fee * quantity) */
+  shipping_fee_total: number;
+  /** 상품+배송비 포함 총액 */
+  total_amount: number;
   server_unit_price: number;
   stock_quantity: number;
 }
@@ -225,8 +230,21 @@ export async function createPayment(
         // 가격 불일치 시 서버 가격으로 계산 (보안상 서버 가격 우선)
       }
 
-      const itemTotal = product.price * item.quantity;
-      serverTotalAmount += itemTotal;
+      const { productTotal, shippingFee, total } = calculateTotals({
+        unitPrice: product.price,
+        shippingUnitFee: product.shipping_fee ?? 0,
+        quantity: item.quantity,
+      });
+      serverTotalAmount += total;
+      console.info("🧮 [결제-금액] 서버 계산", {
+        productId: item.product_id,
+        quantity: item.quantity,
+        unitPrice: product.price,
+        shippingUnitFee: product.shipping_fee ?? 0,
+        productTotal,
+        shippingFee,
+        total,
+      });
 
       validatedItems.push({
         product_id: item.product_id,
@@ -235,6 +253,8 @@ export async function createPayment(
         product_name: product.standardized_name || product.original_name,
         wholesaler_id: product.wholesaler_id,
         shipping_fee: product.shipping_fee || 0,
+        shipping_fee_total: shippingFee,
+        total_amount: total,
         server_unit_price: product.price,
         stock_quantity: product.stock_quantity,
       });

@@ -23,6 +23,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Trash2, Minus, Plus, ShoppingCart, AlertCircle, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
+import { calculateTotals } from "@/lib/utils/shipping";
 import {
   validateCartItems,
   formatValidationError,
@@ -78,14 +79,31 @@ export default function CartPage() {
   // 선택된 항목만 필터링하여 요약 계산
   const summary = useMemo(() => {
     const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
-    const totalProductPrice = selectedItems.reduce(
-      (sum, item) => sum + item.unit_price * item.quantity,
-      0
+    const totals = selectedItems.reduce(
+      (sum, item) => {
+        const { productTotal, shippingFee, total } = calculateTotals({
+          unitPrice: item.unit_price,
+          shippingUnitFee: item.shipping_fee ?? 0,
+          quantity: item.quantity,
+        });
+
+        return {
+          product: sum.product + productTotal,
+          shipping: sum.shipping + shippingFee,
+          total: sum.total + total,
+        };
+      },
+      { product: 0, shipping: 0, total: 0 }
     );
-    const totalPrice = totalProductPrice;
+
     const itemCount = selectedItems.length;
 
-    return { totalProductPrice, totalPrice, itemCount };
+    return {
+      totalProductPrice: totals.product,
+      totalShippingFee: totals.shipping,
+      totalPrice: totals.total,
+      itemCount,
+    };
   }, [items, selectedItemIds]);
 
   // 수량 감소
@@ -129,7 +147,7 @@ export default function CartPage() {
   const canCheckout = validationResult.isValid && selectedItemIds.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         {/* 헤더 */}
         <div className="mb-6 md:mb-8">
@@ -271,14 +289,28 @@ export default function CartPage() {
                       {/* 가격 및 수량 - 모바일에서는 세로 배치 */}
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mt-3">
                         {/* 가격 정보 */}
-                        <div className="text-right md:text-left order-1 md:order-2">
-                          <div className="font-bold text-lg md:text-xl text-gray-800">
-                            ₩{(item.unit_price * item.quantity).toLocaleString()}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            단가: ₩{item.unit_price.toLocaleString()}
-                          </div>
-                        </div>
+                        {(() => {
+                          const { productTotal, shippingFee, total } = calculateTotals({
+                            unitPrice: item.unit_price,
+                            shippingUnitFee: item.shipping_fee ?? 0,
+                            quantity: item.quantity,
+                          });
+
+                          return (
+                            <div className="text-right md:text-left order-1 md:order-2">
+                              <div className="font-bold text-lg md:text-xl text-gray-800 dark:text-gray-100">
+                                ₩{total.toLocaleString()}
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                상품: ₩{productTotal.toLocaleString()}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                배송비: ₩{(item.shipping_fee ?? 0).toLocaleString()} /개 → ₩
+                                {shippingFee.toLocaleString()}
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         {/* 수량 조절 */}
                         <div className="flex items-center bg-gray-100 rounded-lg order-2 md:order-1 self-start md:self-auto">
@@ -312,21 +344,23 @@ export default function CartPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-4">
               {/* 주문 금액 */}
-              <div className="p-5 md:p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                <h3 className="font-bold text-gray-800 mb-4">주문 금액</h3>
+              <div className="p-5 md:p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-200">
+                <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4">주문 금액</h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-gray-600 dark:text-gray-300">
                     <span>상품 금액</span>
                     <span>₩{summary.totalProductPrice.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-gray-600 dark:text-gray-300">
                     <span>배송비</span>
-                    <span className="text-green-600 font-medium">무료</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-medium">
+                      ₩{summary.totalShippingFee.toLocaleString()}
+                    </span>
                   </div>
-                  <div className="border-t border-gray-200 pt-3 mt-3">
+                  <div className="border-t border-gray-200 dark:border-gray-800 pt-3 mt-3">
                     <div className="flex justify-between items-center">
-                      <span className="font-bold text-gray-800">총 결제 금액</span>
-                      <span className="font-extrabold text-xl md:text-2xl text-green-600">
+                      <span className="font-bold text-gray-800 dark:text-gray-100">총 결제 금액</span>
+                      <span className="font-extrabold text-xl md:text-2xl text-green-600 dark:text-green-400">
                         ₩{summary.totalPrice.toLocaleString()}
                       </span>
                     </div>

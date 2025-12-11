@@ -17,6 +17,7 @@
 
 import { getUserProfile } from "@/lib/clerk/auth";
 import { getServiceRoleClient } from "@/lib/supabase/service-role";
+import { calculateTotals } from "@/lib/utils/shipping";
 
 export interface OrderItem {
   product_id: string;
@@ -144,7 +145,11 @@ export async function createOrder(
         ? request.orderId
         : `${request.orderId}-${i + 1}`;
 
-      const itemTotalAmount = item.unit_price * item.quantity + (item.shipping_fee ?? 0);
+      const { total: itemTotalAmount, shippingFee: shippingFeeTotal } = calculateTotals({
+        unitPrice: item.unit_price,
+        shippingUnitFee: item.shipping_fee ?? 0,
+        quantity: item.quantity,
+      });
 
       // 주문 데이터 생성
       const orderData = {
@@ -154,7 +159,7 @@ export async function createOrder(
         order_number: orderNumber,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        shipping_fee: item.shipping_fee ?? 0,
+        shipping_fee: shippingFeeTotal,
         total_amount: itemTotalAmount,
         delivery_address: request.deliveryAddress,
         request_note: request.deliveryNote || null,
@@ -170,6 +175,7 @@ export async function createOrder(
         productName: item.product_name,
         quantity: item.quantity,
         totalAmount: itemTotalAmount,
+        shippingFeeTotal: shippingFeeTotal,
       });
 
       // 주문 삽입

@@ -66,7 +66,7 @@ export default function ProductRecommendationSection() {
   return (
     <section className="relative pt-8">
       <div className="text-center mb-10">
-        <div className="inline-block mb-3">
+        <div className="inline-block mb-3 -translate-y-[0.5cm]">
           <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
             POPULAR
           </span>

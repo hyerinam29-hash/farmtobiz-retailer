@@ -425,29 +425,28 @@ export default async function ProductsPage({
               )}
             </>
           ) : (
-            // 검색 결과 없음 UI (디자인 정확히 반영 + 모바일 반응형)
+            // 검색 결과 없음 UI (디자인 시안 반영 + 다크 모드)
             <div className="max-w-7xl mx-auto mt-4 md:mt-8">
-              <div className="bg-white rounded-xl md:rounded-2xl p-8 md:p-16 lg:p-20 text-center shadow-sm">
-                {/* 아이콘 - 모바일/데스크톱 반응형 */}
-                <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 bg-gray-200 rounded-full flex items-center justify-center">
+              <div className="bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-8 md:p-14 lg:p-16 text-center shadow-sm border border-gray-100 dark:border-gray-800">
+                {/* 아이콘 */}
+                <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
                   <AlertCircle className="w-8 h-8 md:w-12 md:h-12 text-gray-400" />
                 </div>
-                
-                {/* 제목 - 모바일/데스크톱 반응형 */}
-                <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-2 md:mb-3">
+
+                {/* 제목 */}
+                <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 md:mb-3">
                   검색 결과가 없습니다
                 </h3>
-                
-                {/* 설명 - 모바일/데스크톱 반응형 */}
-                <p className="text-sm md:text-base lg:text-lg text-gray-600 mb-6 md:mb-8">
+
+                {/* 설명 */}
+                <p className="text-sm md:text-base lg:text-lg text-gray-600 dark:text-gray-300 mb-6 md:mb-8">
                   다른 검색어로 다시 시도해보세요.
                 </p>
-                
-                {/* 버튼 - 모바일/데스크톱 반응형 */}
+
+                {/* 버튼: 초록색, 홈으로 이동 */}
                 <Link href="/retailer/dashboard">
-                  <Button 
-                    variant="outline" 
-                    className="px-6 md:px-8 py-2.5 md:py-3 text-sm md:text-base font-medium border-gray-300 hover:bg-gray-50"
+                  <Button
+                    className="px-6 md:px-8 py-2.5 md:py-3 text-sm md:text-base font-semibold bg-green-500 hover:bg-green-600 text-white border-none transition-colors"
                   >
                     홈으로 돌아가기
                   </Button>
