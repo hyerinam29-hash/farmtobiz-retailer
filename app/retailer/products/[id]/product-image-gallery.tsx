@@ -14,7 +14,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface ProductImageGalleryProps {
@@ -25,9 +25,16 @@ interface ProductImageGalleryProps {
 
 export default function ProductImageGallery({ mainImage, thumbnails, productName }: ProductImageGalleryProps) {
   const safeThumbnails = thumbnails.filter(Boolean);
+  const [displayedMain, setDisplayedMain] = useState<string | undefined>(mainImage ?? safeThumbnails[0]);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const displayedMain = mainImage || safeThumbnails[activeIndex];
+  // mainImage가 늦게 도착하는 경우 대응
+  useEffect(() => {
+    if (mainImage) {
+      setDisplayedMain(mainImage);
+      setActiveIndex(0);
+    }
+  }, [mainImage]);
 
   console.log("🖼️ [product-image-gallery] 이미지 변경", {
     activeIndex,
@@ -58,7 +65,10 @@ export default function ProductImageGallery({ mainImage, thumbnails, productName
             <button
               key={`${src}-${idx}`}
               type="button"
-              onClick={() => setActiveIndex(idx)}
+              onClick={() => {
+                setActiveIndex(idx);
+                setDisplayedMain(src);
+              }}
               className={cn(
                 "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border transition-colors duration-200",
                 activeIndex === idx
