@@ -204,6 +204,9 @@ export default function SignInWithRedirect({
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showWholesalerBlockModal, setShowWholesalerBlockModal] =
     useState(false);
+  const [blockedRole, setBlockedRole] = useState<"wholesaler" | "admin" | null>(
+    null,
+  );
   const [showDuplicateAccountModal, setShowDuplicateAccountModal] =
     useState(false);
   const [isWholesalerChecking, setIsWholesalerChecking] = useState(false); // 도매 계정 확인 중 상태
@@ -579,10 +582,11 @@ export default function SignInWithRedirect({
       checkUserRole().then((role) => {
         setRoleCheckComplete(true);
 
-        if (role === "wholesaler") {
+        if (role === "wholesaler" || role === "admin") {
           console.log(
-            "🚫 [Wholesaler Block] 도매점 계정 감지 - 차단 모달 표시",
+            "🚫 [Wholesaler Block] 제한된 역할 감지 - 차단 모달 표시",
           );
+          setBlockedRole(role);
           setShowWholesalerBlockModal(true);
           // signOut은 모달에서 확인 버튼 클릭 시 실행
         } else {
@@ -777,12 +781,24 @@ export default function SignInWithRedirect({
         >
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">
-              도매점 계정은 소매점 로그인을 사용할 수 없습니다
+              {blockedRole === "admin"
+                ? "관리자 계정은 소매점 로그인을 사용할 수 없습니다"
+                : "도매점 계정은 소매점 로그인을 사용할 수 없습니다"}
             </DialogTitle>
             <DialogDescription className="pt-2 text-base">
-              도매점 계정으로는 소매점 로그인 페이지에서 로그인할 수 없습니다.
-              <br />
-              도매점 로그인 페이지를 이용해주세요.
+              {blockedRole === "admin" ? (
+                <>
+                  관리자 계정으로는 소매점 로그인 페이지에서 로그인할 수 없습니다.
+                  <br />
+                  관리자 전용 로그인 페이지를 이용해주세요.
+                </>
+              ) : (
+                <>
+                  도매점 계정으로는 소매점 로그인 페이지에서 로그인할 수 없습니다.
+                  <br />
+                  도매점 로그인 페이지를 이용해주세요.
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="sm:justify-center">
