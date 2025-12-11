@@ -42,6 +42,7 @@ import {
   getRecentOrdersForDashboard,
   type DashboardRecentOrder,
 } from "@/actions/retailer/get-recent-orders";
+import ChatbotWidget from "@/components/retailer/chatbot/chatbot-widget";
 
 // TODO: 추후 API로 교체 예정
 // 임시 목 데이터 - 최근 주문 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
@@ -666,6 +667,7 @@ export default function RetailerDashboardPage() {
         </section>
 
       </div>
+      <ChatbotWidget />
     </div>
   );
 }
