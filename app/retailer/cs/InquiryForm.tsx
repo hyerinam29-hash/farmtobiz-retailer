@@ -61,7 +61,6 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
     try {
       // Server Action 호출
       const result = await createInquiry({
-        type: "general",
         title: data.title,
         content: data.content,
       });

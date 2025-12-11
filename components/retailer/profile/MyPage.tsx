@@ -25,7 +25,6 @@ import { useClerk } from "@clerk/nextjs";
 import {
   User,
   Package,
-  Heart,
   Settings,
   LogOut,
   ChevronRight,

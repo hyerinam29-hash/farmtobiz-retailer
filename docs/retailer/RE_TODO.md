@@ -309,6 +309,9 @@ PRD 3.5 섹션 참조.
     - components/retailer/best-product-card.tsx
     - components/retailer/product-card.tsx
 - 2025-12-08: Vercel 빌드 ESLint 경고/에러 정리 (따옴표 이스케이프, 미사용 변수 정리, 의존성 배열 보완)
+- 2025-12-11: Vercel 빌드 ESLint/TS 오류 정리
+  - 미사용 컴포넌트/아이콘 임포트 제거: app/retailer/profile/edit/page.tsx, components/retailer/profile/MyPage.tsx
+  - 문의 작성 타입 불일치 수정: app/retailer/cs/InquiryForm.tsx (`type` 필드 제거, CreateInquiryInput에 맞춤)
 
 ## Phase 5 AI & 최적화 🤖
 

@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/card";
 import NotificationSettingsCard from "@/components/retailer/profile/notification-settings-card";
 import ProfileEditFormClient from "@/components/retailer/profile/profile-edit-form-client";
-import LogoutButton from "@/components/retailer/profile/logout-button";
 import AccountDeleteModal from "@/components/retailer/profile/account-delete-modal";
 import PasswordChangeButton from "@/components/retailer/profile/password-change-button";
 

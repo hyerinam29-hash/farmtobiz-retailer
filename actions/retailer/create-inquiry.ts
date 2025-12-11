@@ -20,6 +20,8 @@ export interface CreateInquiryInput {
 export interface CreateInquiryResult {
   success: boolean;
   error?: string;
+  aiResponse?: string | null;
+  inquiryId?: string | null;
 }
 
 export async function createInquiry(
