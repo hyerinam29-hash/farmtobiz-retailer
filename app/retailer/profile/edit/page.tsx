@@ -25,6 +25,7 @@ import NotificationSettingsCard from "@/components/retailer/profile/notification
 import ProfileEditFormClient from "@/components/retailer/profile/profile-edit-form-client";
 import LogoutButton from "@/components/retailer/profile/logout-button";
 import AccountDeleteModal from "@/components/retailer/profile/account-delete-modal";
+import PasswordChangeButton from "@/components/retailer/profile/password-change-button";
 
 export default async function ProfileEditPage() {
   // 소매점 권한 확인
@@ -60,16 +61,14 @@ export default async function ProfileEditPage() {
           <Card className="border-gray-200 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                보안
+                비밀번호 변경
               </CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-gray-300">
-                비밀번호 변경 및 계정 보안을 관리하세요.
+                비밀번호를 변경하세요.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-700 transition-colors dark:bg-gray-800 dark:text-gray-200">
-                비밀번호 변경 · 마지막 변경일: 보안 설정 페이지에서 변경 가능합니다.
-              </div>
+              <PasswordChangeButton />
             </CardContent>
           </Card>
 
