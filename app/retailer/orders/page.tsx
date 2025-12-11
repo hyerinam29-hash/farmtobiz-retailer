@@ -84,26 +84,6 @@ function transformOrderToListItem(order: OrderDetail): OrderListItem {
   };
 }
 
-// API 실패 또는 데이터 없음 시 화면이 비지 않도록 예시 데이터 제공
-const fallbackOrders: OrderListItem[] = [
-  {
-    id: "fallback-1",
-    order_number: "ORD-EXAMPLE-001",
-    order_date: new Date().toLocaleDateString("ko-KR"),
-    products: [
-      {
-        name: "표시용 예시 상품",
-        quantity: 1,
-      },
-    ],
-    total_price: 0,
-    status: "preparing",
-    status_label: "준비 중",
-    delivery_method: "확인 중",
-    delivery_scheduled_time: "확인 중",
-  },
-];
-
 export default async function OrdersPage() {
   // 주문 목록 조회 (현재는 데이터가 없을 수 있으므로 에러 처리)
   let orders: OrderListItem[] = [];
@@ -125,6 +105,7 @@ export default async function OrdersPage() {
     console.log("[OrdersPage] 주문 목록 조회 실패 또는 데이터 없음", error);
     orders = [];
   }
+
   return <OrdersClient orders={orders} />;
 }
 
