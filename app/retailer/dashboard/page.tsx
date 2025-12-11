@@ -38,6 +38,10 @@ import { useCartStore } from "@/stores/cart-store";
 import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
 import { getHotDealProducts } from "@/actions/retailer/get-hot-deal-products";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
+import {
+  getRecentOrdersForDashboard,
+  type DashboardRecentOrder,
+} from "@/actions/retailer/get-recent-orders";
 
 // TODO: 추후 API로 교체 예정
 // 임시 목 데이터 - 최근 주문 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
@@ -80,6 +84,16 @@ export default function RetailerDashboardPage() {
   const [timeLeft, setTimeLeft] = useState(86400);
   const [hotDeals, setHotDeals] = useState<RetailerProduct[]>([]);
   const [isHotDealsLoading, setIsHotDealsLoading] = useState(true);
+  const [recentOrders, setRecentOrders] = useState<DashboardRecentOrder[]>([]);
+  const [isRecentOrdersLoading, setIsRecentOrdersLoading] = useState(true);
+
+  const statusLabelMap: Record<string, string> = {
+    pending: "준비 중",
+    confirmed: "준비 중",
+    shipped: "배송중",
+    completed: "배송완료",
+    cancelled: "주문 취소",
+  };
 
   // URL 해시가 있으면 해당 섹션으로 스크롤
   useEffect(() => {
@@ -164,6 +178,27 @@ export default function RetailerDashboardPage() {
     };
 
     fetchHotDeals();
+  }, []);
+
+  // 최근 주문 데이터 로드
+  useEffect(() => {
+    const fetchRecentOrders = async () => {
+      try {
+        console.log("📦 [대시보드] 최근 주문 불러오기 시작");
+        const data = await getRecentOrdersForDashboard();
+        setRecentOrders(data);
+        console.log("📦 [대시보드] 최근 주문 불러오기 완료", {
+          count: data.length,
+        });
+      } catch (error) {
+        console.error("❌ [대시보드] 최근 주문 불러오기 실패", error);
+        setRecentOrders([]);
+      } finally {
+        setIsRecentOrdersLoading(false);
+      }
+    };
+
+    fetchRecentOrders();
   }, []);
 
   // 초를 시:분:초 형식으로 변환하는 함수
@@ -476,62 +511,66 @@ export default function RetailerDashboardPage() {
               </button>
             </div>
             <div className="space-y-4">
-              <div 
-                onClick={() => {
-                  console.log("📦 [대시보드] 최근 주문 클릭, 주문 상세 페이지로 이동, orderId: 1");
-                  router.push("/retailer/orders/1");
-                }}
-                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group"
-              >
-                <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
-                  <Package size={20} />
-                </div>
-                <div className="flex-1">
-                  <div className="font-bold text-gray-800">양파, 마늘 외 5건</div>
-                  <div className="text-sm text-gray-500">2023.11.28</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-gray-800">154,000원</div>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log("🔄 [대시보드] 재주문 버튼 클릭");
-                      // TODO: 재주문 기능 구현
-                    }}
-                    className="text-xs text-green-600 font-bold hover:underline mt-1"
+              {isRecentOrdersLoading ? (
+                Array.from({ length: 2 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100"
                   >
-                    재주문
-                  </button>
+                    <div className="bg-white p-3 rounded-full shadow-sm w-12 h-12 animate-pulse" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-100 rounded w-1/3 animate-pulse" />
+                      <div className="h-4 bg-gray-100 rounded w-1/4 animate-pulse" />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <div className="h-4 bg-gray-100 rounded w-16 animate-pulse ml-auto" />
+                      <div className="h-3 bg-gray-100 rounded w-12 animate-pulse ml-auto" />
+                    </div>
+                  </div>
+                ))
+              ) : recentOrders.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 text-center text-gray-500">
+                  최근 주문이 없습니다.
                 </div>
-              </div>
-              <div 
-                onClick={() => {
-                  console.log("📦 [대시보드] 최근 주문 클릭, 주문 상세 페이지로 이동, orderId: 2");
-                  router.push("/retailer/orders/2");
-                }}
-                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group"
-              >
-                <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
-                  <Package size={20} />
-                </div>
-                <div className="flex-1">
-                  <div className="font-bold text-gray-800">제주 감귤 10박스</div>
-                  <div className="text-sm text-gray-500">2023.11.27</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-gray-800">150,000원</div>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log("🔄 [대시보드] 재주문 버튼 클릭");
-                      // TODO: 재주문 기능 구현
-                    }}
-                    className="text-xs text-green-600 font-bold hover:underline mt-1"
-                  >
-                    재주문
-                  </button>
-                </div>
-              </div>
+              ) : (
+                recentOrders.map((order) => {
+                  const otherItems = order.quantity > 1 ? order.quantity - 1 : 0;
+                  const displayName =
+                    otherItems > 0
+                      ? `${order.productName} 외 ${otherItems}건`
+                      : order.productName;
+                  const formattedDate = new Date(order.createdAt).toLocaleDateString("ko-KR");
+                  const formattedPrice = order.totalAmount.toLocaleString();
+                  const statusLabel = statusLabelMap[order.status] ?? "준비 중";
+
+                  return (
+                    <div
+                      key={order.id}
+                      onClick={() => {
+                        console.log("📦 [대시보드] 최근 주문 클릭, 주문 상세 페이지 이동", {
+                          orderId: order.id,
+                        });
+                        router.push(`/retailer/orders/${order.id}`);
+                      }}
+                      className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group"
+                    >
+                      <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
+                        <Package size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold text-gray-800">{displayName}</div>
+                        <div className="text-sm text-gray-500">{formattedDate}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-gray-800">{formattedPrice}원</div>
+                        <span className="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-gray-100 text-gray-600 mt-1">
+                          {statusLabel}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </section>
