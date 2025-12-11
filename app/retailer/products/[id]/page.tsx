@@ -46,6 +46,17 @@ export default async function ProductDetailPage({
     productName: product.standardized_name || product.name,
   });
 
+  const categoryQueryMap: Record<string, string> = {
+    과일: "과일",
+    채소: "채소",
+    수산물: "수산물",
+    "곡물/견과": "곡물/견과",
+    기타: "기타",
+  };
+
+  const categoryQuery = categoryQueryMap[product.category] ?? "기타";
+  const backHref = `/retailer/products?category=${encodeURIComponent(categoryQuery)}`;
+
   // 배송 방법 한글 변환
   const deliveryMethodMap: Record<string, string> = {
     courier: "택배",
@@ -61,7 +72,7 @@ export default async function ProductDetailPage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* 뒤로가기 */}
       <Link
-        href="/retailer/products"
+        href={backHref}
         className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6"
       >
         <ChevronLeft className="w-5 h-5" />
