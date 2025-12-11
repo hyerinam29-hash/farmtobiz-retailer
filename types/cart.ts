@@ -48,6 +48,10 @@ export interface CartItem {
   moq: number;
   /** 재고 수량 (검증용) */
   stock_quantity: number;
+  /** 개당 배송비 (박스/수량 기준) */
+  shipping_fee: number;
+  /** 총 배송비 (shipping_fee * quantity) */
+  shipping_fee_total: number;
 }
 
 /**
@@ -56,7 +60,9 @@ export interface CartItem {
 export interface CartSummary {
   /** 상품 총액 (단가 * 수량의 합) */
   totalProductPrice: number;
-  /** 총 결제 예상 금액 (상품 총액) */
+  /** 총 배송비 (배송비 * 수량의 합) */
+  totalShippingFee: number;
+  /** 총 결제 예상 금액 (상품 총액 + 배송비) */
   totalPrice: number;
   /** 장바구니 아이템 개수 */
   itemCount: number;
@@ -71,6 +77,7 @@ export interface AddToCartInput {
   variant_id: string | null;
   quantity: number;
   unit_price: number;
+  shipping_fee: number;
   delivery_method: DeliveryMethod;
   wholesaler_id: string;
   product_name: string;

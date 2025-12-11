@@ -51,8 +51,6 @@ interface MyPageProps {
   completedOrders: number;
   /** 최근 주문 내역 */
   recentOrders: OrderDetail[];
-  /** 찜한 상품 개수 (임시) */
-  wishlistCount?: number;
 }
 
 /**
@@ -108,7 +106,6 @@ export default function MyPage({
   shippingOrders,
   completedOrders,
   recentOrders,
-  wishlistCount = 0,
 }: MyPageProps) {
   const router = useRouter();
   const { signOut } = useClerk();
@@ -211,24 +208,6 @@ export default function MyPage({
                 <div className="flex items-center gap-2">
                   <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
                     {totalOrders}
-                  </span>
-                  <ChevronRight size={20} className="text-gray-400" />
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/retailer/wishlist"
-              className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md transition-all hover:-translate-y-1"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Heart className="text-green-600" size={24} />
-                  <span className="font-bold text-gray-800">찜한 상품</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
-                    {wishlistCount}
                   </span>
                   <ChevronRight size={20} className="text-gray-400" />
                 </div>

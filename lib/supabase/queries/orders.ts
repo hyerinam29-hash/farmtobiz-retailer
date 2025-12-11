@@ -151,8 +151,7 @@ export async function getOrders(
       `
       *,
       products(*),
-      product_variants(*),
-      wholesalers(id, anonymous_code, anonymous_id, region)
+      product_variants(*)
     `,
       { count: "exact" },
     )
@@ -268,8 +267,7 @@ export async function getOrderById(
       `
       *,
       products(*),
-      product_variants(*),
-      wholesalers(id, anonymous_code, anonymous_id, region)
+      product_variants(*)
     `,
     )
     .eq("id", orderId)

@@ -29,6 +29,35 @@ import type {
 } from "@/types/cart";
 
 /**
+ * 배송비 포함 금액 계산 헬퍼
+ * shipping_fee는 박스/수량당 부과, 총액은 unit_price * quantity + shipping_fee * quantity
+ */
+function calculateTotals({
+  unitPrice,
+  quantity,
+  shippingFee,
+}: {
+  unitPrice: number;
+  quantity: number;
+  shippingFee: number;
+}) {
+  const totalProductPrice = unitPrice * quantity;
+  const totalShippingFee = shippingFee * quantity;
+  const totalPrice = totalProductPrice + totalShippingFee;
+
+  console.log("🧮 [cart-store] 금액 계산", {
+    unitPrice,
+    quantity,
+    shippingFee,
+    totalProductPrice,
+    totalShippingFee,
+    totalPrice,
+  });
+
+  return { totalProductPrice, totalShippingFee, totalPrice };
+}
+
+/**
  * 장바구니 스토어 상태 타입
  */
 interface CartStore {
@@ -101,14 +130,21 @@ export const useCartStore = create<CartStore>()(
           0
         );
 
-        // 총 결제 예상 금액 = 상품 총액 (배송비 없음)
-        const totalPrice = totalProductPrice;
+        // 배송비 총액: 각 아이템의 (배송비 * 수량) 합계
+        const totalShippingFee = items.reduce(
+          (sum, item) => sum + (item.shipping_fee ?? 0) * item.quantity,
+          0
+        );
+
+        // 총 결제 예상 금액 = 상품 총액 + 배송비 총액
+        const totalPrice = totalProductPrice + totalShippingFee;
 
         // 장바구니 아이템 개수
         const itemCount = items.length;
 
         return {
           totalProductPrice,
+          totalShippingFee,
           totalPrice,
           itemCount,
         };
@@ -125,6 +161,7 @@ export const useCartStore = create<CartStore>()(
       addToCart: (input: AddToCartInput) => {
         // quantity를 명시적으로 Number로 변환하여 타입 보장
         const inputQuantity = Number(input.quantity);
+        const shippingFee = Number(input.shipping_fee ?? 0);
         
         if (isNaN(inputQuantity) || inputQuantity <= 0) {
           console.error("❌ [cart-store] 잘못된 수량:", inputQuantity);
@@ -135,6 +172,7 @@ export const useCartStore = create<CartStore>()(
           productId: input.product_id,
           inputQuantity: inputQuantity,
           originalInput: input.quantity,
+          shippingFee,
         });
 
         const { items } = get();
@@ -151,12 +189,15 @@ export const useCartStore = create<CartStore>()(
           // 같은 상품이 있으면 수량 증가
           const existingQuantity = Number(items[existingItemIndex].quantity);
           const newQuantity = existingQuantity + inputQuantity;
+          const shippingFeeTotal = shippingFee * newQuantity;
           
           console.log("🔄 [cart-store] 기존 상품 수량 증가:", {
             productId: input.product_id,
             existingQuantity,
             inputQuantity,
             newQuantity,
+            shippingFee,
+            shippingFeeTotal,
           });
 
           const updatedItems = [...items];
@@ -166,6 +207,8 @@ export const useCartStore = create<CartStore>()(
             // 가격이나 배송방법이 변경되었을 수 있으므로 업데이트
             unit_price: input.unit_price,
             delivery_method: input.delivery_method,
+            shipping_fee: shippingFee,
+            shipping_fee_total: shippingFeeTotal,
             // 검증 정보도 업데이트
             moq: input.moq,
             stock_quantity: input.stock_quantity,
@@ -177,12 +220,17 @@ export const useCartStore = create<CartStore>()(
           console.log("➕ [cart-store] 새 상품 추가:", {
             productId: input.product_id,
             quantity: inputQuantity,
+            shippingFee,
           });
 
+          const shippingFeeTotal = input.shipping_fee * inputQuantity;
           const newItem: CartItem = {
             id: generateCartItemId(),
             ...input,
             quantity: inputQuantity, // Number로 보장
+            shipping_fee: shippingFee,
+            shipping_fee_total: shippingFeeTotal,
+            // 참고: unit_price, shipping_fee는 그대로 아이템에 저장됨
           };
 
           set({ items: [...items, newItem] });

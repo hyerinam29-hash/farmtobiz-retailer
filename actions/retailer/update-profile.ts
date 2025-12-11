@@ -29,6 +29,7 @@ export interface UpdateProfileRequest {
   business_name?: string;
   phone?: string;
   address?: string;
+  address_detail?: string;
 }
 
 /**
@@ -102,6 +103,7 @@ export async function updateRetailerProfile(
       business_name?: string;
       phone?: string;
       address?: string;
+    address_detail?: string;
     } = {};
 
     if (data.business_name !== undefined) {
@@ -115,6 +117,10 @@ export async function updateRetailerProfile(
     if (data.address !== undefined) {
       updateData.address = data.address.trim();
     }
+
+  if (data.address_detail !== undefined) {
+    updateData.address_detail = data.address_detail.trim();
+  }
 
     // 업데이트할 데이터가 없으면 에러
     if (Object.keys(updateData).length === 0) {

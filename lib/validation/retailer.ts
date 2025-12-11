@@ -107,10 +107,20 @@ export const retailerProfileUpdateSchema = z.object({
     .min(5, "주소는 5글자 이상 입력해주세요.")
     .max(200, "주소는 200글자 이하로 입력해주세요.")
     .optional(),
+
+  address_detail: z
+    .string()
+    .max(200, "상세 주소는 200글자 이하로 입력해주세요.")
+    .optional(),
 }).refine(
   (data) => {
     // 최소 하나의 필드는 입력되어야 함
-    return data.business_name || data.phone || data.address;
+    return (
+      data.business_name ||
+      data.phone ||
+      data.address ||
+      data.address_detail
+    );
   },
   {
     message: "최소 하나의 정보는 수정해야 합니다.",

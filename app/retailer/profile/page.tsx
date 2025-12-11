@@ -90,7 +90,6 @@ export default async function ProfilePage() {
       shippingOrders={orderStats.shippedCount}
       completedOrders={orderStats.completedCount}
       recentOrders={recentOrders}
-      wishlistCount={0} // TODO: 찜한 상품 기능 구현 후 연결
     />
   );
 }

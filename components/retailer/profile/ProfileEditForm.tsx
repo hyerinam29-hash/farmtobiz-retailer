@@ -76,6 +76,7 @@ export default function ProfileEditForm() {
     business_name?: string;
     phone?: string;
     address?: string;
+    address_detail?: string;
   } | null>(null);
 
   const form = useForm<RetailerProfileUpdateFormData>({
@@ -84,6 +85,7 @@ export default function ProfileEditForm() {
       business_name: "",
       phone: "",
       address: "",
+      address_detail: "",
     },
   });
 
@@ -140,7 +142,7 @@ export default function ProfileEditForm() {
         // 소매점 정보 조회
         const { data: retailers, error: retailerError } = await supabase
           .from("retailers")
-          .select("business_name, phone, address")
+        .select("business_name, phone, address, address_detail")
           .eq("profile_id", profile.id)
           .limit(1);
 
@@ -159,11 +161,13 @@ export default function ProfileEditForm() {
             business_name: retailer.business_name,
             phone: retailer.phone,
             address: retailer.address,
+            address_detail: retailer.address_detail,
           });
           form.reset({
             business_name: retailer.business_name,
             phone: retailer.phone,
             address: retailer.address,
+            address_detail: retailer.address_detail ?? "",
           });
           console.log("✅ [ProfileEditForm] 소매점 정보 로드 완료");
         } else {
@@ -393,6 +397,31 @@ export default function ProfileEditForm() {
                     </FormControl>
                     <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
                       현재 주소: {initialData?.address || "없음"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 상세 주소 */}
+              <FormField
+                control={form.control}
+                name="address_detail"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      상세 주소
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="예: 3층 물류센터 사무실"
+                        {...field}
+                        disabled={isLoading}
+                        className="h-12 text-base bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-50"
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
+                      현재 상세 주소: {initialData?.address_detail || "없음"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
