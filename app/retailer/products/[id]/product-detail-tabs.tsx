@@ -3,19 +3,24 @@
  * @description 상품 상세 정보 탭 컴포넌트
  *
  * 상품 상세 페이지의 탭 기능을 제공하는 클라이언트 컴포넌트입니다.
- * 상세 정보, 교환/반품, 배송 안내 탭을 포함합니다.
+ * 상세 정보, 교환/반품, 문의하기 탭을 포함합니다.
  */
 
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, RefreshCw } from "lucide-react";
+import { RefreshCw, MessageSquare } from "lucide-react";
+import ProductInquiryForm from "./product-inquiry-form";
 
 interface ProductDetailTabsProps {
   product: {
+    id: string;
     description: string | null;
     delivery_dawn_available: boolean;
     delivery_method: string;
+    wholesaler_id: string;
+    standardized_name: string | null;
+    name: string;
   };
 }
 
@@ -93,37 +98,10 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
         </TabsContent>
 
         <TabsContent value="delivery" className="mt-8">
-          <div className="space-y-6">
-            <div className="flex items-start gap-3">
-              <Truck className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  배송 안내
-                </h3>
-                <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                  <div>
-                    <p className="font-medium mb-1">배송방법</p>
-                    <p>
-                      {product.delivery_method === "courier" && "택배"}
-                      {product.delivery_method === "direct" && "직배송"}
-                      {product.delivery_method === "quick" && "퀵서비스"}
-                      {product.delivery_method === "freight" && "화물"}
-                      {product.delivery_method === "dawn" && "새벽배송"}
-                      {!["courier", "direct", "quick", "freight", "dawn"].includes(
-                        product.delivery_method,
-                      ) && product.delivery_method}
-                    </p>
-                  </div>
-                  {product.delivery_dawn_available && (
-                    <div>
-                      <p className="font-medium mb-1">새벽 배송</p>
-                      <p className="text-green-600 dark:text-green-400">새벽 배송 가능합니다.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProductInquiryForm
+            wholesalerId={product.wholesaler_id}
+            productName={product.standardized_name || product.name}
+          />
         </TabsContent>
       </Tabs>
     </div>

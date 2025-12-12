@@ -118,6 +118,15 @@ PRD 3.1, 3.2, 3.3 섹션 참조.
     - [X] initialCategory 동기화 추가
     - [X] updateURL 함수에서 "all" 값 처리 로직 수정
   - [X] 샤인머스켓 상세 레이아웃 시안 반영 (desktop/mobile)
+  - [X] 상품 문의하기 기능 구현
+    - [X] 상품 상세 페이지 "문의하기" 탭에 도매 상품 문의 작성 폼 추가
+    - [X] 배송 안내 내용 제거 및 문의 작성 폼으로 교체
+    - [X] 문의 작성 폼 컴포넌트 생성 (product-inquiry-form.tsx)
+    - [X] Server Action 생성 (create-product-inquiry.ts)
+    - [X] 첨부 파일 업로드 기능 (최대 5장, Supabase Storage product-images 버킷)
+    - [X] inquiry_type = "retailer_to_wholesaler"로 저장
+    - [X] wholesaler_id 자동 설정 (상품 정보에서)
+    - [X] 다크모드 지원 및 로깅 추가
 - [X] 장바구니 담기 (R.SEARCH.05)
   - [X] 수량 선택 및 장바구니 추가 버튼
   - [X] 상품 목록 페이지에서 장바구니 추가 기능 구현
@@ -278,6 +287,11 @@ PRD 3.5 섹션 참조.
 ---
 
 ### 🛠 최근 수정 로그
+- 2025-12-XX: 상품 상세 페이지 "문의하기" 탭에 도매 상품 문의 작성 기능 구현
+  - 상품 상세 페이지 하단 탭에서 도매 판매자에게 문의 작성 가능
+  - 제목, 내용, 첨부 파일(최대 5장) 입력 지원
+  - inquiry_type = "retailer_to_wholesaler"로 저장
+  - 첨부 파일은 Supabase Storage에 업로드 후 URL 배열로 저장
 - 2025-12-11: 배송비 계산을 공용 유틸로 통합하고 상품 상세/장바구니/결제에서 배송비 포함 총액을 표시 (shipping_fee * 수량 반영)
 - 2025-12-11: 주문 상세 mock 제거, Supabase 실데이터 연동으로 최근 주문과 상세 일치
 - 2025-12-11: 장바구니의 "쇼핑 계속하기" 이동 경로를 `/retailer/dashboard`로 변경
