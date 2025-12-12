@@ -15,6 +15,7 @@ import { getServiceRoleClient } from "@/lib/supabase/service-role";
 export interface RetailerInfo {
   business_name: string;
   address: string;
+  address_detail?: string | null;
   phone: string;
 }
 
@@ -42,7 +43,7 @@ export async function getRetailerInfo(): Promise<GetRetailerInfoResult> {
 
     const { data: retailer, error } = await supabase
       .from("retailers")
-      .select("business_name, address, phone")
+      .select("business_name, address, address_detail, phone")
       .eq("profile_id", profile.id)
       .single();
 
