@@ -17,10 +17,14 @@ import type { RetailerInfo } from "@/actions/retailer/get-retailer-info";
 
 interface CheckoutPageClientProps {
   retailerInfo: RetailerInfo | null;
+  buyNowProductId?: string;
+  buyNowQuantity?: number;
 }
 
 export default function CheckoutPageClient({
   retailerInfo,
+  buyNowProductId,
+  buyNowQuantity,
 }: CheckoutPageClientProps) {
   const router = useRouter();
   
@@ -28,6 +32,14 @@ export default function CheckoutPageClient({
   const { user } = useUser();
   
   const items = useCartStore((state) => state.items);
+
+  // 바로구매 파라미터 로깅
+  if (buyNowProductId && buyNowQuantity) {
+    console.log("🛒 [checkout-client] 바로구매 정보 수신:", {
+      productId: buyNowProductId,
+      quantity: buyNowQuantity,
+    });
+  }
 
   // items를 직접 사용하여 summary 계산 (배송비 포함)
   const summary = useMemo(() => {

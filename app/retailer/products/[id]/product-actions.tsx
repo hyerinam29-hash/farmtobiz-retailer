@@ -119,8 +119,10 @@ export function ProductActions({ product }: ProductActionsProps) {
 
     console.log("✅ [상품상세] 바로구매, quantity:", quantityToAdd);
     
-    // 결제 페이지로 이동
-    router.push("/retailer/checkout");
+    // 결제 페이지로 이동 (상품 ID와 수량을 쿼리 파라미터로 전달)
+    const checkoutUrl = `/retailer/checkout?productId=${product.id}&quantity=${quantityToAdd}`;
+    console.log("🔗 [상품상세] 결제 페이지 이동:", checkoutUrl);
+    router.push(checkoutUrl);
   };
 
   const isOutOfStock = product.stock_quantity === 0;
