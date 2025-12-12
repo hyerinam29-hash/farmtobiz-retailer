@@ -15,16 +15,6 @@ import type { InquiryStatus } from "./database";
  * 문의 테이블 타입
  * inquiries 테이블과 일치
  */
-/**
- * 상품 정보 타입 (문의와 연관된 상품)
- */
-export interface InquiryProduct {
-  id: string;
-  name: string;
-  image_urls?: string[] | null; // API 응답 필드명 (DB의 images를 변환)
-  images?: string[] | null; // DB 필드명 (호환성을 위해 둘 다 지원)
-}
-
 export interface Inquiry {
   id: string;
   user_id: string; // profiles 테이블 참조
@@ -37,8 +27,6 @@ export interface Inquiry {
   inquiry_type?: string | null; // 문의 유형: retailer_to_wholesaler, retailer_to_admin, wholesaler_to_admin
   wholesaler_id?: string | null; // 소매→도매 문의의 경우 대상 도매점 ID
   order_id?: string | null; // 소매→도매 문의의 경우 관련 주문 ID
-  product_id?: string | null; // 관련 상품 ID
-  product?: InquiryProduct | null; // 관련 상품 정보 (조인된 데이터)
   attachment_urls?: string[] | null; // 문의 첨부 이미지 URL 배열 (최대 5개)
 }
 
