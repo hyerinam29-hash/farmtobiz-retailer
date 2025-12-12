@@ -12,9 +12,12 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Mail, Phone, Clock, ChevronDown } from "lucide-react";
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
 import InquiryForm from "./InquiryForm";
+import { getAnnouncements, type Announcement } from "@/actions/retailer/get-announcements";
 
 interface CsClientProps {
   userId: string;
@@ -69,11 +72,42 @@ const faqItems = [
 export default function CsClient({ userId }: CsClientProps) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"notice" | "inquiry">("inquiry");
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isLoadingAnnouncements, setIsLoadingAnnouncements] = useState(false);
+  const [openAnnouncementId, setOpenAnnouncementId] = useState<string | null>(null);
 
   const filteredFaq = useMemo(() => {
     if (activeCategory === "all") return faqItems;
     return faqItems.filter((item) => item.category === activeCategory);
   }, [activeCategory]);
+
+  // 공지사항 목록 조회
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      if (activeTab === "notice") {
+        setIsLoadingAnnouncements(true);
+        console.log("📢 [CsClient] 공지사항 목록 조회 시작");
+        try {
+          const result = await getAnnouncements();
+          if (result.success && result.data) {
+            setAnnouncements(result.data);
+            console.log("✅ [CsClient] 공지사항 목록 조회 완료", { count: result.data.length });
+          } else {
+            console.error("❌ [CsClient] 공지사항 조회 실패", result.error);
+            setAnnouncements([]);
+          }
+        } catch (error) {
+          console.error("❌ [CsClient] 공지사항 조회 예외:", error);
+          setAnnouncements([]);
+        } finally {
+          setIsLoadingAnnouncements(false);
+        }
+      }
+    };
+
+    fetchAnnouncements();
+  }, [activeTab]);
 
   return (
     <div className="flex flex-col gap-8 md:gap-10">
@@ -175,8 +209,86 @@ export default function CsClient({ userId }: CsClientProps) {
         </div>
       </div>
 
-      {/* 1:1 문의하기 */}
-      <InquiryForm userId={userId} />
+      {/* 카테고리 필터 및 콘텐츠 */}
+      <div className="flex flex-col gap-6">
+        {/* 카테고리 필터 */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab("notice")}
+            className={`px-6 py-3 rounded-full text-base font-bold transition-colors ${
+              activeTab === "notice"
+                ? "bg-green-600 dark:bg-green-600 text-white shadow-md"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+          >
+            공지사항
+          </button>
+          <button
+            onClick={() => setActiveTab("inquiry")}
+            className={`px-6 py-3 rounded-full text-base font-bold transition-colors ${
+              activeTab === "inquiry"
+                ? "bg-green-600 dark:bg-green-600 text-white shadow-md"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+          >
+            1:1문의
+          </button>
+        </div>
+
+        {/* 선택된 카테고리에 따른 콘텐츠 표시 */}
+        {activeTab === "notice" && (
+          <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+            {isLoadingAnnouncements ? (
+              <p className="text-gray-600 dark:text-gray-400 text-center py-8">로딩 중...</p>
+            ) : announcements.length === 0 ? (
+              <p className="text-gray-600 dark:text-gray-400 text-center py-8">
+                등록된 공지사항이 없습니다.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {announcements.map((announcement) => {
+                  const isOpen = openAnnouncementId === announcement.id;
+                  return (
+                    <button
+                      key={announcement.id}
+                      onClick={() => setOpenAnnouncementId(isOpen ? null : announcement.id)}
+                      className="bg-gray-50 dark:bg-gray-800 w-full text-left rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-5 py-4 flex flex-col gap-3 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col gap-1 flex-1">
+                          <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm md:text-base">
+                            {announcement.title}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {format(new Date(announcement.created_at), "yyyy년 MM월 dd일", {
+                              locale: ko,
+                            })}
+                          </span>
+                        </div>
+                        <ChevronDown
+                          size={18}
+                          className={`text-gray-500 dark:text-gray-400 transition-transform flex-shrink-0 ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
+                      {isOpen && (
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                            {announcement.content}
+                          </p>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "inquiry" && <InquiryForm userId={userId} />}
+      </div>
     </div>
   );
 }
