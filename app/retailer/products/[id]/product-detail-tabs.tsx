@@ -9,7 +9,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw, MessageSquare } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import ProductInquiryForm from "./product-inquiry-form";
 
 interface ProductDetailTabsProps {

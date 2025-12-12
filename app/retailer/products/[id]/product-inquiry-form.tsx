@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -120,7 +121,7 @@ export default function ProductInquiryForm({
             supabase
           );
           attachmentUrls.push(url);
-        } catch (error) {
+        } catch {
           toast.error(`${fileItem.file.name} 업로드에 실패했습니다.`);
           setIsSubmitting(false);
           setIsUploading(false);
@@ -250,9 +251,11 @@ export default function ProductInquiryForm({
                     className="relative flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
                   >
                     {fileItem.preview ? (
-                      <img
+                      <Image
                         src={fileItem.preview}
                         alt={fileItem.file.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 object-cover rounded"
                       />
                     ) : (

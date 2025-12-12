@@ -13,7 +13,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const BUCKET_NAME = "product-images";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_FILES = 5; // 최대 5개
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/jpg",
