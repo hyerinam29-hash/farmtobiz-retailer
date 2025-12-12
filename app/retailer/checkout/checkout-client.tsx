@@ -272,7 +272,15 @@ export default function CheckoutPageClient({
 
   const getDeliveryAddressString = () => {
     if (!retailerInfo) return "";
-    return `${retailerInfo.business_name} | ${retailerInfo.phone} | ${retailerInfo.address}`;
+    const addressParts = [
+      retailerInfo.business_name,
+      retailerInfo.phone,
+      retailerInfo.address,
+    ];
+    if (retailerInfo.address_detail) {
+      addressParts.push(retailerInfo.address_detail);
+    }
+    return addressParts.join(" | ");
   };
 
   // "결제하기" 버튼 클릭 시 모달 열기
@@ -406,6 +414,9 @@ export default function CheckoutPageClient({
                             <p><span className="font-semibold">상호명:</span> {retailerInfo.business_name}</p>
                             <p><span className="font-semibold">연락처:</span> {retailerInfo.phone}</p>
                             <p><span className="font-semibold">주소:</span> {retailerInfo.address}</p>
+                            {retailerInfo.address_detail && (
+                              <p><span className="font-semibold">상세주소:</span> {retailerInfo.address_detail}</p>
+                            )}
                          </div>
                     </div>
                 )}
