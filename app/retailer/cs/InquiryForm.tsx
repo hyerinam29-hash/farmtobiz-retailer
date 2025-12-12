@@ -16,11 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Upload, Bot, ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
+import { Upload, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { createInquiry } from "@/actions/retailer/create-inquiry";
-import { updateInquiryFeedback } from "@/actions/retailer/inquiry-feedback";
-import { cn } from "@/lib/utils";
 
 const inquirySchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요").max(200, "제목은 200자 이하로 입력해주세요"),
@@ -35,11 +33,7 @@ interface InquiryFormProps {
 
 export default function InquiryForm({ userId }: InquiryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [inquiryId, setInquiryId] = useState<string | null>(null); // 문의 ID 저장
-  const [selectedFeedback, setSelectedFeedback] = useState<boolean | null>(null); // 선택된 피드백 (true: 네, false: 아니요, null: 미선택)
-  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false); // 피드백 제출 중
 
   const {
     register,
@@ -71,21 +65,6 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
         return;
       }
 
-      // AI 답변 표시
-      if (result.aiResponse) {
-        setAiResponse(result.aiResponse);
-      } else {
-        // AI 답변 생성 실패 시 기본 메시지
-        setAiResponse(
-          "죄송합니다. AI 답변 생성에 실패했습니다. 문의는 정상적으로 접수되었으며, 담당자가 확인 후 답변드리겠습니다.",
-        );
-      }
-
-      // 문의 ID 저장
-      if (result.inquiryId) {
-        setInquiryId(result.inquiryId);
-      }
-
       toast.success("문의가 제출되었습니다.");
       reset();
       setFile(null);
@@ -109,40 +88,6 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
     }
   };
 
-  // 피드백 제출 핸들러
-  const handleFeedback = async (helpful: boolean) => {
-    // 이미 피드백이 선택된 경우 무시 (한 번만 클릭 가능)
-    if (!inquiryId || isSubmittingFeedback || selectedFeedback !== null) {
-      return;
-    }
-
-    console.log("👍 [InquiryForm] 피드백 제출", { inquiryId, helpful });
-
-    setIsSubmittingFeedback(true);
-    setSelectedFeedback(helpful);
-
-    try {
-      const result = await updateInquiryFeedback({
-        inquiryId,
-        helpful,
-      });
-
-      if (result.success) {
-        toast.success("피드백이 저장되었습니다.");
-      } else {
-        toast.error(result.error || "피드백 저장에 실패했습니다.");
-        // 실패 시 선택 상태 되돌리기
-        setSelectedFeedback(null);
-      }
-    } catch (error) {
-      console.error("❌ [InquiryForm] 피드백 제출 실패:", error);
-      toast.error("피드백 저장에 실패했습니다.");
-      setSelectedFeedback(null);
-    } finally {
-      setIsSubmittingFeedback(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6">
       {/* 문의 작성 폼 */}
@@ -152,7 +97,7 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
           <h2 className="text-2xl font-black text-gray-900">1:1 문의하기</h2>
         </div>
         <p className="text-sm md:text-base font-normal leading-normal text-gray-600 mb-6">
-          문의를 제출하시면 AI가 먼저 답변을 드립니다. AI의 답변이 만족스럽지 않을 경우 사람 상담원에게 연결할 수 있습니다.
+          문의를 제출해주시면 담당자가 확인 후 답변드리겠습니다.
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -232,84 +177,6 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
           </div>
         </form>
       </div>
-
-      {/* AI 답변 섹션 */}
-      {aiResponse && (
-        <div className="bg-blue-50 p-6 sm:p-8 rounded-2xl border border-blue-100">
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
-            <Bot className="w-6 h-6 text-blue-500" />
-            AI 챗봇의 답변입니다.
-          </h3>
-          <div className="mt-4 p-4 bg-white rounded-lg border border-blue-100">
-            <p className="text-gray-700 text-base font-normal leading-relaxed whitespace-pre-line">
-              {aiResponse}
-            </p>
-          </div>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm font-medium text-gray-900">
-              이 답변이 도움이 되셨나요?
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleFeedback(true)}
-                disabled={isSubmittingFeedback || selectedFeedback !== null}
-                className={cn(
-                  "min-w-[80px]",
-                  selectedFeedback === true
-                    ? "bg-green-500 text-white border-green-500"
-                    : "",
-                  (isSubmittingFeedback || selectedFeedback !== null) && selectedFeedback !== true
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                )}
-              >
-                <ThumbsUp
-                  className={cn(
-                    "w-4 h-4 mr-2",
-                    selectedFeedback === true ? "text-white" : "text-green-600"
-                  )}
-                />
-                네
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleFeedback(false)}
-                disabled={isSubmittingFeedback || selectedFeedback !== null}
-                className={cn(
-                  "min-w-[80px]",
-                  selectedFeedback === false
-                    ? "bg-red-500 text-white border-red-500"
-                    : "",
-                  (isSubmittingFeedback || selectedFeedback !== null) && selectedFeedback !== false
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                )}
-              >
-                <ThumbsDown
-                  className={cn(
-                    "w-4 h-4 mr-2",
-                    selectedFeedback === false ? "text-white" : "text-red-600"
-                  )}
-                />
-                아니요
-              </Button>
-              {/* 사람 상담 연결 버튼은 나중에 구현 */}
-              <Button
-                variant="outline"
-                size="sm"
-                disabled
-                className="bg-blue-100 text-blue-600 opacity-50 cursor-not-allowed"
-              >
-                <span className="mr-2">💬</span>
-                사람 상담 연결
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
