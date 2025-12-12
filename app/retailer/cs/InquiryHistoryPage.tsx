@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Calendar as CalendarIcon, Plus, ChevronDown, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -48,6 +48,8 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
   const [showDetailModal, setShowDetailModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
+  const requestIdRef = useRef(0);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const statusOptions = ["전체", "접수완료", "답변완료", "종료"];
 
@@ -111,46 +113,101 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
     };
   }, [showStatusDropdown, showDatePicker]);
 
-  // 문의 내역 조회
-  useEffect(() => {
-    const fetchInquiries = async () => {
-      setIsLoading(true);
-      const startDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined;
-      const endDate = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
-      
-      console.log("📋 [InquiryHistoryPage] 문의 내역 조회 시작", { 
-        userId, 
-        searchTerm, 
-        statusFilter,
+  // 문의 내역 조회 함수 (useCallback으로 메모이제이션)
+  const fetchInquiries = useCallback(async () => {
+    // 요청 ID 증가 (최신 요청 추적용)
+    const currentRequestId = ++requestIdRef.current;
+
+    // 최신 요청인지 확인 (이전 요청이 있으면 무시)
+    if (currentRequestId !== requestIdRef.current) {
+      console.log("🚫 [InquiryHistoryPage] 오래된 요청 무시됨");
+      return;
+    }
+
+    const startDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined;
+    const endDate = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
+    
+    console.log("📋 [InquiryHistoryPage] 문의 내역 조회 시작", { 
+      userId, 
+      searchTerm, 
+      statusFilter,
+      startDate,
+      endDate,
+      requestId: currentRequestId,
+    });
+
+    try {
+      const result = await getInquiries({
+        search: searchTerm.trim() || undefined,
+        status: statusFilter !== "전체" ? statusFilter : undefined,
         startDate,
         endDate,
       });
 
-      try {
-        const result = await getInquiries({
-          search: searchTerm || undefined,
-          status: statusFilter !== "전체" ? statusFilter : undefined,
-          startDate,
-          endDate,
-        });
+      // 최신 요청인지 다시 확인
+      if (currentRequestId !== requestIdRef.current) {
+        console.log("🚫 [InquiryHistoryPage] 응답 수신 전 요청 취소됨");
+        return;
+      }
 
-        if (result.success && result.data) {
-          setInquiries(result.data);
-          console.log("✅ [InquiryHistoryPage] 문의 내역 조회 완료", { count: result.data.length });
-        } else {
-          console.error("❌ [InquiryHistoryPage] 문의 내역 조회 실패", result.error);
-          setInquiries([]);
-        }
-      } catch (error) {
-        console.error("❌ [InquiryHistoryPage] 문의 내역 조회 예외:", error);
+      if (result.success && result.data) {
+        setInquiries(result.data);
+        console.log("✅ [InquiryHistoryPage] 문의 내역 조회 완료", { count: result.data.length });
+      } else {
+        console.error("❌ [InquiryHistoryPage] 문의 내역 조회 실패", result.error);
         setInquiries([]);
-      } finally {
-        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("❌ [InquiryHistoryPage] 문의 내역 조회 예외:", error);
+      // 최신 요청인 경우에만 에러 처리
+      if (currentRequestId === requestIdRef.current) {
+        setInquiries([]);
+      }
+    }
+  }, [userId, searchTerm, statusFilter, dateRange]);
+
+  // 검색어 변경 시 디바운싱 적용 (10ms)
+  useEffect(() => {
+    // 검색어가 변경되면 기존 목록 즉시 제거
+    setInquiries([]);
+    
+    // 이전 타이머가 있으면 취소
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // 10ms 후 검색 실행
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchInquiries();
+    }, 10);
+
+    // cleanup 함수: 타이머 정리
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
     };
+  }, [searchTerm, fetchInquiries]);
 
+  // 상태 필터 또는 날짜 필터 변경 시 즉시 실행
+  useEffect(() => {
+    // 검색어 타이머가 실행 중이면 취소하고 즉시 실행
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+      searchTimeoutRef.current = null;
+    }
     fetchInquiries();
-  }, [userId, searchTerm, statusFilter, dateRange]);
+  }, [statusFilter, dateRange, fetchInquiries]);
+
+  // 초기 로드 시 실행 (userId 변경 시)
+  useEffect(() => {
+    // 검색어 타이머가 실행 중이면 취소하고 즉시 실행
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+      searchTimeoutRef.current = null;
+    }
+    fetchInquiries();
+  }, [userId, fetchInquiries]);
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
@@ -316,9 +373,7 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
 
       {/* 테이블 */}
       <div className="overflow-x-auto">
-        {isLoading ? (
-          <div className="p-8 text-center text-gray-600 dark:text-gray-400">로딩 중...</div>
-        ) : inquiries.length === 0 ? (
+        {inquiries.length === 0 ? (
           <div className="p-8 text-center text-gray-600 dark:text-gray-400">
             문의 내역이 없습니다.
           </div>

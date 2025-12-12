@@ -59,7 +59,9 @@ export async function getInquiries(
     // 검색 조건 (제목 또는 내용)
     if (input.search && input.search.trim()) {
       const searchTerm = input.search.trim();
+      console.log("🔍 [retailer] 검색어 적용:", searchTerm);
       query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
+      console.log("🔍 [retailer] 검색 쿼리 생성 완료");
     }
 
     // 상태 필터

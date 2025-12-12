@@ -3,7 +3,7 @@
  * @description 상품 상세 정보 탭 컴포넌트
  *
  * 상품 상세 페이지의 탭 기능을 제공하는 클라이언트 컴포넌트입니다.
- * 상세 정보, 배송 안내, 교환/반품 탭을 포함합니다.
+ * 상세 정보, 교환/반품, 배송 안내 탭을 포함합니다.
  */
 
 "use client";
@@ -31,16 +31,16 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
             상세정보
           </TabsTrigger>
           <TabsTrigger
-            value="delivery"
-            className="data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-600 data-[state=active]:bg-transparent rounded-none pb-4 px-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-          >
-            배송안내
-          </TabsTrigger>
-          <TabsTrigger
             value="return"
             className="data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-600 data-[state=active]:bg-transparent rounded-none pb-4 px-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           >
             교환/반품
+          </TabsTrigger>
+          <TabsTrigger
+            value="delivery"
+            className="data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-600 data-[state=active]:bg-transparent rounded-none pb-4 px-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          >
+            문의하기
           </TabsTrigger>
         </TabsList>
 
@@ -53,40 +53,6 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
               <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                 {product.description || "상품 상세 정보가 제공되지 않았습니다."}
               </p>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="delivery" className="mt-8">
-          <div className="space-y-6">
-            <div className="flex items-start gap-3">
-              <Truck className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  배송 안내
-                </h3>
-                <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                  <div>
-                    <p className="font-medium mb-1">배송방법</p>
-                    <p>
-                      {product.delivery_method === "courier" && "택배"}
-                      {product.delivery_method === "direct" && "직배송"}
-                      {product.delivery_method === "quick" && "퀵서비스"}
-                      {product.delivery_method === "freight" && "화물"}
-                      {product.delivery_method === "dawn" && "새벽배송"}
-                      {!["courier", "direct", "quick", "freight", "dawn"].includes(
-                        product.delivery_method,
-                      ) && product.delivery_method}
-                    </p>
-                  </div>
-                  {product.delivery_dawn_available && (
-                    <div>
-                      <p className="font-medium mb-1">새벽 배송</p>
-                      <p className="text-green-600 dark:text-green-400">새벽 배송 가능합니다.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         </TabsContent>
@@ -120,6 +86,40 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
                     <p className="font-medium mb-1">문의</p>
                     <p>교환/반품 관련 문의는 고객센터로 연락해주세요.</p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="delivery" className="mt-8">
+          <div className="space-y-6">
+            <div className="flex items-start gap-3">
+              <Truck className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  배송 안내
+                </h3>
+                <div className="space-y-3 text-gray-700 dark:text-gray-300">
+                  <div>
+                    <p className="font-medium mb-1">배송방법</p>
+                    <p>
+                      {product.delivery_method === "courier" && "택배"}
+                      {product.delivery_method === "direct" && "직배송"}
+                      {product.delivery_method === "quick" && "퀵서비스"}
+                      {product.delivery_method === "freight" && "화물"}
+                      {product.delivery_method === "dawn" && "새벽배송"}
+                      {!["courier", "direct", "quick", "freight", "dawn"].includes(
+                        product.delivery_method,
+                      ) && product.delivery_method}
+                    </p>
+                  </div>
+                  {product.delivery_dawn_available && (
+                    <div>
+                      <p className="font-medium mb-1">새벽 배송</p>
+                      <p className="text-green-600 dark:text-green-400">새벽 배송 가능합니다.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
