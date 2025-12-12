@@ -36,6 +36,10 @@ export default function CheckoutPageClient({
   const { user } = useUser();
   
   const allItems = useCartStore((state) => state.items);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
+
+  // 결제 성공 여부 추적 (결제 성공 시 장바구니에서 삭제하지 않음)
+  const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
 
   // 바로구매 모드 확인
   const isBuyNowMode = Boolean(buyNowProductId && buyNowQuantity);
@@ -191,6 +195,77 @@ export default function CheckoutPageClient({
   // 결제 수단 위젯 렌더링용 ref
   const paymentMethodsRef = useRef<HTMLDivElement>(null);
 
+  // 체크아웃 페이지 진입 시 선택한 상품 ID들을 sessionStorage에 저장하고, 뒤로가기 시 삭제 처리
+  useEffect(() => {
+    const selectedItemIds: string[] = [];
+    
+    if (isBuyNowMode && buyNowProductId) {
+      // 바로구매 모드: 해당 상품의 장바구니 아이템 ID 찾기
+      const buyNowItem = allItems.find(
+        (item) => item.product_id === buyNowProductId
+      );
+      if (buyNowItem) {
+        selectedItemIds.push(buyNowItem.id);
+      }
+    } else if (isCartSelectionMode && selectedProductIds) {
+      // 장바구니 선택 모드: 선택한 상품들의 장바구니 아이템 ID 찾기
+      const productIds = selectedProductIds.split(",");
+      productIds.forEach((productId) => {
+        const item = allItems.find((item) => item.product_id === productId);
+        if (item) {
+          selectedItemIds.push(item.id);
+        }
+      });
+    }
+    
+    // sessionStorage에 저장
+    if (selectedItemIds.length > 0) {
+      sessionStorage.setItem(
+        "checkout-selected-items",
+        JSON.stringify(selectedItemIds)
+      );
+      console.log("💾 [checkout-client] 선택한 상품 ID 저장:", selectedItemIds);
+    }
+    
+    // cleanup 함수: 페이지를 떠날 때(뒤로가기 포함) 선택한 상품 삭제
+    return () => {
+      // 결제 성공한 경우 삭제하지 않음
+      if (isPaymentSuccess) {
+        console.log("✅ [checkout-client] 결제 성공으로 인해 장바구니에서 삭제하지 않음");
+        sessionStorage.removeItem("checkout-selected-items");
+        return;
+      }
+      
+      // sessionStorage에서 선택한 상품 ID 가져오기
+      const savedItemIds = sessionStorage.getItem("checkout-selected-items");
+      if (savedItemIds) {
+        try {
+          const itemIds: string[] = JSON.parse(savedItemIds);
+          console.log("🗑️ [checkout-client] 뒤로가기 감지, 선택한 상품 삭제:", itemIds);
+          
+          // 장바구니에서 선택한 상품들 삭제
+          itemIds.forEach((itemId) => {
+            removeFromCart(itemId);
+          });
+          
+          // sessionStorage 정리
+          sessionStorage.removeItem("checkout-selected-items");
+          console.log("✅ [checkout-client] 선택한 상품 삭제 완료");
+        } catch (error) {
+          console.error("❌ [checkout-client] 상품 삭제 중 오류:", error);
+        }
+      }
+    };
+  }, [
+    isBuyNowMode,
+    buyNowProductId,
+    isCartSelectionMode,
+    selectedProductIds,
+    allItems,
+    isPaymentSuccess,
+    removeFromCart,
+  ]);
+
   // useTossPayment 훅 호출 (V2)
   const {
     isReady: isPaymentReady,
@@ -207,6 +282,7 @@ export default function CheckoutPageClient({
     orderName: paymentOrderName,
     onSuccess: async (paymentKey, orderId, amount) => {
       console.log("✅ [결제] 결제 성공 로직 진입");
+      setIsPaymentSuccess(true); // 결제 성공 플래그 설정
     },
     onFail: (error) => {
       console.error("❌ [결제] 결제 실패:", error);

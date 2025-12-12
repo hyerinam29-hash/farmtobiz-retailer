@@ -24,14 +24,14 @@ export function validateCartItems(
 ): CartValidationResult {
   const errors: ValidationError[] = [];
 
-  // 장바구니가 비어있으면 에러
+  // 선택된 항목이 없으면 에러 (상품은 있지만 선택 안 함)
   if (items.length === 0) {
     return {
       isValid: false,
       errors: [
         {
-          code: "UNKNOWN",
-          message: "장바구니가 비어있습니다.",
+          code: "NO_ITEMS_SELECTED",
+          message: "상품을 선택해주세요.",
           product_id: "",
           product_name: "",
         },

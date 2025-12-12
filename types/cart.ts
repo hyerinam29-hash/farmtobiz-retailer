@@ -109,7 +109,7 @@ export interface UpdateCartItemInput {
  */
 export interface ValidationError {
   /** 에러 코드 */
-  code: "MOQ_NOT_MET" | "OUT_OF_STOCK" | "DEADLINE_PASSED" | "UNKNOWN";
+  code: "MOQ_NOT_MET" | "OUT_OF_STOCK" | "DEADLINE_PASSED" | "NO_ITEMS_SELECTED" | "CART_EMPTY" | "UNKNOWN";
   /** 에러 메시지 */
   message: string;
   /** 관련 상품 ID */

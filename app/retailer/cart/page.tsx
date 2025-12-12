@@ -29,6 +29,7 @@ import {
   formatValidationError,
   getErrorColorClass,
 } from "@/lib/utils/cart-validation";
+import type { ValidationError } from "@/types/cart";
 
 export default function CartPage() {
   const items = useCartStore((state) => state.items);
@@ -140,6 +141,35 @@ export default function CartPage() {
   // 장바구니 검증 (선택된 항목만)
   const validationResult = useMemo(() => {
     const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
+    
+    // 장바구니 자체가 비어있으면 특별 처리
+    if (items.length === 0) {
+      const error: ValidationError = {
+        code: "CART_EMPTY",
+        message: "장바구니가 비어있습니다.",
+        product_id: "",
+        product_name: "",
+      };
+      return {
+        isValid: false,
+        errors: [error],
+      };
+    }
+    
+    // 선택된 항목이 없으면 (상품은 있지만 선택 안 함)
+    if (selectedItems.length === 0) {
+      const error: ValidationError = {
+        code: "NO_ITEMS_SELECTED",
+        message: "상품을 선택해주세요.",
+        product_id: "",
+        product_name: "",
+      };
+      return {
+        isValid: false,
+        errors: [error],
+      };
+    }
+    
     return validateCartItems(selectedItems);
   }, [items, selectedItemIds]);
 
@@ -200,8 +230,14 @@ export default function CartPage() {
                           key={index}
                           className={`text-sm ${getErrorColorClass(error.code)}`}
                         >
-                          <span className="font-medium">{error.product_name}:</span>{" "}
-                          {formatValidationError(error)}
+                          {error.product_name ? (
+                            <>
+                              <span className="font-medium">{error.product_name}:</span>{" "}
+                              {formatValidationError(error)}
+                            </>
+                          ) : (
+                            formatValidationError(error)
+                          )}
                         </li>
                       ))}
                     </ul>
