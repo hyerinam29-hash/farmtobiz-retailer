@@ -146,6 +146,30 @@ export default function CartPage() {
   // 주문하기 버튼 활성화 여부 (선택된 항목이 있어야 함)
   const canCheckout = validationResult.isValid && selectedItemIds.length > 0;
 
+  // 선택된 항목들의 product_id와 quantity를 쿼리 파라미터로 생성
+  const checkoutUrl = useMemo(() => {
+    if (selectedItemIds.length === 0) {
+      return "/retailer/checkout";
+    }
+
+    const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
+    const productIds = selectedItems.map((item) => item.product_id).join(",");
+    const quantities = selectedItems.map((item) => item.quantity).join(",");
+
+    const url = `/retailer/checkout?productIds=${encodeURIComponent(productIds)}&quantities=${encodeURIComponent(quantities)}`;
+    
+    console.log("🔗 [장바구니] 결제 페이지 URL 생성:", {
+      selectedItems: selectedItems.map((item) => ({
+        productId: item.product_id,
+        productName: item.product_name,
+        quantity: item.quantity,
+      })),
+      url,
+    });
+
+    return url;
+  }, [items, selectedItemIds]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
@@ -219,7 +243,7 @@ export default function CartPage() {
                   장바구니가 비어있습니다.
                 </p>
                 <Link
-                  href="/retailer/products"
+                  href="/retailer/dashboard"
                   className="inline-block px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-xl transition-colors"
                 >
                   쇼핑하러 가기
@@ -369,7 +393,7 @@ export default function CartPage() {
 
                 {canCheckout ? (
                   <Link
-                    href="/retailer/checkout"
+                    href={checkoutUrl}
                     className="flex items-center justify-center gap-2 w-full mt-6 py-3.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl border-b-4 border-green-700 shadow-lg active:border-b-0 active:translate-y-1 transition-all"
                   >
                     <span>₩{summary.totalPrice.toLocaleString()} 결제하기</span>

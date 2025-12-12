@@ -19,27 +19,118 @@ interface CheckoutPageClientProps {
   retailerInfo: RetailerInfo | null;
   buyNowProductId?: string;
   buyNowQuantity?: number;
+  selectedProductIds?: string;
+  selectedQuantities?: string;
 }
 
 export default function CheckoutPageClient({
   retailerInfo,
   buyNowProductId,
   buyNowQuantity,
+  selectedProductIds,
+  selectedQuantities,
 }: CheckoutPageClientProps) {
   const router = useRouter();
   
   // 1. Clerk 유저 정보 가져오기 (실시간 계좌이체 필수 정보)
   const { user } = useUser();
   
-  const items = useCartStore((state) => state.items);
+  const allItems = useCartStore((state) => state.items);
 
+  // 바로구매 모드 확인
+  const isBuyNowMode = Boolean(buyNowProductId && buyNowQuantity);
+  
+  // 장바구니 선택 모드 확인
+  const isCartSelectionMode = Boolean(selectedProductIds && selectedQuantities);
+  
   // 바로구매 파라미터 로깅
-  if (buyNowProductId && buyNowQuantity) {
-    console.log("🛒 [checkout-client] 바로구매 정보 수신:", {
+  if (isBuyNowMode) {
+    console.log("🛒 [checkout-client] 바로구매 모드 활성화:", {
       productId: buyNowProductId,
       quantity: buyNowQuantity,
     });
   }
+
+  // 장바구니 선택 파라미터 로깅
+  if (isCartSelectionMode) {
+    const productIds = selectedProductIds!.split(",");
+    const quantities = selectedQuantities!.split(",").map((q) => Number(q));
+    console.log("🛒 [checkout-client] 장바구니 선택 모드 활성화:", {
+      productIds,
+      quantities,
+      count: productIds.length,
+    });
+  }
+
+  // 필터링 로직: 바로구매 > 장바구니 선택 > 전체 장바구니
+  const items = useMemo(() => {
+    // 1. 바로구매 모드: 해당 상품만 필터링
+    if (isBuyNowMode) {
+      const buyNowItem = allItems.find(
+        (item) => item.product_id === buyNowProductId
+      );
+
+      if (!buyNowItem) {
+        console.warn("⚠️ [checkout-client] 바로구매 상품을 장바구니에서 찾을 수 없음:", {
+          productId: buyNowProductId,
+          cartItems: allItems.map((i) => i.product_id),
+        });
+        return allItems; // 폴백: 전체 장바구니 사용
+      }
+
+      const updatedItem = {
+        ...buyNowItem,
+        quantity: buyNowQuantity!,
+      };
+
+      console.log("✅ [checkout-client] 바로구매 상품 필터링 완료:", {
+        productId: buyNowItem.product_id,
+        productName: buyNowItem.product_name,
+        originalQuantity: buyNowItem.quantity,
+        buyNowQuantity: buyNowQuantity,
+      });
+
+      return [updatedItem];
+    }
+
+    // 2. 장바구니 선택 모드: 선택한 상품들만 필터링
+    if (isCartSelectionMode) {
+      const productIds = selectedProductIds!.split(",");
+      const quantities = selectedQuantities!.split(",").map((q) => Number(q));
+
+      const selectedItems = productIds
+        .map((productId, index) => {
+          const item = allItems.find((item) => item.product_id === productId);
+          if (!item) {
+            console.warn("⚠️ [checkout-client] 선택한 상품을 장바구니에서 찾을 수 없음:", {
+              productId,
+            });
+            return null;
+          }
+
+          // 선택한 수량으로 업데이트
+          return {
+            ...item,
+            quantity: quantities[index] || item.quantity,
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null);
+
+      console.log("✅ [checkout-client] 장바구니 선택 상품 필터링 완료:", {
+        selectedCount: selectedItems.length,
+        items: selectedItems.map((item) => ({
+          productId: item.product_id,
+          productName: item.product_name,
+          quantity: item.quantity,
+        })),
+      });
+
+      return selectedItems.length > 0 ? selectedItems : allItems; // 폴백: 전체 장바구니 사용
+    }
+
+    // 3. 전체 장바구니 사용
+    return allItems;
+  }, [allItems, buyNowProductId, buyNowQuantity, isBuyNowMode, selectedProductIds, selectedQuantities, isCartSelectionMode]);
 
   // items를 직접 사용하여 summary 계산 (배송비 포함)
   const summary = useMemo(() => {
@@ -151,12 +242,27 @@ export default function CheckoutPageClient({
     }
   }, [summary.totalPrice, isPaymentReady, updateAmount]);
 
-  // 장바구니 리다이렉트
+  // 장바구니 리다이렉트 (바로구매 모드가 아닐 때만)
   useEffect(() => {
-    if (items.length === 0) {
+    if (!isBuyNowMode && allItems.length === 0) {
       router.push("/retailer/cart");
     }
-  }, [items.length, router]);
+  }, [isBuyNowMode, allItems.length, router]);
+
+  // 바로구매 모드일 때 해당 상품이 장바구니에 없으면 경고
+  useEffect(() => {
+    if (isBuyNowMode) {
+      const buyNowItem = allItems.find(
+        (item) => item.product_id === buyNowProductId
+      );
+      if (!buyNowItem) {
+        console.error("❌ [checkout-client] 바로구매 상품이 장바구니에 없음");
+        // 사용자에게 알림 후 장바구니로 리다이렉트
+        alert("바로구매 상품을 찾을 수 없습니다. 장바구니로 이동합니다.");
+        router.push("/retailer/cart");
+      }
+    }
+  }, [isBuyNowMode, buyNowProductId, allItems, router]);
 
   if (items.length === 0) return null;
 
@@ -181,6 +287,34 @@ export default function CheckoutPageClient({
   // ✨ [핵심 수정] 실제 결제 요청 로직
   const handleProcessPayment = async () => {
     try {
+      // 바로구매 모드 로깅
+      if (isBuyNowMode) {
+        console.log("💳 [결제] 바로구매 모드로 결제 진행:", {
+          productId: buyNowProductId,
+          quantity: buyNowQuantity,
+          itemsCount: items.length,
+          items: items.map((item) => ({
+            productId: item.product_id,
+            productName: item.product_name,
+            quantity: item.quantity,
+          })),
+        });
+      }
+
+      // 장바구니 선택 모드 로깅
+      if (isCartSelectionMode && !isBuyNowMode) {
+        console.log("💳 [결제] 장바구니 선택 모드로 결제 진행:", {
+          selectedProductIds: selectedProductIds?.split(","),
+          selectedQuantities: selectedQuantities?.split(",").map((q) => Number(q)),
+          itemsCount: items.length,
+          items: items.map((item) => ({
+            productId: item.product_id,
+            productName: item.product_name,
+            quantity: item.quantity,
+          })),
+        });
+      }
+
       // 1. 주문 생성 (서버 API)
       const paymentResult = await createPayment({
         items: items.map((item) => ({
@@ -288,7 +422,21 @@ export default function CheckoutPageClient({
                 </div>
                 {/* 주문 상품 목록 */}
                 <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">주문 상품</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">주문 상품</h2>
+                        <div className="flex items-center gap-2">
+                            {isBuyNowMode && (
+                                <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 px-3 py-1 text-xs font-medium">
+                                    바로구매
+                                </span>
+                            )}
+                            {isCartSelectionMode && !isBuyNowMode && (
+                                <span className="inline-flex items-center rounded-full bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-200 px-3 py-1 text-xs font-medium">
+                                    선택 상품 ({items.length}개)
+                                </span>
+                            )}
+                        </div>
+                    </div>
                     {items.map((item) => (
                         <div key={item.id} className="flex gap-4 mb-4">
                              <div className="relative w-20 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0">
