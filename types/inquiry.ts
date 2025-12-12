@@ -24,6 +24,10 @@ export interface Inquiry {
   admin_reply: string | null;
   created_at: string;
   replied_at: string | null;
+  inquiry_type?: string | null; // 문의 유형: retailer_to_wholesaler, retailer_to_admin, wholesaler_to_admin
+  wholesaler_id?: string | null; // 소매→도매 문의의 경우 대상 도매점 ID
+  order_id?: string | null; // 소매→도매 문의의 경우 관련 주문 ID
+  attachment_urls?: string[] | null; // 문의 첨부 이미지 URL 배열 (최대 5개)
 }
 
 /**
@@ -33,6 +37,10 @@ export interface CreateInquiryRequest {
   user_id: string;
   title: string;
   content: string;
+  inquiry_type?: string; // 문의 유형
+  wholesaler_id?: string | null; // 소매→도매 문의의 경우 대상 도매점 ID
+  order_id?: string | null; // 관련 주문 ID
+  attachment_urls?: string[]; // 첨부 파일 URL 배열
 }
 
 /**

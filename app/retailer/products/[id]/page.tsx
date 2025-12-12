@@ -175,17 +175,7 @@ export default async function ProductDetailPage({
       </div>
 
       {/* 추가 정보 탭 */}
-      <ProductDetailTabs
-        product={{
-          id: product.id,
-          description: product.description,
-          delivery_dawn_available: product.delivery_dawn_available,
-          delivery_method: product.delivery_method,
-          wholesaler_id: product.wholesaler_id,
-          standardized_name: product.standardized_name,
-          name: product.name,
-        }}
-      />
+      <ProductDetailTabs product={product} />
     </div>
   );
 }

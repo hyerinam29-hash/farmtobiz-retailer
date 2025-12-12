@@ -2,11 +2,13 @@
 
 /**
  * @file actions/retailer/create-product-inquiry.ts
- * @description 소매→도매 상품 문의 작성 서버 액션
+ * @description 소매→도매 상품 문의 생성 서버 액션
  *
- * - Supabase inquiries 테이블에 상품 문의 저장
- * - inquiry_type = "retailer_to_wholesaler"로 저장
- * - 첨부 파일은 Supabase Storage에 업로드 후 URL 배열 저장
+ * 소매 사용자가 상품 상세 페이지에서 도매 판매자에게 문의를 작성할 때 사용합니다.
+ * - inquiry_type = "retailer_to_wholesaler"
+ * - wholesaler_id 필수
+ * - order_id 선택
+ * - attachment_urls (최대 5개)
  */
 
 import { getUserProfile } from "@/lib/clerk/auth";
@@ -15,28 +17,22 @@ import { getServiceRoleClient } from "@/lib/supabase/service-role";
 export interface CreateProductInquiryInput {
   title: string;
   content: string;
-  wholesaler_id: string;
-  order_id?: string | null;
-  attachment_urls?: string[];
+  product_id: string; // ✨ 추가: 상품 ID (상품 상세페이지에서 작성 시)
+  wholesaler_id: string; // 필수
+  order_id?: string | null; // 선택
+  attachment_urls?: string[]; // 첨부 파일 URL 배열 (최대 5개)
 }
 
 export interface CreateProductInquiryResult {
   success: boolean;
   error?: string;
-  inquiryId?: string | null;
+  inquiryId?: string;
 }
 
 export async function createProductInquiry(
   input: CreateProductInquiryInput
 ): Promise<CreateProductInquiryResult> {
-  console.group("✉️ [product-inquiry] 도매 상품 문의 생성 시작");
-  console.log("📝 [product-inquiry] 입력 데이터:", {
-    title: input.title,
-    wholesaler_id: input.wholesaler_id,
-    hasOrder: Boolean(input.order_id),
-    attachmentCount: input.attachment_urls?.length || 0,
-  });
-
+  console.group("✉️ [product-inquiry] 소매→도매 상품 문의 생성 시작");
   try {
     const profile = await getUserProfile();
     if (!profile) {
@@ -46,10 +42,12 @@ export async function createProductInquiry(
 
     const title = input.title?.trim();
     const content = input.content?.trim();
+    const productId = input.product_id?.trim() || null; // ✨ 추가: 상품 ID
     const wholesalerId = input.wholesaler_id?.trim();
     const orderId = input.order_id?.trim() || null;
     const attachmentUrls = input.attachment_urls || [];
 
+    // 필수 필드 검증
     if (!title || !content) {
       console.error("❌ [product-inquiry] 제목/내용 누락");
       return { success: false, error: "제목과 내용을 입력해주세요." };
@@ -60,10 +58,21 @@ export async function createProductInquiry(
       return { success: false, error: "도매점 정보가 없습니다." };
     }
 
+    // 첨부 파일 개수 검증 (최대 5개)
     if (attachmentUrls.length > 5) {
-      console.error("❌ [product-inquiry] 첨부 파일 개수 초과");
+      console.error("❌ [product-inquiry] 첨부 파일 개수 초과", {
+        count: attachmentUrls.length,
+      });
       return { success: false, error: "첨부 파일은 최대 5개까지 업로드 가능합니다." };
     }
+
+    console.log("📝 [product-inquiry] 문의 정보", {
+      userId: profile.id,
+      productId, // ✨ 추가: 상품 ID 로깅
+      wholesalerId,
+      hasOrder: Boolean(orderId),
+      attachmentCount: attachmentUrls.length,
+    });
 
     const supabase = getServiceRoleClient();
 
@@ -73,10 +82,11 @@ export async function createProductInquiry(
         user_id: profile.id,
         title,
         content,
+        inquiry_type: "retailer_to_wholesaler",
+        product_id: productId, // ✨ 추가: 상품 ID 저장
         wholesaler_id: wholesalerId,
         order_id: orderId,
-        attachment_urls: attachmentUrls.length > 0 ? attachmentUrls : [],
-        inquiry_type: "retailer_to_wholesaler",
+        attachment_urls: attachmentUrls.length > 0 ? attachmentUrls : null,
         status: "open",
       })
       .select("id")
@@ -93,9 +103,8 @@ export async function createProductInquiry(
     console.log("✅ [product-inquiry] 저장 성공", {
       inquiryId: data.id,
       userId: profile.id,
+      productId, // ✨ 추가: 상품 ID 로깅
       wholesalerId,
-      hasOrder: Boolean(orderId),
-      attachmentCount: attachmentUrls.length,
     });
     console.groupEnd();
 

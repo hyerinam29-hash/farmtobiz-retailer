@@ -15,12 +15,12 @@ import ProductInquiryForm from "./product-inquiry-form";
 interface ProductDetailTabsProps {
   product: {
     id: string;
-    description: string | null;
-    delivery_dawn_available: boolean;
-    delivery_method: string;
     wholesaler_id: string;
     standardized_name: string | null;
     name: string;
+    description: string | null;
+    delivery_dawn_available: boolean;
+    delivery_method: string;
   };
 }
 
@@ -99,8 +99,15 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
 
         <TabsContent value="delivery" className="mt-8">
           <ProductInquiryForm
+            productId={product.id} // ✨ 추가: 상품 ID 전달
             wholesalerId={product.wholesaler_id}
             productName={product.standardized_name || product.name}
+            onSuccess={() => {
+              // 문의 제출 성공 후 처리 (필요시)
+              console.log("✅ [product-detail-tabs] 문의 제출 완료", {
+                productId: product.id,
+              });
+            }}
           />
         </TabsContent>
       </Tabs>
