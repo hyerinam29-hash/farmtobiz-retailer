@@ -12,6 +12,16 @@
 import type { InquiryStatus } from "./database";
 
 /**
+ * 문의 관련 상품 정보 타입
+ */
+export interface InquiryProduct {
+  id: string;
+  name: string;
+  image_urls?: string[] | null; // API 응답에서 사용 (DB의 images를 변환)
+  images?: string[] | null; // DB에서 직접 조회 시 사용
+}
+
+/**
  * 문의 테이블 타입
  * inquiries 테이블과 일치
  */
@@ -27,6 +37,8 @@ export interface Inquiry {
   inquiry_type?: string | null; // 문의 유형: retailer_to_wholesaler, retailer_to_admin, wholesaler_to_admin
   wholesaler_id?: string | null; // 소매→도매 문의의 경우 대상 도매점 ID
   order_id?: string | null; // 소매→도매 문의의 경우 관련 주문 ID
+  product_id?: string | null; // 관련 상품 ID
+  product?: InquiryProduct | null; // 관련 상품 정보
   attachment_urls?: string[] | null; // 문의 첨부 이미지 URL 배열 (최대 5개)
 }
 

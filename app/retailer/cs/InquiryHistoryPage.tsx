@@ -11,6 +11,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Calendar as CalendarIcon, Plus, ChevronDown, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
@@ -20,6 +22,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { DateRange } from "react-day-picker";
 import type { Inquiry } from "@/types/inquiry";
 import { getInquiries } from "@/actions/retailer/get-inquiries";
@@ -493,6 +502,48 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                         아직 답변이 등록되지 않았습니다.
                       </p>
                     </div>
+                  )}
+
+                  {/* 관련 상품 정보 (product_id가 있는 경우) */}
+                  {selectedInquiry.product_id && selectedInquiry.product && (
+                    <Card className="w-full border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                          관련 상품
+                        </CardTitle>
+                        <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                          이 문의는 아래 상품에 대한 문의입니다.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center gap-4">
+                          {/* 상품 이미지 */}
+                          {(selectedInquiry.product.image_urls || selectedInquiry.product.images) &&
+                            (selectedInquiry.product.image_urls || selectedInquiry.product.images)!.length > 0 && (
+                              <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
+                                <Image
+                                  src={(selectedInquiry.product.image_urls || selectedInquiry.product.images)![0]}
+                                  alt={selectedInquiry.product.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                          {/* 상품 정보 */}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 dark:text-gray-100 break-words">
+                              {selectedInquiry.product.name}
+                            </p>
+                            <Link
+                              href={`/retailer/products/${selectedInquiry.product_id}`}
+                              className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1 inline-block transition-colors"
+                            >
+                              상품 상세보기 →
+                            </Link>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
               </div>

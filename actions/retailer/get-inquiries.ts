@@ -49,10 +49,25 @@ export async function getInquiries(
 
     const supabase = getServiceRoleClient();
 
-    // 기본 쿼리: 현재 사용자의 문의만 조회
+    // 기본 쿼리: 현재 사용자의 문의만 조회 (상품 정보 포함)
     let query = supabase
       .from("inquiries")
-      .select("id, user_id, title, content, status, admin_reply, created_at, replied_at")
+      .select(`
+        id, 
+        user_id, 
+        title, 
+        content, 
+        status, 
+        admin_reply, 
+        created_at, 
+        replied_at,
+        product_id,
+        products!left (
+          id,
+          name,
+          images
+        )
+      `)
       .eq("user_id", profile.id)
       .order("created_at", { ascending: false });
 
@@ -97,12 +112,29 @@ export async function getInquiries(
       };
     }
 
-    console.log("✅ [retailer] 문의 내역 조회 완료", { count: data?.length || 0 });
+    // 데이터 변환: products를 product로 매핑하고 images를 image_urls로 변환
+    const transformedData = (data || []).map((item: any) => {
+      const product = item.products
+        ? {
+            id: item.products.id,
+            name: item.products.name,
+            image_urls: item.products.images || null, // DB의 images를 image_urls로 변환
+          }
+        : null;
+
+      return {
+        ...item,
+        product_id: item.product_id || null,
+        product: product,
+      };
+    });
+
+    console.log("✅ [retailer] 문의 내역 조회 완료", { count: transformedData.length });
     console.groupEnd();
 
     return {
       success: true,
-      data: (data || []) as Inquiry[],
+      data: transformedData as Inquiry[],
     };
   } catch (error) {
     console.error("❌ [retailer] getInquiries 예외:", error);
@@ -113,3 +145,4 @@ export async function getInquiries(
     };
   }
 }
+
