@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Upload, MessageSquare } from "lucide-react";
+import { Upload, MessageSquare, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { createInquiry } from "@/actions/retailer/create-inquiry";
 
@@ -29,9 +29,11 @@ type InquiryFormData = z.infer<typeof inquirySchema>;
 
 interface InquiryFormProps {
   userId: string;
+  onBack?: () => void;
+  onSuccess?: () => void;
 }
 
-export default function InquiryForm({ userId }: InquiryFormProps) {
+export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
@@ -69,6 +71,13 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
       reset();
       setFile(null);
       setIsSubmitting(false);
+      
+      // 성공 후 콜백 실행 (문의 내역 목록으로 이동)
+      if (onSuccess) {
+        setTimeout(() => {
+          onSuccess();
+        }, 500);
+      }
     } catch (error) {
       console.error("❌ [InquiryForm] 문의 제출 실패:", error);
       toast.error("문의 제출에 실패했습니다. 다시 시도해주세요.");
@@ -91,25 +100,36 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* 문의 작성 폼 */}
-      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
-        <div className="flex items-center gap-2 mb-4">
-          <MessageSquare className="w-6 h-6 text-green-600" />
-          <h2 className="text-2xl font-black text-gray-900">1:1 문의하기</h2>
+      <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label="뒤로가기"
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </button>
+            )}
+            <MessageSquare className="w-6 h-6 text-green-600" />
+            <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">1:1 문의하기</h2>
+          </div>
         </div>
-        <p className="text-sm md:text-base font-normal leading-normal text-gray-600 mb-6">
+        <p className="text-sm md:text-base font-normal leading-normal text-gray-600 dark:text-gray-400 mb-6">
           문의를 제출해주시면 담당자가 확인 후 답변드리겠습니다.
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           {/* 제목 */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="inquiry-title" className="text-sm font-semibold text-gray-800">
+            <Label htmlFor="inquiry-title" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               제목
             </Label>
             <Input
               id="inquiry-title"
               placeholder="제목을 입력하세요"
-              className="h-12 bg-gray-50 focus:bg-white"
+              className="h-12 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700"
               {...register("title")}
             />
             {errors.title && (
@@ -119,14 +139,14 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
 
           {/* 내용 */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="inquiry-content" className="text-sm font-semibold text-gray-800">
+            <Label htmlFor="inquiry-content" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               내용
             </Label>
             <Textarea
               id="inquiry-content"
               placeholder="문의 내용을 입력하세요"
               rows={6}
-              className="resize-none bg-gray-50 focus:bg-white"
+              className="resize-none bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700"
               {...register("content")}
             />
             {errors.content && (
@@ -136,22 +156,22 @@ export default function InquiryForm({ userId }: InquiryFormProps) {
 
           {/* 파일 첨부 */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="file-upload" className="text-sm font-semibold text-gray-800">
+            <Label htmlFor="file-upload" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               파일 첨부 (선택)
             </Label>
             <div className="flex items-center justify-center w-full">
               <label
                 htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-10 h-10 text-gray-500 mb-2" />
-                  <p className="mb-2 text-sm text-gray-600">
+                  <Upload className="w-10 h-10 text-gray-500 dark:text-gray-400 mb-2" />
+                  <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-semibold">클릭하여 업로드</span>하거나 파일을 드래그하세요.
                   </p>
-                  <p className="text-xs text-gray-500">PNG, JPG, PDF (MAX. 5MB)</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500">PNG, JPG, PDF (MAX. 5MB)</p>
                   {file && (
-                    <p className="text-xs text-blue-600 mt-2">선택된 파일: {file.name}</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">선택된 파일: {file.name}</p>
                   )}
                 </div>
                 <input

@@ -17,6 +17,7 @@ import { Mail, Phone, Clock, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import InquiryForm from "./InquiryForm";
+import InquiryHistoryPage from "./InquiryHistoryPage";
 import { getAnnouncements, type Announcement } from "@/actions/retailer/get-announcements";
 
 interface CsClientProps {
@@ -76,6 +77,7 @@ export default function CsClient({ userId }: CsClientProps) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoadingAnnouncements, setIsLoadingAnnouncements] = useState(false);
   const [openAnnouncementId, setOpenAnnouncementId] = useState<string | null>(null);
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
 
   const filteredFaq = useMemo(() => {
     if (activeCategory === "all") return faqItems;
@@ -287,7 +289,19 @@ export default function CsClient({ userId }: CsClientProps) {
           </div>
         )}
 
-        {activeTab === "inquiry" && <InquiryForm userId={userId} />}
+        {activeTab === "inquiry" && (
+          <>
+            {showInquiryForm ? (
+              <InquiryForm
+                userId={userId}
+                onBack={() => setShowInquiryForm(false)}
+                onSuccess={() => setShowInquiryForm(false)}
+              />
+            ) : (
+              <InquiryHistoryPage userId={userId} onOpenInquiryForm={() => setShowInquiryForm(true)} />
+            )}
+          </>
+        )}
       </div>
     </div>
   );
