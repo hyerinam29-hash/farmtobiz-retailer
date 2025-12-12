@@ -378,26 +378,24 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
 
       {/* 문의 상세 모달 */}
       <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[800px] h-[800px] max-w-[90vw] max-h-[90vh] overflow-hidden flex flex-col sm:max-w-[800px]">
           {selectedInquiry && (
             <>
-              <DialogHeader>
-                <DialogTitle className="text-xl font-black text-gray-900 dark:text-gray-100">
+              <DialogHeader className="flex-shrink-0 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <DialogTitle className="text-lg font-black text-gray-900 dark:text-gray-100 break-words">
                   {selectedInquiry.title}
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="flex flex-col gap-6 mt-4">
+              <div className="flex flex-col gap-4 mt-4 flex-1 overflow-y-auto min-h-0">
                 {/* 문의 정보 */}
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        작성일: {format(new Date(selectedInquiry.created_at), "yyyy년 MM월 dd일 HH:mm", { locale: ko })}
-                      </span>
-                    </div>
+                <div className="flex flex-col gap-4 flex-1">
+                  <div className="flex items-center justify-between flex-shrink-0">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      작성일: {format(new Date(selectedInquiry.created_at), "yyyy년 MM월 dd일 HH:mm", { locale: ko })}
+                    </span>
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
                         statusMap[selectedInquiry.status]?.className || statusMap.open.className
                       }`}
                     >
@@ -406,19 +404,21 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                   </div>
 
                   {/* 문의 내용 */}
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 flex-1 min-h-[200px] flex flex-col">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex-shrink-0">
                       문의 내용
                     </h4>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-line">
-                      {selectedInquiry.content}
-                    </p>
+                    <div className="flex-1 overflow-y-auto">
+                      <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-line break-words">
+                        {selectedInquiry.content}
+                      </p>
+                    </div>
                   </div>
 
                   {/* 관리자 답변 */}
-                  {selectedInquiry.admin_reply && (
-                    <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-                      <h4 className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2">
+                  {selectedInquiry.admin_reply ? (
+                    <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800 flex-1 min-h-[200px] flex flex-col">
+                      <h4 className="text-sm font-semibold text-green-700 dark:text-green-300 mb-3 flex items-center gap-2 flex-shrink-0">
                         관리자 답변
                         {selectedInquiry.replied_at && (
                           <span className="text-xs text-green-600 dark:text-green-400 font-normal">
@@ -426,14 +426,14 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                           </span>
                         )}
                       </h4>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-line">
-                        {selectedInquiry.admin_reply}
-                      </p>
+                      <div className="flex-1 overflow-y-auto">
+                        <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-line break-words">
+                          {selectedInquiry.admin_reply}
+                        </p>
+                      </div>
                     </div>
-                  )}
-
-                  {!selectedInquiry.admin_reply && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
+                  ) : (
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center flex items-center justify-center min-h-[200px] flex-shrink-0">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         아직 답변이 등록되지 않았습니다.
                       </p>

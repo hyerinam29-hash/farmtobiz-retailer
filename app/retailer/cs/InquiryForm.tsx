@@ -22,7 +22,7 @@ import { createInquiry } from "@/actions/retailer/create-inquiry";
 
 const inquirySchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요").max(200, "제목은 200자 이하로 입력해주세요"),
-  content: z.string().min(10, "내용을 10자 이상 입력해주세요"),
+  content: z.string().min(10, "내용을 10자 이상 입력해주세요").max(3000, "내용은 3000자 이하로 입력해주세요"),
 });
 
 type InquiryFormData = z.infer<typeof inquirySchema>;
@@ -36,6 +36,7 @@ interface InquiryFormProps {
 export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [contentLength, setContentLength] = useState(0);
 
   const {
     register,
@@ -70,6 +71,7 @@ export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormPr
       toast.success("문의가 제출되었습니다.");
       reset();
       setFile(null);
+      setContentLength(0);
       setIsSubmitting(false);
       
       // 성공 후 콜백 실행 (문의 내역 목록으로 이동)
@@ -139,15 +141,31 @@ export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormPr
 
           {/* 내용 */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="inquiry-content" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-              내용
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="inquiry-content" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                내용
+              </Label>
+              <span className={`text-xs ${
+                contentLength > 3000 
+                  ? "text-red-500" 
+                  : contentLength > 2800 
+                  ? "text-orange-500" 
+                  : "text-gray-500 dark:text-gray-400"
+              }`}>
+                {contentLength}/3000자
+              </span>
+            </div>
             <Textarea
               id="inquiry-content"
-              placeholder="문의 내용을 입력하세요"
+              placeholder="문의 내용을 입력하세요 (최대 3000자)"
               rows={6}
+              maxLength={3000}
               className="resize-none bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700"
-              {...register("content")}
+              {...register("content", {
+                onChange: (e) => {
+                  setContentLength(e.target.value.length);
+                },
+              })}
             />
             {errors.content && (
               <p className="text-sm text-red-500">{errors.content.message}</p>
