@@ -6,173 +6,215 @@
  *
  * 주요 기능:
  * 1. 배송 상태 요약 (송장번호, 도착 예정 시간)
- * 2. 배송 타임라인 (배송출발 → 터미널도착 → 배송중 → 배송완료)
+ * 2. 배송 타임라인 (주문완료 → 결제완료 → 배송중 → 배송완료)
  * 3. 택배사 정보
  * 4. 배송 물품 목록
  *
  * @dependencies
+ * - actions/retailer/get-shipping-orders.ts
  * - lucide-react: 아이콘
  * - next/navigation: 라우팅
  */
 
-"use client";
-
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { ChevronLeft, Clock, Truck, Package, CheckCircle } from "lucide-react";
+import Link from "next/link";
+import { getOrderForDeliveryTracking } from "@/actions/retailer/get-shipping-orders";
+import DeliveryTrackingContent from "./delivery-tracking-content";
+import { EmptyState } from "@/components/common/EmptyState";
 
-export default function DeliveryTrackingPage() {
-  const router = useRouter();
+interface DeliveryTrackingPageProps {
+  searchParams: Promise<{ orderId?: string }>;
+}
 
-  const handleBack = () => {
-    console.log("🔙 [배송조회] 뒤로가기 클릭, 대시보드로 이동");
-    router.back();
-  };
+/**
+ * 배송 상태에 따른 타임라인 단계 정의
+ */
+const timelineSteps = [
+  { key: "pending", label: "주문완료", status: "pending" },
+  { key: "confirmed", label: "결제완료", status: "confirmed" },
+  { key: "shipped", label: "배송중", status: "shipped" },
+  { key: "completed", label: "배송완료", status: "completed" },
+];
+
+/**
+ * 주문 상태에 따른 배송 상태 텍스트 반환
+ */
+function getDeliveryStatusText(status: string): string {
+  switch (status) {
+    case "pending":
+      return "주문완료";
+    case "confirmed":
+      return "배송준비";
+    case "shipped":
+      return "배송중";
+    case "completed":
+      return "배송완료";
+    case "cancelled":
+      return "주문취소";
+    default:
+      return "주문완료";
+  }
+}
+
+/**
+ * 주문 상태에 따른 배송 상태 배지 색상 반환
+ */
+function getDeliveryStatusBadge(status: string): {
+  bg: string;
+  text: string;
+} {
+  switch (status) {
+    case "shipped":
+      return {
+        bg: "bg-green-100 dark:bg-green-900/30",
+        text: "text-green-700 dark:text-green-500",
+      };
+    case "completed":
+      return {
+        bg: "bg-blue-100 dark:bg-blue-900/30",
+        text: "text-blue-700 dark:text-blue-500",
+      };
+    case "confirmed":
+      return {
+        bg: "bg-yellow-100 dark:bg-yellow-900/30",
+        text: "text-yellow-700 dark:text-yellow-500",
+      };
+    case "pending":
+      return {
+        bg: "bg-gray-100 dark:bg-gray-800",
+        text: "text-gray-700 dark:text-gray-300",
+      };
+    case "cancelled":
+      return {
+        bg: "bg-red-100 dark:bg-red-900/30",
+        text: "text-red-700 dark:text-red-500",
+      };
+    default:
+      return {
+        bg: "bg-gray-100 dark:bg-gray-800",
+        text: "text-gray-700 dark:text-gray-300",
+      };
+  }
+}
+
+/**
+ * 도착 예정 시간 계산 (주문 생성 시간 + 배송 옵션 기반)
+ */
+function calculateEstimatedDeliveryTime(
+  createdAt: string,
+  deliveryOption?: string | null,
+): string {
+  const orderDate = new Date(createdAt);
+  const now = new Date();
+
+  // 배송 옵션에 따른 예상 소요 시간 (시간)
+  let estimatedHours = 24; // 기본 24시간
+
+  if (deliveryOption === "dawn") {
+    estimatedHours = 12; // 새벽 배송은 12시간
+  } else if (deliveryOption === "quick") {
+    estimatedHours = 6; // 긴급 배송은 6시간
+  }
+
+  // 주문 시간 + 예상 소요 시간
+  const estimatedDelivery = new Date(orderDate.getTime() + estimatedHours * 60 * 60 * 1000);
+
+  // 현재 시간이 예상 배송 시간을 넘었으면 "곧 도착" 표시
+  if (now >= estimatedDelivery) {
+    return "곧 도착 예정";
+  }
+
+  // 시간 포맷팅 (예: 14:00 ~ 15:00)
+  const hour = estimatedDelivery.getHours();
+  const nextHour = hour + 1;
+
+  return `${hour.toString().padStart(2, "0")}:00 ~ ${nextHour.toString().padStart(2, "0")}:00`;
+}
+
+export default async function DeliveryTrackingPage({
+  searchParams,
+}: DeliveryTrackingPageProps) {
+  const { orderId } = await searchParams;
+
+  console.log("🚚 [배송조회] 페이지 로드", { orderId });
+
+  // 주문 ID가 없으면 빈 상태 표시
+  if (!orderId) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans bg-[#F8F9FA] dark:bg-gray-900 min-h-screen">
+        <div className="flex items-center gap-4 mb-6">
+          <Link
+            href="/retailer/dashboard"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+          >
+            <ChevronLeft size={24} className="text-gray-900 dark:text-gray-100" />
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            실시간 배송 조회
+          </h1>
+        </div>
+
+        <EmptyState
+          title="배송 조회할 주문을 선택해주세요"
+          description="주문 내역에서 배송 중인 주문을 선택하여 배송 정보를 확인하세요."
+          actionLabel="주문 내역 보기"
+          actionHref="/retailer/orders"
+        />
+      </div>
+    );
+  }
+
+  // 주문 데이터 조회
+  const order = await getOrderForDeliveryTracking(orderId);
+
+  if (!order) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans bg-[#F8F9FA] dark:bg-gray-900 min-h-screen">
+        <div className="flex items-center gap-4 mb-6">
+          <Link
+            href="/retailer/dashboard"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+          >
+            <ChevronLeft size={24} className="text-gray-900 dark:text-gray-100" />
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            실시간 배송 조회
+          </h1>
+        </div>
+
+        <EmptyState
+          title="주문을 찾을 수 없습니다"
+          description="해당 주문이 존재하지 않거나 배송 조회가 불가능한 주문입니다."
+          actionLabel="주문 내역 보기"
+          actionHref="/retailer/orders"
+        />
+      </div>
+    );
+  }
+
+  console.log("✅ [배송조회] 주문 데이터 조회 완료", {
+    orderId: order.id,
+    orderNumber: order.order_number,
+    status: order.status,
+  });
+
+  const statusBadge = getDeliveryStatusBadge(order.status);
+  // delivery_option은 데이터베이스에 있을 수 있지만 타입에 정의되지 않았으므로 any로 처리
+  const deliveryOption = (order as any).delivery_option as string | null | undefined;
+  const estimatedTime = calculateEstimatedDeliveryTime(order.created_at, deliveryOption);
+  const currentStepIndex = timelineSteps.findIndex((step) => step.status === order.status);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans bg-[#F8F9FA] min-h-screen">
-      {/* 헤더 */}
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={handleBack}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <h1 className="text-2xl font-bold text-gray-900">실시간 배송 조회</h1>
-      </div>
-
-      {/* 배송 상태 요약 */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <div className="text-sm text-gray-500 mb-1">송장번호 1234-5678-9012</div>
-            <h2 className="text-2xl font-black text-gray-900 mb-1">
-              고객님께 <span className="text-green-600">배송 중</span>입니다
-            </h2>
-            <p className="text-gray-600 flex items-center gap-2">
-              <Clock size={16} /> 도착 예정: <span className="font-bold">14:00 ~ 15:00</span>
-            </p>
-          </div>
-          <span className="bg-green-100 text-green-700 px-4 py-2 rounded-xl font-bold text-sm">
-            배송중
-          </span>
-        </div>
-
-        {/* 타임라인 */}
-        <div className="relative pl-4 border-l-2 border-gray-100 space-y-8 my-8">
-          {/* 단계 1: 배송출발 */}
-          <div className="relative">
-            <div className="absolute -left-[21px] top-0 w-10 h-10 rounded-full border-4 flex items-center justify-center bg-white border-green-500 text-green-500">
-              <CheckCircle size={16} fill="currentColor" className="text-white" />
-            </div>
-            <div className="pl-6">
-              <div className="font-bold text-gray-900">배송출발</div>
-              <div className="text-sm text-gray-500 mt-1">
-                이천 물류센터 <span className="mx-1">·</span> 09:30
-              </div>
-            </div>
-          </div>
-
-          {/* 단계 2: 터미널도착 */}
-          <div className="relative">
-            <div className="absolute -left-[21px] top-0 w-10 h-10 rounded-full border-4 flex items-center justify-center bg-white border-green-500 text-green-500">
-              <CheckCircle size={16} fill="currentColor" className="text-white" />
-            </div>
-            <div className="pl-6">
-              <div className="font-bold text-gray-900">터미널도착</div>
-              <div className="text-sm text-gray-500 mt-1">
-                강남 터미널 <span className="mx-1">·</span> 11:20
-              </div>
-            </div>
-          </div>
-
-          {/* 단계 3: 배송중 (현재) */}
-          <div className="relative">
-            <div className="absolute -left-[21px] top-0 w-10 h-10 rounded-full border-4 flex items-center justify-center bg-white border-green-500 text-green-500">
-              <CheckCircle size={16} fill="currentColor" className="text-white" />
-            </div>
-            <div className="pl-6">
-              <div className="font-bold text-green-600 text-lg">배송중</div>
-              <div className="text-sm text-gray-500 mt-1">
-                역삼동 인근 <span className="mx-1">·</span> 13:45
-              </div>
-            </div>
-          </div>
-
-          {/* 단계 4: 배송완료 (예정) */}
-          <div className="relative">
-            <div className="absolute -left-[21px] top-0 w-10 h-10 rounded-full border-4 flex items-center justify-center bg-white border-gray-200 text-gray-300">
-              <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-            </div>
-            <div className="pl-6">
-              <div className="font-bold text-gray-900">배송완료</div>
-              <div className="text-sm text-gray-500 mt-1">
-                고객님 도착지 <span className="mx-1">·</span> 도착 예정
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* 택배사 정보 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="font-bold text-gray-900 mb-4">택배사 정보</h3>
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <Truck size={32} className="text-green-600" />
-              </div>
-              <div className="flex-1">
-                <div className="font-bold text-lg text-gray-900">팜투비즈 물류</div>
-                <div className="text-sm text-gray-500">신선 농산물 전문 배송</div>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">고객센터</span>
-                <span className="font-medium text-gray-900">1588-0000</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">배송 문의</span>
-                <span className="font-medium text-gray-900">평일 09:00 - 18:00</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">배송 방식</span>
-                <span className="font-medium text-green-600">산지 직송 · 신선배송</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 배송 물품 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="font-bold text-gray-900 mb-4">배송 물품</h3>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <div className="flex justify-between items-center py-2 border-b border-gray-200">
-              <div className="flex items-center gap-3">
-                <Package size={16} className="text-gray-400" />
-                <span className="text-gray-700 font-medium">청송 꿀사과 5kg</span>
-              </div>
-              <span className="text-gray-500 text-sm">2개</span>
-            </div>
-            <div className="flex justify-between items-center py-2 pt-2">
-              <div className="flex items-center gap-3">
-                <Package size={16} className="text-gray-400" />
-                <span className="text-gray-700 font-medium">신선 양파 3kg</span>
-              </div>
-              <span className="text-gray-500 text-sm">1개</span>
-            </div>
-          </div>
-          <div className="mt-4 text-center">
-            <button className="text-xs text-gray-400 underline hover:text-gray-600">
-              운송장 조회하기
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <DeliveryTrackingContent
+        order={order}
+        statusBadge={statusBadge}
+        estimatedTime={estimatedTime}
+        currentStepIndex={currentStepIndex}
+        timelineSteps={timelineSteps}
+      />
+    </Suspense>
   );
 }
 

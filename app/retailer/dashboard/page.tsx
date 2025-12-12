@@ -42,6 +42,8 @@ import {
   getRecentOrdersForDashboard,
   type DashboardRecentOrder,
 } from "@/actions/retailer/get-recent-orders";
+import { getAllOrders } from "@/actions/retailer/get-all-orders";
+import type { OrderDetail } from "@/types/order";
 import ChatbotWidget from "@/components/retailer/chatbot/chatbot-widget";
 
 // TODO: 추후 API로 교체 예정
@@ -87,6 +89,8 @@ export default function RetailerDashboardPage() {
   const [isHotDealsLoading, setIsHotDealsLoading] = useState(true);
   const [recentOrders, setRecentOrders] = useState<DashboardRecentOrder[]>([]);
   const [isRecentOrdersLoading, setIsRecentOrdersLoading] = useState(true);
+  const [shippingOrders, setShippingOrders] = useState<OrderDetail[]>([]);
+  const [isShippingOrdersLoading, setIsShippingOrdersLoading] = useState(true);
 
   const statusLabelMap: Record<string, string> = {
     pending: "준비 중",
@@ -98,10 +102,10 @@ export default function RetailerDashboardPage() {
 
   // URL 해시가 있으면 해당 섹션으로 스크롤
   useEffect(() => {
-    const scrollToRecentOrders = () => {
-      const element = document.getElementById("recent-orders");
+    const scrollToElement = (elementId: string, logMessage: string) => {
+      const element = document.getElementById(elementId);
       if (element) {
-        console.log("📦 [대시보드] 최근 주문 내역 섹션으로 스크롤");
+        console.log(logMessage);
         // 약간의 오프셋을 주어 헤더에 가려지지 않도록
         const offset = 100;
         const elementPosition = element.getBoundingClientRect().top;
@@ -111,28 +115,83 @@ export default function RetailerDashboardPage() {
           top: offsetPosition,
           behavior: "smooth",
         });
+        return true;
+      } else {
+        console.warn(`⚠️ [대시보드] ${elementId} 요소를 찾을 수 없습니다`);
+        return false;
       }
     };
 
-    // 해시가 있으면 스크롤
-    if (window.location.hash === "#recent-orders") {
-      // 페이지가 완전히 로드된 후 스크롤 (여러 번 시도)
-      setTimeout(scrollToRecentOrders, 100);
-      setTimeout(scrollToRecentOrders, 300);
-      setTimeout(scrollToRecentOrders, 500);
+    const scrollToRecentOrders = () => {
+      scrollToElement("recent-orders", "📦 [대시보드] 최근 주문 내역 섹션으로 스크롤");
+    };
+
+    const scrollToDeliveryTracking = () => {
+      scrollToElement("delivery-tracking", "🚚 [대시보드] 배송 조회 섹션으로 스크롤");
+    };
+
+    // sessionStorage에서 스크롤 위치 확인 (해시 없이 이동한 경우)
+    const scrollToSection = sessionStorage.getItem("scrollToSection");
+    if (scrollToSection) {
+      console.log(`📌 [대시보드] sessionStorage에서 스크롤 위치 확인: ${scrollToSection}`);
+      // 스크롤 실행
+      if (scrollToSection === "recent-orders") {
+        setTimeout(() => scrollToRecentOrders(), 100);
+        setTimeout(() => scrollToRecentOrders(), 300);
+        setTimeout(() => scrollToRecentOrders(), 500);
+      } else if (scrollToSection === "delivery-tracking") {
+        setTimeout(() => scrollToDeliveryTracking(), 100);
+        setTimeout(() => scrollToDeliveryTracking(), 300);
+        setTimeout(() => scrollToDeliveryTracking(), 500);
+      }
+      // 사용 후 삭제 (한 번만 실행되도록)
+      sessionStorage.removeItem("scrollToSection");
     }
 
-    // 해시 변경 감지 (뒤로가기/앞으로가기 등)
+    // 해시에 따라 스크롤하는 함수
+    const handleHashScroll = () => {
+      const hash = window.location.hash;
+      if (hash === "#recent-orders") {
+        scrollToRecentOrders();
+      } else if (hash === "#delivery-tracking") {
+        scrollToDeliveryTracking();
+      }
+    };
+
+    // 초기 해시 확인 및 스크롤
+    if (window.location.hash) {
+      // 페이지가 완전히 로드된 후 스크롤 (여러 번 시도)
+      // DOM이 완전히 렌더링될 때까지 대기
+      setTimeout(handleHashScroll, 100);
+      setTimeout(handleHashScroll, 300);
+      setTimeout(handleHashScroll, 500);
+      setTimeout(handleHashScroll, 800);
+    }
+
+    // 해시 변경 감지 (뒤로가기/앞으로가기, router.push 등)
     const handleHashChange = () => {
-      if (window.location.hash === "#recent-orders") {
-        setTimeout(scrollToRecentOrders, 100);
+      setTimeout(handleHashScroll, 100);
+      setTimeout(handleHashScroll, 300);
+    };
+
+    // URL 변경 감지 (Next.js router.push로 해시가 변경될 때)
+    const checkHash = () => {
+      if (window.location.hash) {
+        setTimeout(handleHashScroll, 100);
+        setTimeout(handleHashScroll, 300);
       }
     };
 
     window.addEventListener("hashchange", handleHashChange);
+    // URL이 변경될 때마다 체크 (popstate 이벤트)
+    window.addEventListener("popstate", checkHash);
+    // 주기적으로 해시 확인 (router.push로 해시가 변경될 때 대응)
+    const hashCheckInterval = setInterval(checkHash, 100);
 
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener("popstate", checkHash);
+      clearInterval(hashCheckInterval);
     };
   }, []);
 
@@ -200,6 +259,27 @@ export default function RetailerDashboardPage() {
     };
 
     fetchRecentOrders();
+  }, []);
+
+  // 전체 주문 목록 데이터 로드 (주문 내역 페이지와 동일)
+  useEffect(() => {
+    const fetchAllOrders = async () => {
+      try {
+        console.log("🚚 [대시보드] 전체 주문 목록 불러오기 시작");
+        const data = await getAllOrders();
+        setShippingOrders(data);
+        console.log("🚚 [대시보드] 전체 주문 목록 불러오기 완료", {
+          count: data.length,
+        });
+      } catch (error) {
+        console.error("❌ [대시보드] 전체 주문 목록 불러오기 실패", error);
+        setShippingOrders([]);
+      } finally {
+        setIsShippingOrdersLoading(false);
+      }
+    };
+
+    fetchAllOrders();
   }, []);
 
   // 초를 시:분:초 형식으로 변환하는 함수
@@ -444,13 +524,13 @@ export default function RetailerDashboardPage() {
         {/* 배송 조회 & 주문 내역 */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* 배송 조회 */}
-          <div className="bg-white/80 backdrop-blur-xl border border-green-100 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow">
+          <div id="delivery-tracking" className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-green-100 dark:border-green-800 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Truck size={24} className="text-green-600" /> 배송 조회
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <Truck size={24} className="text-green-600 dark:text-green-400" /> 배송 조회
               </h3>
             <button
-              className="text-sm text-gray-400 hover:text-green-600"
+              className="text-sm text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400"
               onClick={() => {
                 console.log("🚚 [대시보드] 배송 조회 더보기 클릭, 주문 내역 페이지로 이동");
                 router.push("/retailer/orders");
@@ -460,38 +540,99 @@ export default function RetailerDashboardPage() {
             </button>
             </div>
             <div className="space-y-4">
-              <div 
-                onClick={() => {
-                  console.log("🚚 [대시보드] 배송 카드 클릭, 배송 조회 페이지로 이동");
-                  router.push("/retailer/delivery-tracking");
-                }}
-                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group"
-              >
-                <div className="bg-white p-3 rounded-full shadow-sm text-green-600 group-hover:scale-110 transition-transform">
-                  <Truck size={20} />
+              {isShippingOrdersLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-gray-400 text-sm">배송 정보를 불러오는 중...</div>
                 </div>
-                <div className="flex-1">
-                  <div className="font-bold text-gray-800">오전 정기 배송</div>
-                  <div className="text-sm text-green-600 font-medium">14:00 도착 예정</div>
+              ) : shippingOrders.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <Truck size={32} className="text-gray-300 mb-2" />
+                  <div className="text-gray-400 text-sm">주문 내역이 없습니다</div>
                 </div>
-                <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-lg">배송중</span>
-              </div>
-              <div 
-                onClick={() => {
-                  console.log("🚚 [대시보드] 오후 긴급 배송 카드 클릭, 배송 조회 페이지로 이동");
-                  router.push("/retailer/delivery-tracking");
-                }}
-                className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-green-200 transition-all group"
-              >
-                <div className="bg-white p-3 rounded-full shadow-sm text-green-600 group-hover:scale-110 transition-transform">
-                  <Truck size={20} />
-                </div>
-                <div className="flex-1">
-                  <div className="font-bold text-gray-800">오후 긴급 배송</div>
-                  <div className="text-sm text-green-600 font-medium">18:00 도착 예정</div>
-                </div>
-                <span className="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-lg">배송준비</span>
-              </div>
+              ) : (
+                shippingOrders.slice(0, 2).map((order) => {
+                  const productName =
+                    order.product?.name ||
+                    order.product?.standardized_name ||
+                    "상품명 없음";
+                  
+                  // 주문 상태에 따른 라벨 및 스타일
+                  const orderStatus = order.status;
+                  const statusInfo = (() => {
+                    switch (orderStatus) {
+                      case "pending":
+                      case "confirmed":
+                        return {
+                          label: "준비 중",
+                          bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
+                          textColor: "text-yellow-700 dark:text-yellow-500",
+                          timeText: "준비 중",
+                        };
+                      case "shipped":
+                        return {
+                          label: "배송중",
+                          bgColor: "bg-green-100 dark:bg-green-900/30",
+                          textColor: "text-green-700 dark:text-green-500",
+                          timeText: (() => {
+                            const orderDate = new Date(order.created_at);
+                            const estimatedHour = orderDate.getHours() + 24;
+                            return `${estimatedHour.toString().padStart(2, "0")}:00 도착 예정`;
+                          })(),
+                        };
+                      case "completed":
+                        return {
+                          label: "배송완료",
+                          bgColor: "bg-blue-100 dark:bg-blue-900/30",
+                          textColor: "text-blue-700 dark:text-blue-500",
+                          timeText: new Date(order.created_at).toLocaleDateString("ko-KR"),
+                        };
+                      default:
+                        return {
+                          label: "준비 중",
+                          bgColor: "bg-gray-100 dark:bg-gray-900/30",
+                          textColor: "text-gray-700 dark:text-gray-500",
+                          timeText: "확인 중",
+                        };
+                    }
+                  })();
+
+                  return (
+                    <div
+                      key={order.id}
+                      onClick={() => {
+                        console.log("🚚 [대시보드] 배송 카드 클릭", {
+                          orderId: order.id,
+                          orderNumber: order.order_number,
+                          status: orderStatus,
+                        });
+                        // 배송 중이거나 완료된 경우에만 배송 조회 페이지로 이동
+                        if (orderStatus === "shipped" || orderStatus === "completed") {
+                          router.push(`/retailer/delivery-tracking?orderId=${order.id}`);
+                        } else {
+                          // 그 외의 경우 주문 상세 페이지로 이동
+                          router.push(`/retailer/orders/${order.id}`);
+                        }
+                      }}
+                      className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-white dark:hover:bg-gray-700 hover:border-green-200 dark:hover:border-green-800 transition-all group"
+                    >
+                      <div className="bg-white dark:bg-gray-900 p-3 rounded-full shadow-sm text-green-600 dark:text-green-500 group-hover:scale-110 transition-transform">
+                        <Truck size={20} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-gray-800 dark:text-gray-100 truncate">
+                          {productName}
+                        </div>
+                        <div className={`text-sm ${statusInfo.textColor} font-medium`}>
+                          {statusInfo.timeText}
+                        </div>
+                      </div>
+                      <span className={`${statusInfo.bgColor} ${statusInfo.textColor} text-xs font-bold px-3 py-1 rounded-lg whitespace-nowrap`}>
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
