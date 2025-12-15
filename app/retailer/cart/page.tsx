@@ -205,7 +205,7 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         {/* 헤더 */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3 mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3 mb-2">
             <ShoppingCart size={28} className="text-green-600" />
             장바구니
           </h1>
