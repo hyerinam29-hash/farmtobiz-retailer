@@ -696,7 +696,7 @@ export default function RetailerDashboardPage() {
                         <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">{formattedDate}</div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-gray-800">{formattedPrice}원</div>
+                        <div className="font-bold text-gray-800 dark:text-green-500">{formattedPrice}원</div>
                         <span className="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-gray-100 text-gray-600 mt-1">
                           {statusLabel}
                         </span>

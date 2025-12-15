@@ -113,12 +113,12 @@ export default function DeliveryAddressList() {
 
   return (
     <>
-      <Card>
+      <Card className="border-gray-200 dark:border-gray-800 dark:bg-gray-900 transition-colors duration-200">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>배송지 관리</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-gray-900 dark:text-gray-100 transition-colors duration-200">배송지 관리</CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-300 transition-colors duration-200">
                 주문 시 사용할 배송지를 관리할 수 있습니다.
               </CardDescription>
             </div>
@@ -130,32 +130,32 @@ export default function DeliveryAddressList() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400 transition-colors duration-200">
               배송지 목록을 불러오는 중...
             </div>
           ) : addresses.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <MapPin className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400 transition-colors duration-200">
+              <MapPin className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4 transition-colors duration-200" />
               <p>등록된 배송지가 없습니다.</p>
               <p className="text-sm mt-2">배송지 추가 버튼을 눌러 배송지를 등록해주세요.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {addresses.map((address) => (
-                <Card key={address.id} className="relative">
+                <Card key={address.id} className="relative border-gray-200 dark:border-gray-700 dark:bg-gray-800 transition-colors duration-200">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold">{address.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 transition-colors duration-200">{address.name}</h3>
                           {address.is_default && (
-                            <Badge variant="default" className="bg-green-500">
+                            <Badge variant="default" className="bg-green-500 dark:bg-green-600 transition-colors duration-200">
                               <Star className="mr-1 h-3 w-3" />
                               기본 배송지
                             </Badge>
                           )}
                         </div>
-                        <div className="space-y-1 text-sm text-gray-600">
+                        <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300 transition-colors duration-200">
                           <p>
                             <span className="font-medium">수령인:</span>{" "}
                             {address.recipient_name}
@@ -206,10 +206,10 @@ export default function DeliveryAddressList() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-gray-100 transition-colors duration-200">
               {editingAddress ? "배송지 수정" : "배송지 추가"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600 dark:text-gray-300 transition-colors duration-200">
               {editingAddress
                 ? "배송지 정보를 수정할 수 있습니다."
                 : "새로운 배송지를 등록할 수 있습니다."}

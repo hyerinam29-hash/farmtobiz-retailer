@@ -158,7 +158,7 @@ export default async function ProductsPage({
         <ExclusiveEventBanner />
 
         {/* 섹션 제목 */}
-        <h2 className="text-2xl font-bold text-purple-700 mb-6 mt-12">
+        <h2 className="text-2xl font-bold text-purple-700 dark:text-purple-400 mb-6 mt-12 transition-colors duration-200">
           💜 팜투비즈 단독 상품
         </h2>
 
@@ -172,7 +172,7 @@ export default async function ProductsPage({
               <ExclusiveProductCard key={product.id} product={product} tag="Only" />
             ))
           ) : (
-            <div className="col-span-full text-center py-12 text-gray-500">
+            <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400 transition-colors duration-200">
               단독 상품이 없습니다.
             </div>
           )}
@@ -186,14 +186,14 @@ export default async function ProductsPage({
         />
 
         {/* 두 번째 상품 그리드 - 지금 뜨는 단독 상품 */}
-        <h3 className="text-xl font-bold text-gray-800 mb-6">👀 지금 뜨는 단독 상품</h3>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6 transition-colors duration-200">👀 지금 뜨는 단독 상품</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
           {trendingProducts.length > 0 ? (
             trendingProducts.map((product) => (
               <ExclusiveProductCard key={product.id} product={product} tag="단독특가" />
             ))
           ) : (
-            <div className="col-span-full text-center py-12 text-gray-500">
+            <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400 transition-colors duration-200">
               인기 단독 상품이 없습니다.
             </div>
           )}
@@ -203,14 +203,14 @@ export default async function ProductsPage({
         <CategoryBanners />
 
         {/* 세 번째 상품 그리드 - 선물하기 좋은 패키지 */}
-        <h3 className="text-xl font-bold text-gray-800 mb-6">🎁 선물하기 좋은 패키지</h3>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6 transition-colors duration-200">🎁 선물하기 좋은 패키지</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {giftProducts.length > 0 ? (
             giftProducts.map((product) => (
               <ExclusiveProductCard key={product.id} product={product} tag="선물추천" />
             ))
           ) : (
-            <div className="col-span-full text-center py-12 text-gray-500">
+            <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400 transition-colors duration-200">
               선물용 상품이 없습니다.
             </div>
           )}
@@ -234,7 +234,7 @@ export default async function ProductsPage({
         <SpecialTimerSection />
 
         {/* 실시간 특가 제목 */}
-        <h2 className="text-2xl font-bold text-red-600 mb-6 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-6 flex items-center gap-2 transition-colors duration-200">
           <Zap size={24} />
           실시간 랭킹 특가
         </h2>
@@ -244,7 +244,7 @@ export default async function ProductsPage({
           {products.length > 0 ? (
             products.map((product) => <SpecialProductCard key={product.id} product={product} />)
           ) : (
-            <div className="col-span-full text-center py-12 text-gray-500">
+            <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400 transition-colors duration-200">
               특가 상품이 없습니다.
             </div>
           )}
@@ -256,18 +256,18 @@ export default async function ProductsPage({
             {page > 1 && (
               <Link
                 href={getPaginationLink(page - 1)}
-                className="px-6 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
               >
                 이전
               </Link>
             )}
-            <span className="px-6 py-3 text-gray-600">
+            <span className="px-6 py-3 text-gray-600 dark:text-gray-300 transition-colors duration-200">
               {page} / {totalPages}
             </span>
             {page < totalPages && (
               <Link
                 href={getPaginationLink(page + 1)}
-                className="px-6 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
               >
                 다음
               </Link>
@@ -284,10 +284,10 @@ export default async function ProductsPage({
     const restProducts = bestProducts.slice(3, 10);
 
     return (
-      <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA]">
+      <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA] dark:bg-gray-900 transition-colors duration-200">
         {/* 배경 장식 요소 */}
-        <div className="absolute -top-20 left-0 w-96 h-96 bg-gradient-to-br from-purple-100/40 to-transparent rounded-full blur-3xl -z-10"></div>
-        <div className="absolute top-1/2 right-0 w-80 h-80 bg-gradient-to-bl from-indigo-100/30 to-transparent rounded-full blur-3xl -z-10"></div>
+        <div className="absolute -top-20 left-0 w-96 h-96 bg-gradient-to-br from-purple-100/40 dark:from-purple-900/20 to-transparent rounded-full blur-3xl -z-10 transition-colors duration-200"></div>
+        <div className="absolute top-1/2 right-0 w-80 h-80 bg-gradient-to-bl from-indigo-100/30 dark:from-indigo-900/20 to-transparent rounded-full blur-3xl -z-10 transition-colors duration-200"></div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10 pb-20 relative z-10">
           {/* 이벤트 배너 */}
@@ -295,7 +295,7 @@ export default async function ProductsPage({
 
           {/* 실시간 베스트 랭킹 섹션 */}
           <div className="mt-8 md:mt-12">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8 text-center flex items-center justify-center gap-2">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 md:mb-8 text-center flex items-center justify-center gap-2 transition-colors duration-200">
               <span className="text-2xl md:text-3xl">👑</span>
               <span>실시간 베스트 랭킹</span>
             </h2>
@@ -329,8 +329,8 @@ export default async function ProductsPage({
             {/* 상품이 없을 때 */}
             {bestProducts.length === 0 && (
               <div className="w-full flex flex-col items-center justify-center py-[4.5rem]">
-                <p className="text-gray-500 text-xl md:text-2xl">베스트 상품이 없습니다.</p>
-                <p className="text-gray-400 text-sm md:text-base mt-3">
+                <p className="text-gray-500 dark:text-gray-400 text-xl md:text-2xl transition-colors duration-200">베스트 상품이 없습니다.</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mt-3 transition-colors duration-200">
                   곧 인기 상품을 만나보실 수 있습니다.
                 </p>
               </div>
@@ -343,20 +343,20 @@ export default async function ProductsPage({
 
   // 일반 상품 목록 페이지 레이아웃 (사이드바 제거, 전체 너비 사용)
   return (
-    <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA]">
+    <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA] dark:bg-gray-900 transition-colors duration-200">
       {/* 배경 장식 요소 */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-green-200/40 to-emerald-100/0 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-gradient-to-tr from-blue-100/30 to-indigo-50/0 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-green-200/40 dark:from-green-900/20 to-emerald-100/0 dark:to-emerald-900/0 rounded-full blur-3xl -z-10 transition-colors duration-200"></div>
+      <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-gradient-to-tr from-blue-100/30 dark:from-blue-900/20 to-indigo-50/0 dark:to-indigo-900/0 rounded-full blur-3xl -z-10 transition-colors duration-200"></div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10 pb-20 relative z-10">
         {/* 검색 결과 헤더 (검색어가 있을 때만 표시) */}
         {search && (
           <div className="mb-6 md:mb-8">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2 flex-wrap">
-              <SearchIcon className="text-green-600 w-5 h-5 md:w-6 md:h-6 flex-shrink-0" />
-              <span className="text-green-600">&apos;{search}&apos;</span>
-              <span className="text-gray-800">검색 결과</span>
-              <span className="text-gray-500 text-base md:text-lg font-normal">({total}건)</span>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 flex-wrap transition-colors duration-200">
+              <SearchIcon className="text-green-600 dark:text-green-400 w-5 h-5 md:w-6 md:h-6 flex-shrink-0 transition-colors duration-200" />
+              <span className="text-green-600 dark:text-green-400 transition-colors duration-200">&apos;{search}&apos;</span>
+              <span className="text-gray-800 dark:text-gray-100 transition-colors duration-200">검색 결과</span>
+              <span className="text-gray-500 dark:text-gray-400 text-base md:text-lg font-normal transition-colors duration-200">({total}건)</span>
             </h1>
           </div>
         )}
@@ -367,10 +367,10 @@ export default async function ProductsPage({
         {/* 카테고리도 검색어도 없을 때 기본 헤더 */}
         {!category && !search && (
           <div className="mb-6 md:mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 transition-colors duration-200">
               상품 목록
             </h1>
-            <p className="text-base text-gray-600">
+            <p className="text-base text-gray-600 dark:text-gray-300 transition-colors duration-200">
               AI가 표준화한 상품명으로 투명한 가격 비교
             </p>
           </div>
@@ -405,18 +405,18 @@ export default async function ProductsPage({
                   {page > 1 && (
                     <Link
                       href={getPaginationLink(page - 1)}
-                      className="px-4 md:px-6 py-2 md:py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors text-sm md:text-base"
+                      className="px-4 md:px-6 py-2 md:py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 text-sm md:text-base"
                     >
                       이전
                     </Link>
                   )}
-                  <span className="px-4 md:px-6 py-2 md:py-3 text-gray-600 text-sm md:text-base">
+                  <span className="px-4 md:px-6 py-2 md:py-3 text-gray-600 dark:text-gray-300 text-sm md:text-base transition-colors duration-200">
                     {page} / {totalPages}
                   </span>
                   {page < totalPages && (
                     <Link
                       href={getPaginationLink(page + 1)}
-                      className="px-4 md:px-6 py-2 md:py-3 bg-white border border-gray-200 rounded-lg text-gray-900 font-medium hover:bg-gray-50 transition-colors text-sm md:text-base"
+                      className="px-4 md:px-6 py-2 md:py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 text-sm md:text-base"
                     >
                       다음
                     </Link>

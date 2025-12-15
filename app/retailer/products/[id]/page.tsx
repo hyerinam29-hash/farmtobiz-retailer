@@ -77,7 +77,7 @@ export default async function ProductDetailPage({
       {/* 뒤로가기 */}
       <Link
         href={backHref}
-        className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6"
+        className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6 transition-colors duration-200"
       >
         <ChevronLeft className="w-5 h-5" />
         <span>상품 목록으로</span>
@@ -96,7 +96,7 @@ export default async function ProductDetailPage({
 
         {/* 오른쪽: 정보 */}
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-6 md:p-7 space-y-6">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-6 md:p-7 space-y-6 transition-colors duration-200">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <Package className="w-4 h-4" />
@@ -116,16 +116,16 @@ export default async function ProductDetailPage({
                     </span>
                   )}
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-200">
                   {product.standardized_name || product.name}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 transition-colors duration-200">
                   {product.category} {product.specification ? `· ${product.specification}` : ""}
                 </p>
               </div>
 
               {product.description && (
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
                   {product.description}
                 </p>
               )}
@@ -134,11 +134,11 @@ export default async function ProductDetailPage({
             <div className="space-y-4">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl md:text-4xl font-bold text-green-600 dark:text-green-400">
+                  <span className="text-3xl md:text-4xl font-bold text-green-600 dark:text-green-400 transition-colors duration-200">
                     {product.price.toLocaleString()}원
                   </span>
                   {product.specification && (
-                    <span className="text-gray-500 dark:text-gray-400">
+                    <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
                       / {product.specification}
                     </span>
                   )}
@@ -156,13 +156,13 @@ export default async function ProductDetailPage({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">원산지</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{product.wholesaler_region || "국내"}</p>
+                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1 transition-colors duration-200">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">원산지</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 transition-colors duration-200">{product.wholesaler_region || "국내"}</p>
                 </div>
-                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">배송방법</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{deliveryMethodText}</p>
+                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1 transition-colors duration-200">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">배송방법</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 transition-colors duration-200">{deliveryMethodText}</p>
                   
                 </div> 
               </div>

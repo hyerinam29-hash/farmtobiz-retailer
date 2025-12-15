@@ -152,15 +152,16 @@ export default function DeliveryAddressForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>배송지 별칭 *</FormLabel>
+              <FormLabel className="text-gray-900 dark:text-gray-100 transition-colors duration-200">배송지 별칭 *</FormLabel>
               <FormControl>
                 <Input
                   placeholder="예: 본점, 지점1"
                   {...field}
                   disabled={form.formState.isSubmitting}
+                  className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
                 />
               </FormControl>
-              <FormDescription>
+              <FormDescription className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
                 배송지를 구분하기 위한 별칭을 입력해주세요.
               </FormDescription>
               <FormMessage />
@@ -174,12 +175,13 @@ export default function DeliveryAddressForm({
           name="recipient_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>수령인 이름 *</FormLabel>
+              <FormLabel className="text-gray-900 dark:text-gray-100 transition-colors duration-200">수령인 이름 *</FormLabel>
               <FormControl>
                 <Input
                   placeholder="예: 홍길동"
                   {...field}
                   disabled={form.formState.isSubmitting}
+                  className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
                 />
               </FormControl>
               <FormMessage />
@@ -193,7 +195,7 @@ export default function DeliveryAddressForm({
           name="recipient_phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>수령인 전화번호 *</FormLabel>
+              <FormLabel className="text-gray-900 dark:text-gray-100 transition-colors duration-200">수령인 전화번호 *</FormLabel>
               <FormControl>
                 <Input
                   placeholder="010-1234-5678"
@@ -202,6 +204,7 @@ export default function DeliveryAddressForm({
                     handlePhoneChange(e.target.value);
                   }}
                   disabled={form.formState.isSubmitting}
+                  className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
                 />
               </FormControl>
               <FormMessage />
@@ -215,12 +218,13 @@ export default function DeliveryAddressForm({
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>주소 *</FormLabel>
+              <FormLabel className="text-gray-900 dark:text-gray-100 transition-colors duration-200">주소 *</FormLabel>
               <FormControl>
                 <Input
                   placeholder="예: 서울시 강남구 테헤란로 123"
                   {...field}
                   disabled={form.formState.isSubmitting}
+                  className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
                 />
               </FormControl>
               <FormMessage />
@@ -234,13 +238,14 @@ export default function DeliveryAddressForm({
           name="address_detail"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>상세 주소</FormLabel>
+              <FormLabel className="text-gray-900 dark:text-gray-100 transition-colors duration-200">상세 주소</FormLabel>
               <FormControl>
                 <Input
                   placeholder="예: 101호"
                   {...field}
                   value={field.value || ""}
                   disabled={form.formState.isSubmitting}
+                  className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
                 />
               </FormControl>
               <FormMessage />
@@ -254,13 +259,14 @@ export default function DeliveryAddressForm({
           name="postal_code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>우편번호</FormLabel>
+              <FormLabel className="text-gray-900 dark:text-gray-100 transition-colors duration-200">우편번호</FormLabel>
               <FormControl>
                 <Input
                   placeholder="예: 06142"
                   {...field}
                   value={field.value || ""}
                   disabled={form.formState.isSubmitting}
+                  className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
                 />
               </FormControl>
               <FormMessage />
@@ -282,8 +288,8 @@ export default function DeliveryAddressForm({
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>기본 배송지로 설정</FormLabel>
-                <FormDescription>
+                <FormLabel className="text-gray-900 dark:text-gray-100 transition-colors duration-200">기본 배송지로 설정</FormLabel>
+                <FormDescription className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
                   기본 배송지로 설정하면 주문 시 자동으로 선택됩니다.
                 </FormDescription>
               </div>

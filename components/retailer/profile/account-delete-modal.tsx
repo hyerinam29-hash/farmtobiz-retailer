@@ -49,10 +49,10 @@ export default function AccountDeleteModal() {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 transition-colors duration-200">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">회원탈퇴</DialogTitle>
-            <DialogDescription className="text-sm">
+            <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 transition-colors duration-200">회원탈퇴</DialogTitle>
+            <DialogDescription className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-200">
               정말로 탈퇴하시겠습니까? 탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
               주문이나 정산 내역이 있으면 탈퇴할 수 없습니다.
             </DialogDescription>
@@ -60,35 +60,37 @@ export default function AccountDeleteModal() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>비밀번호 확인 *</Label>
+              <Label className="text-gray-900 dark:text-gray-100 transition-colors duration-200">비밀번호 확인 *</Label>
               <Input
                 type="password"
                 placeholder="비밀번호를 입력해주세요"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>탈퇴 사유 *</Label>
+              <Label className="text-gray-900 dark:text-gray-100 transition-colors duration-200">탈퇴 사유 *</Label>
               <Select value={reason} onValueChange={setReason}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200">
                   <SelectValue placeholder="탈퇴 사유를 선택해주세요" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="service">서비스 불만</SelectItem>
-                  <SelectItem value="price">가격 불만</SelectItem>
-                  <SelectItem value="etc">기타</SelectItem>
+                <SelectContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                  <SelectItem value="service" className="text-gray-900 dark:text-gray-100">서비스 불만</SelectItem>
+                  <SelectItem value="price" className="text-gray-900 dark:text-gray-100">가격 불만</SelectItem>
+                  <SelectItem value="etc" className="text-gray-900 dark:text-gray-100">기타</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>추가 설명 (선택)</Label>
+              <Label className="text-gray-900 dark:text-gray-100 transition-colors duration-200">추가 설명 (선택)</Label>
               <Textarea
                 placeholder="추가로 전달하고 싶은 내용이 있다면 입력해주세요"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
+                className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700 transition-colors duration-200"
               />
             </div>
           </div>

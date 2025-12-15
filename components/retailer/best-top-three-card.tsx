@@ -65,7 +65,7 @@ export default function BestTopThreeCard({
         <h3 className="font-bold text-gray-900 text-base md:text-lg mb-1 truncate">
           {product.standardized_name || product.name}
         </h3>
-        <p className="text-xs md:text-sm text-gray-500 mb-2 line-clamp-1">
+        <p className="text-base md:text-xl text-gray-500 mb-2 line-clamp-1">
           {product.specification || "인기 상품"}
         </p>
         <div className="text-lg md:text-xl font-black text-purple-700">

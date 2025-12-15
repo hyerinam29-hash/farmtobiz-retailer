@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       { hostname: "picsum.photos" },
       { hostname: "images.unsplash.com" },
       { hostname: "fmqaxnuemcmcjjgodath.supabase.co" },
+      { hostname: "via.placeholder.com" },
     ],
   },
 };

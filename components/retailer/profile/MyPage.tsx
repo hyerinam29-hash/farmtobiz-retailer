@@ -74,9 +74,9 @@ function getStatusBadgeClass(status: string): string {
     return "bg-green-100 text-green-700";
   }
   if (status === "completed") {
-    return "bg-gray-100 text-gray-600";
+    return "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300";
   }
-  return "bg-gray-100 text-gray-600";
+  return "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300";
 }
 
 /**
@@ -135,15 +135,15 @@ export default function MyPage({
   };
 
   return (
-    <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA] font-sans">
+    <div className="relative overflow-hidden min-h-screen bg-[#F8F9FA] dark:bg-gray-900 font-sans transition-colors duration-200">
       {/* 3D 배경 장식 요소 */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-green-200/40 to-emerald-100/0 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-gradient-to-bl from-blue-100/40 to-cyan-50/0 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-gradient-to-tr from-purple-100/30 to-indigo-50/0 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-green-200/40 dark:from-green-900/20 to-emerald-100/0 dark:to-emerald-900/0 rounded-full blur-3xl -z-10 transition-colors duration-200"></div>
+      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-gradient-to-bl from-blue-100/40 dark:from-blue-900/20 to-cyan-50/0 dark:to-cyan-900/0 rounded-full blur-3xl -z-10 transition-colors duration-200"></div>
+      <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-gradient-to-tr from-purple-100/30 dark:from-purple-900/20 to-indigo-50/0 dark:to-indigo-900/0 rounded-full blur-3xl -z-10 transition-colors duration-200"></div>
 
       {/* 3D 플로팅 오브젝트 */}
-      <div className="absolute top-[15%] left-[5%] w-32 h-32 bg-gradient-to-br from-white/60 to-white/10 backdrop-blur-md rounded-full shadow-lg border border-white/30 -z-10"></div>
-      <div className="absolute top-[40%] right-[10%] w-24 h-24 bg-gradient-to-br from-green-100/60 to-emerald-50/10 backdrop-blur-md rounded-[2rem] rotate-12 shadow-lg border border-white/30 -z-10"></div>
+      <div className="absolute top-[15%] left-[5%] w-32 h-32 bg-gradient-to-br from-white/60 dark:from-gray-800/60 to-white/10 dark:to-gray-800/10 backdrop-blur-md rounded-full shadow-lg border border-white/30 dark:border-gray-700/30 -z-10 transition-colors duration-200"></div>
+      <div className="absolute top-[40%] right-[10%] w-24 h-24 bg-gradient-to-br from-green-100/60 dark:from-green-900/40 to-emerald-50/10 dark:to-emerald-900/10 backdrop-blur-md rounded-[2rem] rotate-12 shadow-lg border border-white/30 dark:border-gray-700/30 -z-10 transition-colors duration-200"></div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 animate-in fade-in duration-500 relative z-10">
         {/* 사용자 정보 카드 */}
@@ -178,17 +178,17 @@ export default function MyPage({
 
         {/* 주문 통계 */}
         <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md transition-shadow">
-            <div className="text-sm text-gray-600 mb-2 font-bold">전체 주문</div>
-            <div className="text-3xl font-black text-blue-600">{totalOrders}</div>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 text-center hover:shadow-md transition-all duration-200">
+            <div className="text-sm text-gray-600 dark:text-gray-300 mb-2 font-bold transition-colors duration-200">전체 주문</div>
+            <div className="text-3xl font-black text-blue-600 dark:text-blue-400 transition-colors duration-200">{totalOrders}</div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md transition-shadow">
-            <div className="text-sm text-gray-600 mb-2 font-bold">배송 중</div>
-            <div className="text-3xl font-black text-green-600">{shippingOrders}</div>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 text-center hover:shadow-md transition-all duration-200">
+            <div className="text-sm text-gray-600 dark:text-gray-300 mb-2 font-bold transition-colors duration-200">배송 중</div>
+            <div className="text-3xl font-black text-green-600 dark:text-green-400 transition-colors duration-200">{shippingOrders}</div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md transition-shadow">
-            <div className="text-sm text-gray-600 mb-2 font-bold">배송 완료</div>
-            <div className="text-3xl font-black text-gray-600">{completedOrders}</div>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 text-center hover:shadow-md transition-all duration-200">
+            <div className="text-sm text-gray-600 dark:text-gray-300 mb-2 font-bold transition-colors duration-200">배송 완료</div>
+            <div className="text-3xl font-black text-gray-600 dark:text-gray-300 transition-colors duration-200">{completedOrders}</div>
           </div>
         </div>
 
@@ -197,44 +197,44 @@ export default function MyPage({
           <div className="lg:col-span-1 space-y-3">
             <Link
               href="/retailer/orders"
-              className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md transition-all hover:-translate-y-1"
+              className="block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-1"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Package className="text-green-600" size={24} />
-                  <span className="font-bold text-gray-800">주문 내역</span>
+                  <Package className="text-green-600 dark:text-green-400 transition-colors duration-200" size={24} />
+                  <span className="font-bold text-gray-800 dark:text-gray-100 transition-colors duration-200">주문 내역</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+                  <span className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-200 text-xs font-bold px-2 py-1 rounded-full transition-colors duration-200">
                     {totalOrders}
                   </span>
-                  <ChevronRight size={20} className="text-gray-400" />
+                  <ChevronRight size={20} className="text-gray-400 dark:text-gray-500 transition-colors duration-200" />
                 </div>
               </div>
             </Link>
 
             <button
               onClick={handleSettingsClick}
-              className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md transition-all hover:-translate-y-1 text-left"
+              className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-1 text-left"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Settings className="text-green-600" size={24} />
-                  <span className="font-bold text-gray-800">설정</span>
+                  <Settings className="text-green-600 dark:text-green-400 transition-colors duration-200" size={24} />
+                  <span className="font-bold text-gray-800 dark:text-gray-100 transition-colors duration-200">설정</span>
                 </div>
-                <ChevronRight size={20} className="text-gray-400" />
+                <ChevronRight size={20} className="text-gray-400 dark:text-gray-500 transition-colors duration-200" />
               </div>
             </button>
 
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="w-full bg-white rounded-2xl shadow-sm border border-red-100 bg-red-50/50 p-6 cursor-pointer hover:shadow-md transition-all hover:-translate-y-1 text-left disabled:opacity-50"
+              className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/20 p-6 cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-1 text-left disabled:opacity-50"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <LogOut className="text-red-500" size={24} />
-                  <span className="font-bold text-red-500">
+                  <LogOut className="text-red-500 dark:text-red-400 transition-colors duration-200" size={24} />
+                  <span className="font-bold text-red-500 dark:text-red-400 transition-colors duration-200">
                     {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
                   </span>
                 </div>
@@ -244,13 +244,13 @@ export default function MyPage({
 
           {/* 우측: 최근 주문 내역 */}
           <div className="lg:col-span-2">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <Package className="text-green-600" size={24} />
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2 transition-colors duration-200">
+              <Package className="text-green-600 dark:text-green-400 transition-colors duration-200" size={24} />
               최근 주문 내역
             </h3>
             <div className="space-y-3">
               {recentOrders.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center text-gray-500">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 text-center text-gray-500 dark:text-gray-400 transition-colors duration-200">
                   주문 내역이 없습니다.
                 </div>
               ) : (
@@ -269,33 +269,33 @@ export default function MyPage({
                     <Link
                       key={order.id}
                       href={`/retailer/orders/${order.id}`}
-                      className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md transition-shadow"
+                      className="block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 cursor-pointer hover:shadow-md transition-all duration-200"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <div className="text-sm text-gray-500 mb-1">
+                          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors duration-200">
                             {formatDate(order.created_at)}
                           </div>
-                          <div className="font-bold text-gray-800 mb-1">
+                          <div className="font-bold text-gray-800 dark:text-gray-100 mb-1 transition-colors duration-200">
                             {displayName}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">
                             주문번호: {order.order_number}
                           </div>
                         </div>
                         <span
-                          className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusBadgeClass(
+                          className={`text-xs font-bold px-3 py-1 rounded-full transition-colors duration-200 ${getStatusBadgeClass(
                             order.status
-                          )}`}
+                          )} ${order.status === "shipped" ? "dark:bg-green-900/30 dark:text-green-200" : order.status === "completed" ? "dark:bg-gray-800 dark:text-gray-300" : "dark:bg-gray-800 dark:text-gray-300"}`}
                         >
                           {getStatusLabel(order.status)}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                        <span className="font-bold text-lg text-gray-800">
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700 transition-colors duration-200">
+                        <span className="font-bold text-lg text-gray-800 dark:text-gray-100 transition-colors duration-200">
                           {formatPrice(order.total_amount)}원
                         </span>
-                        <span className="text-sm text-green-600 font-bold hover:text-green-700">
+                        <span className="text-sm text-green-600 dark:text-green-400 font-bold hover:text-green-700 dark:hover:text-green-300 transition-colors duration-200">
                           상세보기 →
                         </span>
                       </div>
