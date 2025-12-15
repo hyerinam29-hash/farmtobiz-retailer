@@ -36,6 +36,7 @@ export interface RetailerProduct extends Product {
   wholesaler_anonymous_code: string;
   wholesaler_region: string;
   delivery_dawn_available: boolean;
+  origin: string | null; // 원산지 (카테고리별로 설정됨)
 }
 
 export interface GetRetailerProductsResult {
@@ -151,11 +152,27 @@ export async function getRetailerProducts(
     const dawnDeliveryAvailable =
       deliveryOptions.dawn_delivery_available === true;
 
+    // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
+    const specifications = item.specifications || {};
+    const originFromSpec = specifications.origin;
+    
+    // 카테고리별 기본 원산지 매핑
+    const categoryOriginMap: Record<string, string> = {
+      과일: "제주도",
+      채소: "경기도",
+      수산물: "부산",
+      "곡물/견과류": "전라북도",
+      기타: "국내",
+    };
+    
+    const origin = originFromSpec || categoryOriginMap[item.category] || "국내";
+
     return {
       ...item,
       wholesaler_anonymous_code: wholesaler?.anonymous_code || "Unknown",
       wholesaler_region: region,
       delivery_dawn_available: dawnDeliveryAvailable,
+      origin,
     };
   });
 
@@ -227,11 +244,27 @@ export async function getRetailerProductById(
   const deliveryOptions = data.delivery_options || {};
   const dawnDeliveryAvailable = deliveryOptions.dawn_delivery_available === true;
 
+  // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
+  const specifications = data.specifications || {};
+  const originFromSpec = specifications.origin;
+  
+  // 카테고리별 기본 원산지 매핑
+  const categoryOriginMap: Record<string, string> = {
+    과일: "제주도",
+    채소: "경기도",
+    수산물: "부산",
+    "곡물/견과류": "전라북도",
+    기타: "국내",
+  };
+  
+  const origin = originFromSpec || categoryOriginMap[data.category] || "국내";
+
   const product: RetailerProduct = {
     ...data,
     wholesaler_anonymous_code: wholesaler?.anonymous_code || "Unknown",
     wholesaler_region: region,
     delivery_dawn_available: dawnDeliveryAvailable,
+    origin,
   };
 
   console.log("✅ [retailer-products-query] 상품 조회 완료", { productId });
@@ -307,11 +340,27 @@ export async function getBestRetailerProducts(
     const dawnDeliveryAvailable =
       deliveryOptions.dawn_delivery_available === true;
 
+    // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
+    const specifications = item.specifications || {};
+    const originFromSpec = specifications.origin;
+    
+    // 카테고리별 기본 원산지 매핑
+    const categoryOriginMap: Record<string, string> = {
+      과일: "제주도",
+      채소: "경기도",
+      수산물: "부산",
+      "곡물/견과류": "전라북도",
+      기타: "국내",
+    };
+    
+    const origin = originFromSpec || categoryOriginMap[item.category] || "국내";
+
     return {
       ...item,
       wholesaler_anonymous_code: wholesaler?.anonymous_code || "Unknown",
       wholesaler_region: region,
       delivery_dawn_available: dawnDeliveryAvailable,
+      origin,
     };
   });
 
@@ -378,11 +427,27 @@ export async function getAllBestRetailerProducts(
     const dawnDeliveryAvailable =
       deliveryOptions.dawn_delivery_available === true;
 
+    // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
+    const specifications = item.specifications || {};
+    const originFromSpec = specifications.origin;
+    
+    // 카테고리별 기본 원산지 매핑
+    const categoryOriginMap: Record<string, string> = {
+      과일: "제주도",
+      채소: "경기도",
+      수산물: "부산",
+      "곡물/견과류": "전라북도",
+      기타: "국내",
+    };
+    
+    const origin = originFromSpec || categoryOriginMap[item.category] || "국내";
+
     return {
       ...item,
       wholesaler_anonymous_code: wholesaler?.anonymous_code || "Unknown",
       wholesaler_region: region,
       delivery_dawn_available: dawnDeliveryAvailable,
+      origin,
     };
   });
 

@@ -33,6 +33,7 @@ export interface Product {
   standardized_name: string | null; // AI 제안 수락한 표준화 이름
   ai_suggested_category: string | null;
   ai_keywords: string[] | null; // 검색 키워드 배열
+  origin: string | null; // 원산지 (예: 제주도, 경기도, 부산 등)
   created_at: string;
   updated_at: string;
 }

@@ -123,12 +123,6 @@ export default async function ProductDetailPage({
                   {product.category} {product.specification ? `· ${product.specification}` : ""}
                 </p>
               </div>
-
-              {product.description && (
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
-                  {product.description}
-                </p>
-              )}
             </div>
 
             <div className="space-y-4">
@@ -158,7 +152,7 @@ export default async function ProductDetailPage({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1 transition-colors duration-200">
                   <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">원산지</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100 transition-colors duration-200">{product.wholesaler_region || "국내"}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 transition-colors duration-200">{product.origin || product.wholesaler_region || "국내"}</p>
                 </div>
                 <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-4 space-y-1 transition-colors duration-200">
                   <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">배송방법</p>

@@ -128,14 +128,6 @@ export default function ConfirmPurchaseModal({
               <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
             </div>
           )}
-
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              💡 구매 확정 후에는 주문 취소가 불가능합니다.
-              <br />
-              정산은 구매 확정 후 7일 후에 진행됩니다.
-            </p>
-          </div>
         </div>
 
         <DialogFooter className="gap-2">
