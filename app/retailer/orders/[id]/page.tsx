@@ -179,7 +179,7 @@ export default async function OrderDetailPage({
           <h3 className="font-bold text-sm sm:text-base md:text-lg text-gray-800 dark:text-gray-100 mb-3 sm:mb-4 flex items-center gap-2">
             <MapPin size={16} className="sm:w-5 sm:h-5 text-green-600 flex-shrink-0" /> 배송지 정보
           </h3>
-          <div className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+          <div className="text-sm text-gray-500 space-y-1">
             {(() => {
               // 배송지 정보 파싱 (형식: "상호명 | 연락처 | 주소 | 상세주소")
               // split 후 trim으로 공백 제거 (빈 문자열은 유지하여 인덱스 보존)
@@ -208,26 +208,16 @@ export default async function OrderDetailPage({
               return (
                 <>
                   {businessName && (
-                    <p className="font-bold text-gray-900 dark:text-gray-100 text-sm sm:text-base break-words">
-                      {businessName}
-                    </p>
+                    <p><span className="font-semibold">상호명:</span> {businessName}</p>
                   )}
                   {phone && (
-                    <p className="break-words">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">전화번호:</span> {phone}
-                    </p>
+                    <p><span className="font-semibold">연락처:</span> {phone}</p>
                   )}
                   {address && (
-                    <>
-                      <p className="break-words">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">주소:</span> {address}
-                      </p>
-                      {/* 상세 주소: 주소가 있으면 항상 표시 (값이 없으면 "상세 주소: "만 표시) */}
-                      <p className="break-words">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">상세 주소:</span>
-                        {addressDetail ? ` ${addressDetail}` : ""}
-                      </p>
-                    </>
+                    <p><span className="font-semibold">주소:</span> {address}</p>
+                  )}
+                  {addressDetail && (
+                    <p><span className="font-semibold">상세주소:</span> {addressDetail}</p>
                   )}
                 </>
               );

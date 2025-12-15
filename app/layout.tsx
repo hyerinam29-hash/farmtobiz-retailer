@@ -8,6 +8,7 @@ import { SyncUserProvider } from "@/components/providers/sync-user-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import PWAInstaller from "@/components/pwa/PWAInstaller";
 import "./globals.css";
 
 // FarmToBiz 브랜딩을 위한 커스텀 localization
@@ -30,10 +31,17 @@ export const metadata: Metadata = {
   title: "FarmToBiz - 도매와 소매를 연결하는 B2B 중개 플랫폼",
   description:
     "도매의 민감 정보를 노출하지 않으면서 소매가 여러 도매의 상품을 비교하고 주문할 수 있는 B2B 플랫폼",
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo.ico",
     shortcut: "/logo.ico",
     apple: "/logo.png",
+  },
+  themeColor: "#000000",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
   },
   openGraph: {
     title: "FarmToBiz - 도매와 소매를 연결하는 B2B 중개 플랫폼",
@@ -77,6 +85,7 @@ export default function RootLayout({
           >
             <QueryProvider>
               <SyncUserProvider>
+                <PWAInstaller />
                 <Navbar />
                 {children}
                 <Toaster />
