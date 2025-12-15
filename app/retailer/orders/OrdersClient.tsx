@@ -31,6 +31,7 @@ interface OrderListItem {
   order_number: string;
   order_date: string;
   products: Array<{
+    id: string; // 재주문을 위한 상품 ID
     name: string;
     quantity: number;
   }>;
@@ -320,6 +321,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
                     orderNumber={order.order_number}
                     status={order.status}
                     totalPrice={order.total_price}
+                    products={order.products}
                   />
                 </div>
               </div>

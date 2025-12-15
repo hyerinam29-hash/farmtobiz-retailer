@@ -28,6 +28,7 @@ interface OrderListItem {
   order_number: string;
   order_date: string;
   products: Array<{
+    id: string; // 재주문을 위한 상품 ID
     name: string;
     quantity: number;
   }>;
@@ -72,6 +73,7 @@ function transformOrderToListItem(order: OrderDetail): OrderListItem {
     order_date: new Date(order.created_at).toLocaleDateString("ko-KR"),
     products: [
       {
+        id: order.product.id, // 재주문을 위한 상품 ID 추가
         name: order.product.name || order.product.standardized_name || "상품명 없음",
         quantity: order.quantity,
       },
