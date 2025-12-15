@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { koKR } from "@clerk/localizations";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -28,6 +28,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// viewport를 별도로 export (Next.js 15 필수)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export const metadata: Metadata = {
   title: "FarmToBiz - 도매와 소매를 연결하는 B2B 중개 플랫폼",
   description:
@@ -55,12 +63,6 @@ export const metadata: Metadata = {
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   openGraph: {
     title: "FarmToBiz - 도매와 소매를 연결하는 B2B 중개 플랫폼",
     description:
@@ -93,6 +95,13 @@ export default function RootLayout({
     <ClerkProvider localization={customKoKR}>
       <html lang="ko" suppressHydrationWarning>
         <head>
+          {/* Manifest 링크 - 명시적으로 추가 */}
+          <link rel="manifest" href="/manifest.json" />
+          
+          {/* 기본 Favicon */}
+          <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
+          <link rel="shortcut icon" href="/icons/icon-192x192.png" />
+          
           {/* iOS Apple Touch Icon */}
           <link
             rel="apple-touch-icon"
@@ -104,6 +113,7 @@ export default function RootLayout({
             sizes="512x512"
             href="/icons/icon-512x512.png"
           />
+          
           {/* Android Chrome Icons */}
           <link
             rel="icon"
@@ -117,11 +127,15 @@ export default function RootLayout({
             sizes="512x512"
             href="/icons/icon-512x512.png"
           />
+          
           {/* Samsung Internet Browser */}
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
           <meta name="apple-mobile-web-app-title" content="FarmToBiz" />
+          <meta name="application-name" content="FarmToBiz" />
+          <meta name="msapplication-TileColor" content="#000000" />
+          <meta name="msapplication-TileImage" content="/icons/icon-192x192.png" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 transition-colors duration-200`}
