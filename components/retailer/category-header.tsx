@@ -56,7 +56,7 @@ export default function CategoryHeader({ category }: CategoryHeaderProps) {
     <div className={`${bgColor} rounded-xl p-6 md:p-8 mb-8`}>
       <div className="flex items-center gap-3">
         <span className="text-4xl md:text-5xl">{emoji}</span>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
           {category}
         </h1>
       </div>

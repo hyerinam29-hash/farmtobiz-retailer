@@ -65,7 +65,7 @@ export default async function CategoryPage({
   // 쿼리 파라미터 파싱
   const page = parseInt(searchParamsData.page ?? "1", 10);
   const sortBy =
-    (searchParamsData.sortBy as "created_at" | "price" | "standardized_name") ??
+    (searchParamsData.sortBy as "created_at" | "price" | "standardized_name" | "sales_count" | "recommended_score") ??
     "created_at";
   const sortOrder = (searchParamsData.sortOrder as "asc" | "desc") ?? "desc";
 

@@ -19,7 +19,7 @@ import type { Product } from "@/types/product";
 export interface GetRetailerProductsOptions {
   page?: number;
   pageSize?: number;
-  sortBy?: "created_at" | "price" | "standardized_name";
+  sortBy?: "created_at" | "price" | "standardized_name" | "sales_count" | "recommended_score";
   sortOrder?: "asc" | "desc";
   filter?: {
     category?: string;
@@ -116,13 +116,24 @@ export async function getRetailerProducts(
     query = query.lte("price", filter.max_price);
   }
 
-  // 정렬 적용
-  query = query.order(sortBy, { ascending: sortOrder === "asc" });
+  // 판매량순 또는 추천순인 경우 특별 처리 필요
+  const needsSalesData = sortBy === "sales_count" || sortBy === "recommended_score";
 
-  // 페이지네이션 적용
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  query = query.range(from, to);
+  if (!needsSalesData) {
+    // 일반 정렬 (created_at, price, standardized_name)
+    query = query.order(sortBy, { ascending: sortOrder === "asc" });
+  } else {
+    // 판매량순/추천순은 일단 created_at으로 정렬 (나중에 재정렬)
+    query = query.order("created_at", { ascending: false });
+  }
+
+  // 판매량순/추천순이 아닌 경우에만 페이지네이션 적용
+  // (판매량순/추천순은 전체 데이터를 가져온 후 정렬해야 함)
+  if (!needsSalesData) {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+  }
 
   const { data, error, count } = await query;
 
@@ -132,10 +143,33 @@ export async function getRetailerProducts(
   }
 
   const total = count ?? 0;
-  const totalPages = Math.ceil(total / pageSize);
+
+  // 판매량순 또는 추천순인 경우 판매량 데이터 가져오기
+  let salesData: Map<string, number> = new Map();
+  if (needsSalesData) {
+    console.log("📊 [retailer-products-query] 판매량 데이터 조회 시작");
+    
+    // orders 테이블에서 완료된 주문의 판매량 집계
+    const { data: ordersData, error: ordersError } = await supabase
+      .from("orders")
+      .select("product_id, quantity, status")
+      .in("status", ["completed", "shipped", "confirmed"]); // 완료/배송중/확인된 주문만 집계
+
+    if (!ordersError && ordersData) {
+      ordersData.forEach((order: any) => {
+        const currentSales = salesData.get(order.product_id) || 0;
+        salesData.set(order.product_id, currentSales + order.quantity);
+      });
+      console.log("✅ [retailer-products-query] 판매량 데이터 조회 완료", {
+        productsWithSales: salesData.size,
+      });
+    } else {
+      console.warn("⚠️ [retailer-products-query] 판매량 데이터 조회 실패:", ordersError);
+    }
+  }
 
   // 데이터 변환: 익명화된 도매 정보 포함
-  const products: RetailerProduct[] = (data ?? []).map((item: any) => {
+  let products: RetailerProduct[] = (data ?? []).map((item: any) => {
     const wholesaler = Array.isArray(item.wholesalers)
       ? item.wholesalers[0]
       : item.wholesalers;
@@ -167,20 +201,65 @@ export async function getRetailerProducts(
     
     const origin = originFromSpec || categoryOriginMap[item.category] || "국내";
 
+    const salesCount = salesData.get(item.id) || 0;
+    
+    // 추천 점수 계산 (판매량 + 최근성 가중치)
+    // 판매량이 높을수록 높은 점수, 최근 등록된 상품에 가산점
+    const daysSinceCreated = Math.max(0, Math.floor(
+      (Date.now() - new Date(item.created_at).getTime()) / (1000 * 60 * 60 * 24)
+    ));
+    const recencyScore = Math.max(0, 100 - daysSinceCreated); // 최근 100일 이내 상품에 가산점
+    const recommendedScore = salesCount * 10 + recencyScore; // 판매량 10배 + 최근성 점수
+
     return {
       ...item,
       wholesaler_anonymous_code: wholesaler?.anonymous_code || "Unknown",
       wholesaler_region: region,
       delivery_dawn_available: dawnDeliveryAvailable,
       origin,
+      // 정렬을 위한 임시 필드 (타입에는 포함하지 않음)
+      _sales_count: salesCount,
+      _recommended_score: recommendedScore,
     };
   });
+
+  // 판매량순 또는 추천순인 경우 정렬 적용
+  if (needsSalesData) {
+    if (sortBy === "sales_count") {
+      products.sort((a, b) => {
+        const aSales = (a as any)._sales_count || 0;
+        const bSales = (b as any)._sales_count || 0;
+        return sortOrder === "desc" ? bSales - aSales : aSales - bSales;
+      });
+    } else if (sortBy === "recommended_score") {
+      products.sort((a, b) => {
+        const aScore = (a as any)._recommended_score || 0;
+        const bScore = (b as any)._recommended_score || 0;
+        return sortOrder === "desc" ? bScore - aScore : aScore - bScore;
+      });
+    }
+
+    // 페이지네이션 적용 (정렬 후)
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize;
+    products = products.slice(from, to);
+  }
+
+  // 임시 필드 제거
+  products = products.map((product: any) => {
+    const { _sales_count, _recommended_score, ...rest } = product;
+    return rest;
+  }) as RetailerProduct[];
+
+  const totalPages = Math.ceil(total / pageSize);
 
   console.log("✅ [retailer-products-query] 상품 목록 조회 완료", {
     count: products.length,
     total,
     page,
     totalPages,
+    sortBy,
+    sortOrder,
   });
 
   return {

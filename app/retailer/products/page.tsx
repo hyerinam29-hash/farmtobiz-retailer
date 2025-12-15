@@ -74,7 +74,7 @@ export default async function ProductsPage({
   const category = params.category;
   const search = params.search;
   const sortBy =
-    (params.sortBy as "created_at" | "price" | "standardized_name") ??
+    (params.sortBy as "created_at" | "price" | "standardized_name" | "sales_count" | "recommended_score") ??
     "created_at";
   const sortOrder = (params.sortOrder as "asc" | "desc") ?? "desc";
 

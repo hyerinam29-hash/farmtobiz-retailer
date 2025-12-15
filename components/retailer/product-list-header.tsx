@@ -7,7 +7,7 @@
  *
  * 주요 기능:
  * 1. 총 상품 개수 표시
- * 2. 정렬 옵션 버튼 (추천순, 신상품순, 판매량순, 혜택순, 낮은가격순)
+ * 2. 정렬 옵션 버튼 (추천순, 신상품순, 판매량순, 낮은가격순)
  * 3. 선택된 정렬 옵션 하이라이트
  *
  * @dependencies
@@ -35,7 +35,6 @@ const sortOptions = [
   { value: "recommended", label: "추천순" },
   { value: "newest", label: "신상품순" },
   { value: "sales", label: "판매량순" },
-  { value: "benefit", label: "혜택순" },
   { value: "price-asc", label: "낮은가격순" },
 ] as const;
 
@@ -43,19 +42,19 @@ const sortOptions = [
  * 정렬 옵션을 데이터베이스 쿼리 파라미터로 변환
  */
 function getSortParams(sortValue: string): {
-  sortBy: "created_at" | "price" | "standardized_name";
+  sortBy: "created_at" | "price" | "standardized_name" | "sales_count" | "recommended_score";
   sortOrder: "asc" | "desc";
 } {
   switch (sortValue) {
     case "recommended":
-      // 추천순: 최근 생성된 순서 (향후 추천 알고리즘 적용 예정)
-      return { sortBy: "created_at", sortOrder: "desc" };
+      // 추천순: 판매량 기반 랭킹 (판매량 + 최근성 점수)
+      return { sortBy: "recommended_score", sortOrder: "desc" };
     case "newest":
       // 신상품순: 최근 생성된 순서
       return { sortBy: "created_at", sortOrder: "desc" };
     case "sales":
-      // 판매량순: 현재는 최근 생성된 순서 (향후 판매량 기준으로 변경 예정)
-      return { sortBy: "created_at", sortOrder: "desc" };
+      // 판매량순: 구매량에 따라 정렬
+      return { sortBy: "sales_count", sortOrder: "desc" };
     case "benefit":
       // 혜택순: 가격 낮은 순 (할인율 높은 순으로 변경 예정)
       return { sortBy: "price", sortOrder: "asc" };
@@ -63,7 +62,7 @@ function getSortParams(sortValue: string): {
       // 낮은가격순
       return { sortBy: "price", sortOrder: "asc" };
     default:
-      return { sortBy: "created_at", sortOrder: "desc" };
+      return { sortBy: "recommended_score", sortOrder: "desc" };
   }
 }
 
@@ -76,8 +75,14 @@ function getCurrentSortValue(
 ): string {
   if (!sortBy) return "recommended";
 
+  if (sortBy === "recommended_score" && sortOrder === "desc") {
+    return "recommended";
+  }
   if (sortBy === "created_at" && sortOrder === "desc") {
     return "newest";
+  }
+  if (sortBy === "sales_count" && sortOrder === "desc") {
+    return "sales";
   }
   if (sortBy === "price" && sortOrder === "asc") {
     return "price-asc";
@@ -118,26 +123,26 @@ export default function ProductListHeader({
   };
 
   return (
-    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
       {/* 총 상품 개수 */}
-      <div className="text-sm text-gray-600">
-        총 <span className="font-bold text-gray-900">{total.toLocaleString()}</span>개
+      <div className="text-base font-bold text-gray-600 dark:text-gray-400">
+        총 <span className="text-gray-900 dark:text-white">{total.toLocaleString()}</span>개
       </div>
 
       {/* 정렬 옵션 */}
-      <div className="flex items-center gap-4 text-sm text-gray-500">
+      <div className="flex items-center gap-4 text-base font-bold text-gray-500 dark:text-gray-400">
         {sortOptions.map((option, index) => {
           const isActive = currentSortValue === option.value;
           return (
             <div key={option.value} className="flex items-center gap-4">
               {index > 0 && (
-                <span className="w-px h-3 bg-gray-300" aria-hidden="true" />
+                <span className="w-px h-3 bg-gray-300 dark:bg-gray-600" aria-hidden="true" />
               )}
               <button
                 onClick={() => handleSortChange(option.value)}
                 disabled={isPending}
-                className={`hover:text-gray-800 transition-colors ${
-                  isActive ? "font-bold text-gray-900" : ""
+                className={`hover:text-gray-800 dark:hover:text-gray-200 transition-colors ${
+                  isActive ? "text-gray-900 dark:text-white" : ""
                 }`}
               >
                 {option.label}
