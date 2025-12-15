@@ -33,15 +33,32 @@ export const metadata: Metadata = {
     "도매의 민감 정보를 노출하지 않으면서 소매가 여러 도매의 상품을 비교하고 주문할 수 있는 B2B 플랫폼",
   manifest: "/manifest.json",
   icons: {
-    icon: "/logo.ico",
-    shortcut: "/logo.ico",
-    apple: "/logo.png",
+    icon: [
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-256x256.png", sizes: "256x256", type: "image/png" },
+      { url: "/icons/icon-384x384.png", sizes: "384x384", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/icons/icon-192x192.png",
+    apple: [
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
   },
-  themeColor: "#000000",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "FarmToBiz",
+  },
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
   viewport: {
     width: "device-width",
     initialScale: 1,
     maximumScale: 5,
+    userScalable: true,
   },
   openGraph: {
     title: "FarmToBiz - 도매와 소매를 연결하는 B2B 중개 플랫폼",
@@ -74,6 +91,37 @@ export default function RootLayout({
   return (
     <ClerkProvider localization={customKoKR}>
       <html lang="ko" suppressHydrationWarning>
+        <head>
+          {/* iOS Apple Touch Icon */}
+          <link
+            rel="apple-touch-icon"
+            sizes="192x192"
+            href="/icons/icon-192x192.png"
+          />
+          <link
+            rel="apple-touch-icon"
+            sizes="512x512"
+            href="/icons/icon-512x512.png"
+          />
+          {/* Android Chrome Icons */}
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="/icons/icon-192x192.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="512x512"
+            href="/icons/icon-512x512.png"
+          />
+          {/* Samsung Internet Browser */}
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="FarmToBiz" />
+        </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 transition-colors duration-200`}
         >
