@@ -104,7 +104,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={handleAddToCart}
           disabled={product.stock_quantity === 0}
-          className="flex w-full items-center justify-center gap-3 px-6 py-3 bg-primary text-white rounded-lg text-base font-medium hover:bg-primary/90 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="flex w-full items-center justify-center gap-3 px-6 py-3 bg-green-600 dark:bg-green-600 text-white rounded-lg text-base font-medium hover:bg-green-700 dark:hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           <ShoppingCart className="w-6 h-6" />
           <span>장바구니 담기</span>
