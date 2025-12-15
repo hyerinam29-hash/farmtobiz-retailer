@@ -255,17 +255,7 @@ export default function PageHeader() {
                   </button>
                 )}
 
-                {/* 로그아웃 (모바일에서만 표시) */}
-                {mounted && isLoaded && user && (
-                  <button
-                    onClick={handleSignOut}
-                    className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                    aria-label="로그아웃"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                )}
-
+               
                 {/* 장바구니 (세로 배치 + 숫자 배지) */}
                 <Link
                   href="/retailer/cart"
