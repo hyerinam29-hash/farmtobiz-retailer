@@ -66,13 +66,6 @@ export default function RootLayout({
   return (
     <ClerkProvider localization={customKoKR}>
       <html lang="ko" suppressHydrationWarning>
-        <head>
-          <link rel="manifest" href="/manifest.json" />
-          <meta name="theme-color" content="#16a34a" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-          <meta name="apple-mobile-web-app-title" content="FarmToBiz" />
-        </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 transition-colors duration-200`}
         >
