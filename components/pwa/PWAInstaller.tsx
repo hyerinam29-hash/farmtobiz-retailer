@@ -101,8 +101,7 @@ export default function PWAInstaller() {
     setDeferredPrompt(null);
   };
 
-  // 설치 프롬프트는 나중에 필요시 UI로 추가 가능
-  // 현재는 Service Worker만 등록
+  // Service Worker만 등록 (UI는 PWAInstallBanner에서 처리)
   return null;
 }
 

@@ -9,6 +9,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
+import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
 import "./globals.css";
 
 // FarmToBiz 브랜딩을 위한 커스텀 localization
@@ -134,6 +135,7 @@ export default function RootLayout({
             <QueryProvider>
               <SyncUserProvider>
                 <PWAInstaller />
+                <PWAInstallBanner />
                 <Navbar />
                 {children}
                 <Toaster />
