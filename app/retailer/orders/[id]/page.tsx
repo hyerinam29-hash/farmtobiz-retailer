@@ -179,11 +179,59 @@ export default async function OrderDetailPage({
           <h3 className="font-bold text-sm sm:text-base md:text-lg text-gray-800 dark:text-gray-100 mb-3 sm:mb-4 flex items-center gap-2">
             <MapPin size={16} className="sm:w-5 sm:h-5 text-green-600 flex-shrink-0" /> 배송지 정보
           </h3>
-          <div className="space-y-1 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-            <p className="font-bold text-gray-900 dark:text-gray-100 text-sm sm:text-base">
-              배송지
-            </p>
-            <p className="break-words">{order.delivery_address || "주소 정보 없음"}</p>
+          <div className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+            {(() => {
+              // 배송지 정보 파싱 (형식: "상호명 | 연락처 | 주소 | 상세주소")
+              // split 후 trim으로 공백 제거 (빈 문자열은 유지하여 인덱스 보존)
+              const addressParts = order.delivery_address
+                ? order.delivery_address.split(" | ").map(part => part.trim())
+                : [];
+              
+              console.log("📦 [order-detail] 배송지 정보 파싱:", {
+                original: order.delivery_address,
+                parts: addressParts,
+                partsLength: addressParts.length,
+              });
+              
+              const businessName = addressParts[0] || "";
+              const phone = addressParts[1] || "";
+              const address = addressParts[2] || "";
+              const addressDetail = addressParts[3] || "";
+
+              // 파싱된 정보가 없으면 원본 텍스트 표시
+              if (addressParts.length === 0) {
+                return (
+                  <p className="break-words">{order.delivery_address || "주소 정보 없음"}</p>
+                );
+              }
+
+              return (
+                <>
+                  {businessName && (
+                    <p className="font-bold text-gray-900 dark:text-gray-100 text-sm sm:text-base break-words">
+                      {businessName}
+                    </p>
+                  )}
+                  {phone && (
+                    <p className="break-words">
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">전화번호:</span> {phone}
+                    </p>
+                  )}
+                  {address && (
+                    <>
+                      <p className="break-words">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">주소:</span> {address}
+                      </p>
+                      {/* 상세 주소: 주소가 있으면 항상 표시 (값이 없으면 "상세 주소: "만 표시) */}
+                      <p className="break-words">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">상세 주소:</span>
+                        {addressDetail ? ` ${addressDetail}` : ""}
+                      </p>
+                    </>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
 
