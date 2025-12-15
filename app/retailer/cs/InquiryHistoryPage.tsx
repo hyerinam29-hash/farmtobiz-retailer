@@ -133,6 +133,8 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
       return;
     }
 
+    setIsLoading(true); // 로딩 시작
+
     const startDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined;
     const endDate = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
     
@@ -172,13 +174,18 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
       if (currentRequestId === requestIdRef.current) {
         setInquiries([]);
       }
+    } finally {
+      // 로딩 완료
+      if (currentRequestId === requestIdRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [userId, searchTerm, statusFilter, dateRange]);
 
   // 검색어 변경 시 디바운싱 적용 (10ms)
   useEffect(() => {
-    // 검색어가 변경되면 기존 목록 즉시 제거
-    setInquiries([]);
+    // 검색어가 변경되면 로딩 상태로 변경
+    setIsLoading(true);
     
     // 이전 타이머가 있으면 취소
     if (searchTimeoutRef.current) {
@@ -382,8 +389,12 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
 
       {/* 테이블 */}
       <div className="overflow-x-auto">
-        {inquiries.length === 0 ? (
-          <div className="p-8 text-center text-gray-600 dark:text-gray-400">
+        {isLoading ? (
+          <div className="p-8 text-center text-gray-600 dark:text-gray-400 transition-colors duration-200">
+            로딩중입니다.
+          </div>
+        ) : inquiries.length === 0 ? (
+          <div className="p-8 text-center text-gray-600 dark:text-gray-400 transition-colors duration-200">
             문의 내역이 없습니다.
           </div>
         ) : (
