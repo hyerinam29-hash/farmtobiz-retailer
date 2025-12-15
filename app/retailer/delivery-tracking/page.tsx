@@ -17,7 +17,7 @@
  */
 
 import { Suspense } from "react";
-import { ChevronLeft, Clock, Truck, Package, CheckCircle } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { getOrderForDeliveryTracking } from "@/actions/retailer/get-shipping-orders";
 import DeliveryTrackingContent from "./delivery-tracking-content";
@@ -39,23 +39,24 @@ const timelineSteps = [
 
 /**
  * 주문 상태에 따른 배송 상태 텍스트 반환
+ * 현재 사용되지 않지만 향후 사용 예정이므로 유지
  */
-function getDeliveryStatusText(status: string): string {
-  switch (status) {
-    case "pending":
-      return "주문완료";
-    case "confirmed":
-      return "배송준비";
-    case "shipped":
-      return "배송중";
-    case "completed":
-      return "배송완료";
-    case "cancelled":
-      return "주문취소";
-    default:
-      return "주문완료";
-  }
-}
+// function getDeliveryStatusText(status: string): string {
+//   switch (status) {
+//     case "pending":
+//       return "주문완료";
+//     case "confirmed":
+//       return "배송준비";
+//     case "shipped":
+//       return "배송중";
+//     case "completed":
+//       return "배송완료";
+//     case "cancelled":
+//       return "주문취소";
+//     default:
+//       return "주문완료";
+//   }
+// }
 
 /**
  * 주문 상태에 따른 배송 상태 배지 색상 반환

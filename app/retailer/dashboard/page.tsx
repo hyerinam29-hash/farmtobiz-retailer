@@ -292,7 +292,8 @@ export default function RetailerDashboardPage() {
     };
   };
 
-  const { hours, minutes, seconds } = formatTime(timeLeft);
+  // formatTime 함수는 현재 사용되지 않지만 향후 사용 예정이므로 유지
+  // const { hours, minutes, seconds } = formatTime(timeLeft);
 
   // 일일특가 상품 상세 페이지 이동 핸들러
   const handleDailyDealClick = () => {

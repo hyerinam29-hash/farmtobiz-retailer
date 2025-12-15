@@ -145,7 +145,7 @@ export async function getRetailerProducts(
   const total = count ?? 0;
 
   // 판매량순 또는 추천순인 경우 판매량 데이터 가져오기
-  let salesData: Map<string, number> = new Map();
+  const salesData: Map<string, number> = new Map();
   if (needsSalesData) {
     console.log("📊 [retailer-products-query] 판매량 데이터 조회 시작");
     
@@ -247,6 +247,7 @@ export async function getRetailerProducts(
 
   // 임시 필드 제거
   products = products.map((product: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { _sales_count, _recommended_score, ...rest } = product;
     return rest;
   }) as RetailerProduct[];

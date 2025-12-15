@@ -164,16 +164,6 @@ export default function CheckoutPageClient({
   const deliveryTime = "06:00-07:00";
   const [deliveryNote, setDeliveryNote] = useState("");
 
-  // 배송지 정보 상태
-  const [deliveryInfo] = useState(() =>
-    retailerInfo
-      ? {
-          businessName: retailerInfo.business_name,
-          phone: retailerInfo.phone,
-          address: retailerInfo.address,
-        }
-      : { businessName: "", phone: "", address: "" }
-  );
 
   // 결제 요청 상태
   const [paymentOrderId, setPaymentOrderId] = useState("");
@@ -205,7 +195,7 @@ export default function CheckoutPageClient({
     amount: summary.totalPrice,
     orderId: paymentOrderId,
     orderName: paymentOrderName,
-    onSuccess: async (paymentKey, orderId, amount) => {
+    onSuccess: async () => {
       console.log("✅ [결제] 결제 성공 로직 진입");
     },
     onFail: (error) => {
