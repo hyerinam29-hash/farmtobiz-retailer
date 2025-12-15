@@ -114,8 +114,8 @@ export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormPr
                 <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
             )}
-            <MessageSquare className="w-6 h-6 text-green-600" />
-            <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">1:1 문의하기</h2>
+            <MessageSquare className="w-6 h-6 text-green-600 dark:text-green-400 transition-colors duration-200" />
+            <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 transition-colors duration-200">1:1 문의하기</h2>
           </div>
         </div>
         <p className="text-sm md:text-base font-normal leading-normal text-gray-600 dark:text-gray-400 mb-6">
@@ -131,7 +131,7 @@ export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormPr
             <Input
               id="inquiry-title"
               placeholder="제목을 입력하세요"
-              className="h-12 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700"
+              className="h-12 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
               {...register("title")}
             />
             {errors.title && (
@@ -160,7 +160,7 @@ export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormPr
               placeholder="문의 내용을 입력하세요 (최대 3000자)"
               rows={6}
               maxLength={3000}
-              className="resize-none bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700"
+              className="resize-none bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
               {...register("content", {
                 onChange: (e) => {
                   setContentLength(e.target.value.length);
@@ -180,16 +180,16 @@ export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormPr
             <div className="flex items-center justify-center w-full">
               <label
                 htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-10 h-10 text-gray-500 dark:text-gray-400 mb-2" />
-                  <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                  <Upload className="w-10 h-10 text-gray-500 dark:text-gray-400 mb-2 transition-colors duration-200" />
+                  <p className="mb-2 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-200">
                     <span className="font-semibold">클릭하여 업로드</span>하거나 파일을 드래그하세요.
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">PNG, JPG, PDF (MAX. 5MB)</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">PNG, JPG, PDF (MAX. 5MB)</p>
                   {file && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">선택된 파일: {file.name}</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 transition-colors duration-200">선택된 파일: {file.name}</p>
                   )}
                 </div>
                 <input
@@ -208,7 +208,7 @@ export default function InquiryForm({ userId, onBack, onSuccess }: InquiryFormPr
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="min-w-[140px] h-12 px-6 bg-green-500 hover:bg-green-400"
+              className="min-w-[140px] h-12 px-6 bg-green-500 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500 text-white transition-colors duration-200"
             >
               {isSubmitting ? "제출 중..." : "문의하기"}
             </Button>

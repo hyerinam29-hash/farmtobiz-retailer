@@ -115,61 +115,61 @@ export default function CsClient({ userId }: CsClientProps) {
     <div className="flex flex-col gap-8 md:gap-10">
       {/* 헤더 */}
       <div className="flex flex-col items-center text-center gap-3">
-        <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] text-gray-900">
+        <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-gray-100 transition-colors duration-200">
           고객센터
         </h1>
-        <p className="text-base md:text-lg font-normal leading-normal text-gray-600">
+        <p className="text-base md:text-lg font-normal leading-normal text-gray-600 dark:text-gray-300 transition-colors duration-200">
           무엇을 도와드릴까요?
         </p>
       </div>
 
       {/* 연락처 정보 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center gap-2">
-          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-            <Phone className="text-green-600" size={28} />
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col items-center text-center gap-2 transition-colors duration-200">
+          <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center transition-colors duration-200">
+            <Phone className="text-green-600 dark:text-green-400" size={28} />
           </div>
-          <p className="text-sm text-gray-700 font-semibold">전화 문의</p>
-          <p className="text-2xl font-bold text-green-600">1588-0000</p>
-          <p className="text-xs text-gray-500">평일 09:00 - 18:00</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold transition-colors duration-200">전화 문의</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400 transition-colors duration-200">1588-0000</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">평일 09:00 - 18:00</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center gap-2">
-          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-            <Mail className="text-green-600" size={28} />
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col items-center text-center gap-2 transition-colors duration-200">
+          <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center transition-colors duration-200">
+            <Mail className="text-green-600 dark:text-green-400" size={28} />
           </div>
-          <p className="text-sm text-gray-700 font-semibold">이메일 문의</p>
-          <p className="text-base font-semibold text-green-600">support@farmtobiz.com</p>
-          <p className="text-xs text-gray-500">24시간 접수 가능</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold transition-colors duration-200">이메일 문의</p>
+          <p className="text-base font-semibold text-green-600 dark:text-green-400 transition-colors duration-200">support@farmtobiz.com</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">24시간 접수 가능</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center gap-2">
-          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-            <Clock className="text-green-600" size={28} />
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col items-center text-center gap-2 transition-colors duration-200">
+          <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center transition-colors duration-200">
+            <Clock className="text-green-600 dark:text-green-400" size={28} />
           </div>
-          <p className="text-sm text-gray-700 font-semibold">운영 시간</p>
-          <p className="text-base font-semibold text-gray-700">평일 09:00 - 18:00</p>
-          <p className="text-xs text-gray-500">주말 및 공휴일 휴무</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold transition-colors duration-200">운영 시간</p>
+          <p className="text-base font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-200">평일 09:00 - 18:00</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">주말 및 공휴일 휴무</p>
         </div>
       </div>
 
       {/* FAQ 섹션 */}
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full border border-green-500 text-green-600 flex items-center justify-center text-sm font-bold">
+          <div className="w-6 h-6 rounded-full border border-green-500 dark:border-green-400 text-green-600 dark:text-green-400 flex items-center justify-center text-sm font-bold transition-colors duration-200">
             ?
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-gray-900">자주 묻는 질문</h2>
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 transition-colors duration-200">자주 묻는 질문</h2>
         </div>
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`px-4 py-2 rounded-full text-sm font-bold ${
+              className={`px-4 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
                 activeCategory === category.id
-                  ? "bg-green-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-green-600 dark:bg-green-600 text-white shadow-md"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
             >
               {category.label}
@@ -184,24 +184,24 @@ export default function CsClient({ userId }: CsClientProps) {
               <button
                 key={item.id}
                 onClick={() => setOpenFaqId(isOpen ? null : item.id)}
-                className="bg-white w-full text-left rounded-2xl border border-gray-100 shadow-sm px-5 py-4 flex flex-col gap-3 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-800 w-full text-left rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-5 py-4 flex flex-col gap-3 hover:shadow-md transition-all duration-200"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
+                    <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded transition-colors duration-200">
                       {item.badge}
                     </span>
-                    <span className="font-semibold text-gray-900 text-sm md:text-base">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm md:text-base transition-colors duration-200">
                       {item.question}
                     </span>
                   </div>
                   <ChevronDown
                     size={18}
-                    className={`text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    className={`text-gray-500 dark:text-gray-400 transition-all duration-200 ${isOpen ? "rotate-180" : ""}`}
                   />
                 </div>
                 {isOpen && (
-                  <p className="text-sm text-gray-700 leading-relaxed border-t border-gray-100 pt-3">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed border-t border-gray-100 dark:border-gray-700 pt-3 transition-colors duration-200">
                     {item.answer}
                   </p>
                 )}
@@ -226,7 +226,10 @@ export default function CsClient({ userId }: CsClientProps) {
             공지사항
           </button>
           <button
-            onClick={() => setActiveTab("inquiry")}
+            onClick={() => {
+              setActiveTab("inquiry");
+              setShowInquiryForm(false); // 탭 클릭 시 항상 내역 페이지로 이동
+            }}
             className={`px-6 py-3 rounded-full text-base font-bold transition-colors ${
               activeTab === "inquiry"
                 ? "bg-green-600 dark:bg-green-600 text-white shadow-md"

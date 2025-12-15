@@ -239,13 +239,13 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
         <div className="flex flex-col sm:flex-row gap-3">
           {/* 검색 바 */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors duration-200" size={20} />
             <Input
               type="text"
               placeholder="제목 또는 내용 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-10 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800"
+              className="pl-10 h-10 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
             />
           </div>
 
@@ -260,9 +260,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                 }
                 setShowDatePicker(!showDatePicker);
               }}
-              className="h-10 px-4 border-gray-200 dark:border-gray-700"
+              className="h-10 px-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
             >
-              <CalendarIcon size={18} className="mr-2" />
+              <CalendarIcon size={18} className="mr-2 text-gray-600 dark:text-gray-400 transition-colors duration-200" />
               조회 기간 설정
               {dateRange?.from && (
                 <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
@@ -292,9 +292,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                     )}
                     <button
                       onClick={() => setShowDatePicker(false)}
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors duration-200"
                     >
-                      <X size={16} className="text-gray-500 dark:text-gray-400" />
+                      <X size={16} className="text-gray-500 dark:text-gray-400 transition-colors duration-200" />
                     </button>
                   </div>
                 </div>
@@ -350,12 +350,12 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
             <Button
               variant="outline"
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="h-10 px-4 border-gray-200 dark:border-gray-700 min-w-[100px] justify-between"
+              className="h-10 px-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 min-w-[100px] justify-between transition-colors duration-200"
             >
               {statusFilter}
               <ChevronDown
                 size={18}
-                className={`ml-2 transition-transform ${showStatusDropdown ? "rotate-180" : ""}`}
+                className={`ml-2 text-gray-600 dark:text-gray-400 transition-all duration-200 ${showStatusDropdown ? "rotate-180" : ""}`}
               />
             </Button>
             {showStatusDropdown && (
@@ -367,8 +367,8 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                       setStatusFilter(option);
                       setShowStatusDropdown(false);
                     }}
-                    className={`w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg ${
-                      statusFilter === option ? "bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400" : ""
+                    className={`w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors duration-200 ${
+                      statusFilter === option ? "bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400" : "text-gray-900 dark:text-gray-100"
                     }`}
                   >
                     {option}

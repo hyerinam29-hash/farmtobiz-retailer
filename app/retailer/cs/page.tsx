@@ -27,7 +27,7 @@ export default async function CsPage() {
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 bg-[#f6f8f7] min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 bg-[#f6f8f7] dark:bg-gray-900 min-h-screen transition-colors duration-200">
       <div className="max-w-4xl mx-auto">
         <CsClient userId={profile.id} />
       </div>

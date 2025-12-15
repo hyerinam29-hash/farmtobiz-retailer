@@ -53,16 +53,16 @@ export default function InquiryList({ userId }: InquiryListProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-sm">
-        <p className="text-gray-600 dark:text-gray-400">로딩 중...</p>
+      <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+        <p className="text-gray-600 dark:text-gray-400 transition-colors duration-200">로딩 중...</p>
       </div>
     );
   }
 
   if (inquiries.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-sm">
-        <p className="text-gray-600 dark:text-gray-400 text-center py-8">
+      <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+        <p className="text-gray-600 dark:text-gray-400 text-center py-8 transition-colors duration-200">
           문의 내역이 없습니다.
         </p>
       </div>
@@ -75,31 +75,31 @@ export default function InquiryList({ userId }: InquiryListProps) {
         const status = statusMap[inquiry.status] || statusMap.open;
 
         return (
-          <Card key={inquiry.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
+          <Card key={inquiry.id} className="hover:shadow-md transition-all duration-200 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-start justify-between gap-4">
-                <CardTitle className="text-lg">{inquiry.title}</CardTitle>
+                <CardTitle className="text-lg text-gray-900 dark:text-gray-100 transition-colors duration-200">{inquiry.title}</CardTitle>
                 <Badge variant={status.variant}>{status.label}</Badge>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+            <CardContent className="pt-4">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2 transition-colors duration-200">
                 {inquiry.content}
               </p>
-              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
+              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">
                 <span>
                   {format(new Date(inquiry.created_at), "yyyy년 MM월 dd일", { locale: ko })}
                 </span>
                 {inquiry.admin_reply && (
-                  <span className="text-blue-600 dark:text-blue-400">답변 완료</span>
+                  <span className="text-blue-600 dark:text-blue-400 transition-colors duration-200">답변 완료</span>
                 )}
               </div>
               {inquiry.admin_reply && (
-                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600 transition-colors duration-200">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
                     관리자 답변:
                   </p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-200">
                     {inquiry.admin_reply}
                   </p>
                 </div>
