@@ -71,7 +71,7 @@ export default function ProductRecommendationSection() {
             POPULAR
           </span>
         </div>
-        <h2 className="text-2xl md:text-4xl font-black text-gray-900 mb-3">
+        <h2 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white mb-3 transition-colors duration-200">
           이 상품 어때요?
         </h2>
         <p className="text-gray-600 text-lg">가장 인기 있는 상품만 모아봤어요</p>

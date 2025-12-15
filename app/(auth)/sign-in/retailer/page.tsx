@@ -30,13 +30,13 @@ const SignInWithRedirectWrapper = dynamic(
 
 export default function RetailerSignInPage() {
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-4 md:py-8 bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-4 md:py-8 bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-200">
       <div className="w-full max-w-md space-y-3">
         {/* 역할 안내 카드 */}
-        <Card className="border-green-200">
+        <Card className="border-green-200 dark:border-green-800 transition-colors duration-200">
           <CardHeader className="text-center py-3">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <ShoppingCart className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-2 transition-colors duration-200">
+              <ShoppingCart className="w-6 h-6 text-green-600 dark:text-green-400 transition-colors duration-200" />
             </div>
             <CardTitle className="text-xl">소매업자 로그인</CardTitle>
             <CardDescription className="text-sm">
@@ -65,21 +65,21 @@ export default function RetailerSignInPage() {
         </div>
 
         {/* 신규 회원 안내 카드 */}
-        <Card className="border-blue-200 bg-blue-50/50">
+        <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/30 transition-colors duration-200">
           <CardHeader className="text-center py-3">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <UserPlus className="w-4 h-4 text-blue-600" />
+              <UserPlus className="w-4 h-4 text-blue-600 dark:text-blue-400 transition-colors duration-200" />
               <CardTitle className="text-base">
                 아직 회원이 아니신가요?
               </CardTitle>
             </div>
-            <CardDescription className="text-blue-900/70 mb-2 text-sm">
+            <CardDescription className="text-blue-900/70 dark:text-blue-100/70 mb-2 text-sm transition-colors duration-200">
               지금 바로 회원가입하고 소매 비즈니스를 시작하세요!
             </CardDescription>
             <Link href="/sign-up?type=retailer">
               <Button
                 variant="default"
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 dark:text-white transition-colors duration-200"
               >
                 회원가입하기
               </Button>

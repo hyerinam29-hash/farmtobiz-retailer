@@ -6,6 +6,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import { SyncUserProvider } from "@/components/providers/sync-user-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -64,17 +65,24 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider localization={customKoKR}>
-      <html lang="ko">
+      <html lang="ko" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 transition-colors duration-200`}
         >
-          <QueryProvider>
-            <SyncUserProvider>
-              <Navbar />
-              {children}
-              <Toaster />
-            </SyncUserProvider>
-          </QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <QueryProvider>
+              <SyncUserProvider>
+                <Navbar />
+                {children}
+                <Toaster />
+              </SyncUserProvider>
+            </QueryProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

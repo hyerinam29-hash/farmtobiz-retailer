@@ -33,10 +33,13 @@ import {
   User,
   Menu,
   Shield,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { CommandPalette } from "./command-palette";
+import { useTheme } from "next-themes";
 import type { UserRole } from "@/types/database";
 
 // 카테고리 데이터 (헤더 드롭다운용)
@@ -86,6 +89,7 @@ function HeaderContent({
   const router = useRouter();
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const handleLogoClick = (
@@ -154,8 +158,14 @@ function HeaderContent({
     }
   };
 
+  // 다크모드 토글 처리
+  const handleThemeToggle = () => {
+    console.log("🌓 [Header] 테마 토글:", theme === "dark" ? "라이트" : "다크");
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-[100]">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-[100] transition-colors duration-200">
         {/* 상단 헤더 */}
         <div className="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center">
           {/* 로고 */}
@@ -188,40 +198,54 @@ function HeaderContent({
           {/* 검색바 */}
           <form
             onSubmit={handleSearch}
-            className="flex-1 max-w-2xl mx-10 bg-gray-100 rounded-full px-6 py-3 flex items-center shadow-inner"
+            className="flex-1 max-w-2xl mx-10 bg-gray-100 dark:bg-gray-800 rounded-full px-6 py-3 flex items-center shadow-inner transition-colors duration-200"
           >
-            <Search className="text-gray-400 w-6 h-6 mr-3 flex-shrink-0" />
+            <Search className="text-gray-400 dark:text-gray-500 w-6 h-6 mr-3 flex-shrink-0" />
             <input
               type="text"
               placeholder="품목이나 거래처를 검색하세요"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-none outline-none w-full text-base text-gray-600 placeholder-gray-400"
+              className="bg-transparent border-none outline-none w-full text-base text-gray-600 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#5B9A6F] focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded transition-colors duration-200"
             />
           </form>
 
           {/* 우측 메뉴 */}
           <div className="flex flex-col items-end justify-center h-full gap-2 flex-shrink-0">
-            <div className="flex items-center gap-4 text-base font-medium text-gray-600">
+            <div className="flex items-center gap-4 text-base font-medium text-gray-600 dark:text-gray-300">
+              {/* 다크모드 토글 버튼 */}
+              {mounted && (
+                <button
+                  onClick={handleThemeToggle}
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#5B9A6F] focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  aria-label="테마 변경"
+                >
+                  {theme === "dark" ? (
+                    <Moon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  ) : (
+                    <Sun className="w-5 h-5 text-orange-500" />
+                  )}
+                </button>
+              )}
               <Link
                 href="/retailer/cs"
-                className="cursor-pointer hover:text-[#5B9A6F] transition-colors"
+                className="cursor-pointer hover:text-[#5B9A6F] dark:hover:text-[#5B9A6F] transition-colors duration-200"
               >
                 고객센터
               </Link>
-              <span className="w-px h-3 bg-gray-300"></span>
+              <span className="w-px h-3 bg-gray-300 dark:bg-gray-700"></span>
               {mounted && isLoaded ? (
                 user ? (
                   <button
                     onClick={handleSignOut}
-                    className="cursor-pointer hover:text-[#5B9A6F] transition-colors"
+                    className="cursor-pointer hover:text-[#5B9A6F] dark:hover:text-[#5B9A6F] transition-colors duration-200"
                   >
                     로그아웃
                   </button>
                 ) : (
                   <Link
                     href="/sign-in/retailer"
-                    className="cursor-pointer hover:text-[#5B9A6F] transition-colors"
+                    className="cursor-pointer hover:text-[#5B9A6F] dark:hover:text-[#5B9A6F] transition-colors duration-200"
                   >
                     로그인 / 회원가입
                   </Link>
@@ -242,9 +266,9 @@ function HeaderContent({
                   <User
                     size={32}
                     strokeWidth={1.5}
-                    className="text-gray-900 group-hover:text-[#5B9A6F] transition-colors"
+                    className="text-gray-900 dark:text-gray-100 group-hover:text-[#5B9A6F] transition-colors duration-200"
                   />
-                  <span className="text-sm text-gray-800 font-bold group-hover:text-[#5B9A6F]">
+                  <span className="text-sm text-gray-800 dark:text-gray-200 font-bold group-hover:text-[#5B9A6F] transition-colors duration-200">
                     나의상회
                   </span>
                 </button>
@@ -259,9 +283,9 @@ function HeaderContent({
                 <ShoppingCart
                   size={32}
                   strokeWidth={1.5}
-                  className="text-gray-900 group-hover:text-[#5B9A6F] transition-colors"
+                  className="text-gray-900 dark:text-gray-100 group-hover:text-[#5B9A6F] transition-colors duration-200"
                 />
-                <span className="text-sm text-gray-800 font-bold group-hover:text-[#5B9A6F]">
+                <span className="text-sm text-gray-800 dark:text-gray-200 font-bold group-hover:text-[#5B9A6F] transition-colors duration-200">
                   장바구니
                 </span>
                 {cartItemCount > 0 && (
@@ -275,21 +299,21 @@ function HeaderContent({
         </div>
 
         {/* 카테고리 네비게이션 */}
-        <div className="bg-white border-b border-gray-100 shadow-sm">
+        <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-200">
           <div className="max-w-7xl mx-auto px-6 flex items-center h-14">
             {/* 카테고리 라벨 (드롭다운 메뉴) */}
-            <div className="relative group z-50 border-r border-gray-200 pr-10 mr-8 shrink-0 h-full flex items-center">
-              <div className="flex items-center gap-3 font-bold text-lg text-gray-800 cursor-pointer hover:text-[#5B9A6F] transition-colors">
+            <div className="relative group z-50 border-r border-gray-200 dark:border-gray-700 pr-10 mr-8 shrink-0 h-full flex items-center">
+              <div className="flex items-center gap-3 font-bold text-lg text-gray-800 dark:text-gray-200 cursor-pointer hover:text-[#5B9A6F] transition-colors duration-200">
                 <Menu size={24} /> 카테고리
               </div>
 
               {/* 드롭다운 메뉴 */}
-              <div className="absolute top-full left-0 w-56 bg-white shadow-xl rounded-b-xl border border-gray-100 py-3 hidden group-hover:block animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 w-56 bg-white dark:bg-gray-800 shadow-xl rounded-b-xl border border-gray-100 dark:border-gray-700 py-3 hidden group-hover:block animate-in fade-in slide-in-from-top-2 duration-200 transition-colors duration-200">
                 {CATEGORIES.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/retailer/products?category=${encodeURIComponent(cat.id)}`}
-                    className="block px-6 py-3.5 text-base text-gray-600 hover:bg-gray-50 hover:text-[#5B9A6F] hover:font-bold transition-colors"
+                    className="block px-6 py-3.5 text-base text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-[#5B9A6F] hover:font-bold transition-colors duration-200"
                   >
                     <div className="flex items-center justify-between">
                       {cat.label}
@@ -308,10 +332,10 @@ function HeaderContent({
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center h-full text-lg font-bold whitespace-nowrap border-b-[3px] transition-colors",
+                      "flex items-center h-full text-lg font-bold whitespace-nowrap border-b-[3px] transition-colors duration-200",
                       active
                         ? "border-[#5B9A6F] text-[#5B9A6F]"
-                        : "border-transparent text-gray-800 hover:text-[#5B9A6F]"
+                        : "border-transparent text-gray-800 dark:text-gray-200 hover:text-[#5B9A6F]"
                     )}
                   >
                     {item.label}
@@ -332,15 +356,15 @@ export default function RetailerHeader(props: RetailerHeaderProps) {
       <CommandPalette />
       <Suspense
         fallback={
-          <header className="bg-white border-b border-gray-200 sticky top-0 z-[100]">
+          <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-[100] transition-colors duration-200">
             <div className="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center">
               <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="h-14 w-32 bg-gray-200 animate-pulse rounded" />
+                <div className="h-14 w-32 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               </div>
-              <div className="flex-1 max-w-2xl mx-10 bg-gray-100 rounded-full h-12 animate-pulse" />
+              <div className="flex-1 max-w-2xl mx-10 bg-gray-100 dark:bg-gray-800 rounded-full h-12 animate-pulse" />
               <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                <div className="w-24 h-4 bg-gray-200 animate-pulse rounded" />
-                <div className="w-32 h-8 bg-gray-200 animate-pulse rounded" />
+                <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+                <div className="w-32 h-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               </div>
             </div>
           </header>

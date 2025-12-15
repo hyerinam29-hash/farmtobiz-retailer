@@ -64,11 +64,11 @@ const Button = ({
   className?: string;
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 }) => {
-  const baseStyles = 'font-bold rounded-xl flex items-center justify-center gap-2 relative overflow-hidden transition-all';
+  const baseStyles = 'font-bold rounded-xl flex items-center justify-center gap-2 relative overflow-hidden transition-all duration-200';
   const variants = {
-    primary: 'bg-green-600 text-white border-b-4 border-green-800 shadow-lg hover:bg-green-500 active:border-b-0 active:translate-y-1',
-    secondary: 'bg-white text-green-600 border-2 border-b-4 border-green-600 shadow-md hover:bg-green-50 active:border-b-2 active:translate-y-0.5',
-    outline: 'bg-transparent text-gray-600 border-2 border-b-4 border-gray-300 hover:bg-gray-50 active:border-b-2 active:translate-y-0.5',
+    primary: 'bg-green-600 dark:bg-green-700 text-white border-b-4 border-green-800 dark:border-green-900 shadow-lg hover:bg-green-500 dark:hover:bg-green-600 active:border-b-0 active:translate-y-1',
+    secondary: 'bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 border-2 border-b-4 border-green-600 dark:border-green-500 shadow-md hover:bg-green-50 dark:hover:bg-green-900/30 active:border-b-2 active:translate-y-0.5',
+    outline: 'bg-transparent text-gray-600 dark:text-gray-300 border-2 border-b-4 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 active:border-b-2 active:translate-y-0.5',
   };
   return (
     <button className={`${baseStyles} ${variants[variant]} ${className}`} onClick={onClick}>
@@ -340,31 +340,31 @@ export default function RetailerDashboardPage() {
     router.push("/retailer/cart");
   };
   return (
-    <div className="pb-20 relative overflow-hidden min-h-screen font-sans bg-[#F8F9FA]">
+    <div className="pb-20 relative overflow-hidden min-h-screen font-sans bg-[#F8F9FA] dark:bg-gray-900 transition-colors duration-200">
       {/* 3D 배경 장식 요소 */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-green-200/40 to-emerald-100/0 rounded-full blur-3xl -z-10 animate-pulse"></div>
-      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-gradient-to-bl from-yellow-100/40 to-orange-50/0 rounded-full blur-3xl -z-10 animate-pulse delay-700"></div>
-      <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-gradient-to-tr from-blue-100/30 to-indigo-50/0 rounded-full blur-3xl -z-10 animate-pulse delay-1000"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-green-200/40 dark:from-green-900/20 to-emerald-100/0 dark:to-emerald-900/0 rounded-full blur-3xl -z-10 animate-pulse transition-colors duration-200"></div>
+      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-gradient-to-bl from-yellow-100/40 dark:from-yellow-900/20 to-orange-50/0 dark:to-orange-900/0 rounded-full blur-3xl -z-10 animate-pulse delay-700 transition-colors duration-200"></div>
+      <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-gradient-to-tr from-blue-100/30 dark:from-blue-900/20 to-indigo-50/0 dark:to-indigo-900/0 rounded-full blur-3xl -z-10 animate-pulse delay-1000 transition-colors duration-200"></div>
 
       {/* 3D 플로팅 오브젝트 */}
-      <div className="absolute top-[15%] left-[5%] w-32 h-32 bg-gradient-to-br from-white/60 to-white/10 backdrop-blur-md rounded-full shadow-lg border border-white/30 -z-10"></div>
-      <div className="absolute top-[40%] right-[10%] w-24 h-24 bg-gradient-to-br from-green-100/60 to-emerald-50/10 backdrop-blur-md rounded-[2rem] rotate-12 shadow-lg border border-white/30 -z-10"></div>
+      <div className="absolute top-[15%] left-[5%] w-32 h-32 bg-gradient-to-br from-white/60 dark:from-gray-800/60 to-white/10 dark:to-gray-800/10 backdrop-blur-md rounded-full shadow-lg border border-white/30 dark:border-gray-700/30 -z-10 transition-colors duration-200"></div>
+      <div className="absolute top-[40%] right-[10%] w-24 h-24 bg-gradient-to-br from-green-100/60 dark:from-green-900/40 to-emerald-50/10 dark:to-emerald-900/10 backdrop-blur-md rounded-[2rem] rotate-12 shadow-lg border border-white/30 dark:border-gray-700/30 -z-10 transition-colors duration-200"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 mt-12 relative z-10">
         {/* 섹션 1: 이 상품 어때요? */}
         <ProductRecommendationSection />
 
         {/* 일일 특가 섹션 */}
-        <section className="flex flex-col md:flex-row gap-8 md:gap-16 items-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-3xl p-8 md:p-12 border border-red-100 shadow-lg relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
+        <section className="flex flex-col md:flex-row gap-8 md:gap-16 items-center bg-gradient-to-br from-red-50 dark:from-red-900/20 via-orange-50 dark:via-orange-900/20 to-yellow-50 dark:to-yellow-900/20 rounded-3xl p-8 md:p-12 border border-red-100 dark:border-red-800/50 shadow-lg relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
           <div className="w-full md:w-1/2 space-y-6">
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-gray-100 leading-tight transition-colors duration-200">
               제주 노지 감귤 10kg
             </h2>
             
-            <p className="text-gray-600 text-lg">제주의 햇살을 머금은 달콤한 감귤</p>
+            <p className="text-gray-600 dark:text-gray-300 text-lg transition-colors duration-200">제주의 햇살을 머금은 달콤한 감귤</p>
             
             <div className="flex items-end gap-3">
-              <span className="text-4xl font-black text-gray-900">11,000원</span>
+              <span className="text-4xl font-black text-gray-900 dark:text-gray-100 transition-colors duration-200">11,000원</span>
             </div>
              
             <Button 
@@ -377,7 +377,7 @@ export default function RetailerDashboardPage() {
           </div>
           
           <div className="w-full md:w-1/2">
-            <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-orange-100 group-hover:scale-[1.02] transition-transform duration-500">
+            <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-gray-800 bg-orange-100 dark:bg-orange-900/30 group-hover:scale-[1.02] transition-all duration-500">
               <Image
                 src="https://fmqaxnuemcmcjjgodath.supabase.co/storage/v1/object/public/product-images/user_35uP8PkUebv7sUo56uMlk5W0Mt5/products/1764297672342-3xkhizr.jpg"
                 alt="감귤 10kg"
@@ -419,13 +419,12 @@ export default function RetailerDashboardPage() {
                   HOT DEAL
                 </span>
               </div>
-              <h2 className="text-2xl md:text-4xl font-black text-gray-900 mb-3">
+              <h2 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-gray-100 mb-3 transition-colors duration-200">
                 놓치면 후회할 가격 😱
               </h2>
-              <p className="text-gray-600 text-lg">최대 50% 할인된 특가 상품을 만나보세요</p>
             </div>
             <button
-              className="text-gray-400 hover:text-green-600 font-medium flex items-center gap-1 transition-colors"
+              className="text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 font-medium flex items-center gap-1 transition-colors duration-200"
               onClick={() => {
                 console.log("🔥 [대시보드-HOT DEAL] 전체보기 클릭 -> 상품 목록 이동");
                 router.push("/retailer/products");
@@ -439,13 +438,13 @@ export default function RetailerDashboardPage() {
               Array.from({ length: 4 }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="bg-white/80 rounded-2xl h-full border border-gray-100 shadow-md animate-pulse"
+                  className="bg-white/80 dark:bg-gray-800/80 rounded-2xl h-full border border-gray-100 dark:border-gray-700 shadow-md animate-pulse transition-colors duration-200"
                 >
-                  <div className="aspect-square bg-gray-100" />
+                  <div className="aspect-square bg-gray-100 dark:bg-gray-700" />
                   <div className="p-5 space-y-3">
-                    <div className="h-4 bg-gray-100 rounded w-3/4" />
-                    <div className="h-3 bg-gray-100 rounded w-1/2" />
-                    <div className="h-4 bg-gray-100 rounded w-1/3" />
+                    <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded w-1/2" />
+                    <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-1/3" />
                   </div>
                 </div>
               ))
@@ -456,9 +455,9 @@ export default function RetailerDashboardPage() {
                   <div
                     key={product.id}
                     onClick={() => handleProductClick(product.id)}
-                    className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
+                    className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 dark:border-gray-700 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
                   >
-                    <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
+                    <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-700 group-hover:bg-green-50 dark:group-hover:bg-green-900/30 transition-colors duration-200">
                       {imageSrc ? (
                         <Image
                           src={imageSrc}
@@ -467,7 +466,7 @@ export default function RetailerDashboardPage() {
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-500 text-4xl">
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform duration-500 text-4xl">
                           🛒
                         </div>
                       )}
@@ -476,31 +475,31 @@ export default function RetailerDashboardPage() {
                       </span>
                       <button
                         onClick={(event) => handleAddToCart(product, event)}
-                        className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"
+                        className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 dark:text-gray-200 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"
                       >
                         <ShoppingCart size={20} />
                       </button>
                     </div>
-                    <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
+                    <div className="p-5 space-y-3 flex-1 flex flex-col bg-white dark:bg-gray-800 transition-colors duration-200">
                       <div className="flex-1">
-                        <h3 className="font-bold text-base text-gray-900 line-clamp-2">
+                        <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 line-clamp-2 transition-colors duration-200">
                           {product.name}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1 transition-colors duration-200">
                           {product.wholesaler_region || "산지 미정"} · 무료배송
                         </p>
                       </div>
-                      <div className="border-t border-gray-100 pt-3">
-                        <div className="font-black text-xl text-green-600 tracking-tight">
+                      <div className="border-t border-gray-100 dark:border-gray-700 pt-3 transition-colors duration-200">
+                        <div className="font-black text-xl text-green-600 dark:text-green-400 tracking-tight transition-colors duration-200">
                           {product.price.toLocaleString()}원
                         </div>
-                        <div className="text-xs text-gray-400 mt-0.5">
+                        <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 transition-colors duration-200">
                           {product.specification || "규격 정보 준비중"}
                         </div>
                       </div>
                       <Button
                         variant="outline"
-                        className="w-full py-2 text-sm h-10 border-gray-200"
+                        className="w-full py-2 text-sm h-10 border-gray-200 dark:border-gray-700"
                         onClick={(event) => handleAddToCart(product, event)}
                       >
                         <ShoppingCart size={16} />
@@ -630,13 +629,13 @@ export default function RetailerDashboardPage() {
           </div>
 
           {/* 주문 내역 */}
-          <div id="recent-orders" className="bg-white/80 backdrop-blur-xl border border-purple-100 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow">
+          <div id="recent-orders" className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-purple-100 dark:border-purple-800/50 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow transition-colors duration-200">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Package size={24} className="text-purple-600" /> 최근 주문 내역
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 transition-colors duration-200">
+                <Package size={24} className="text-purple-600 dark:text-purple-400" /> 최근 주문 내역
               </h3>
               <button
-                className="text-sm text-gray-400 hover:text-green-600"
+                className="text-sm text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200"
                 onClick={() => {
                   console.log("📦 [대시보드] 최근 주문 더보기 클릭, 프로필 페이지로 이동");
                   router.push("/retailer/profile");
@@ -650,21 +649,21 @@ export default function RetailerDashboardPage() {
                 Array.from({ length: 2 }).map((_, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100"
+                    className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors duration-200"
                   >
-                    <div className="bg-white p-3 rounded-full shadow-sm w-12 h-12 animate-pulse" />
+                    <div className="bg-white dark:bg-gray-900 p-3 rounded-full shadow-sm w-12 h-12 animate-pulse" />
                     <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-gray-100 rounded w-1/3 animate-pulse" />
-                      <div className="h-4 bg-gray-100 rounded w-1/4 animate-pulse" />
+                      <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-1/3 animate-pulse" />
+                      <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-1/4 animate-pulse" />
                     </div>
                     <div className="space-y-2 text-right">
-                      <div className="h-4 bg-gray-100 rounded w-16 animate-pulse ml-auto" />
-                      <div className="h-3 bg-gray-100 rounded w-12 animate-pulse ml-auto" />
+                      <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-16 animate-pulse ml-auto" />
+                      <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded w-12 animate-pulse ml-auto" />
                     </div>
                   </div>
                 ))
               ) : recentOrders.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-gray-100 p-6 text-center text-gray-500">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 text-center text-gray-500 dark:text-gray-400 transition-colors duration-200">
                   최근 주문이 없습니다.
                 </div>
               ) : (
@@ -687,14 +686,14 @@ export default function RetailerDashboardPage() {
                         });
                         router.push(`/retailer/orders/${order.id}`);
                       }}
-                      className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 cursor-pointer hover:bg-white hover:border-purple-200 transition-all group"
+                      className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-white dark:hover:bg-gray-700 hover:border-purple-200 dark:hover:border-purple-800 transition-all duration-200 group"
                     >
-                      <div className="bg-white p-3 rounded-full shadow-sm text-gray-600 group-hover:scale-110 transition-transform">
+                      <div className="bg-white dark:bg-gray-900 p-3 rounded-full shadow-sm text-gray-600 dark:text-gray-400 group-hover:scale-110 transition-transform">
                         <Package size={20} />
                       </div>
                       <div className="flex-1">
-                        <div className="font-bold text-gray-800">{displayName}</div>
-                        <div className="text-sm text-gray-500">{formattedDate}</div>
+                        <div className="font-bold text-gray-800 dark:text-gray-100 transition-colors duration-200">{displayName}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">{formattedDate}</div>
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-gray-800">{formattedPrice}원</div>
