@@ -8,19 +8,22 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Calendar as CalendarIcon, Plus, ChevronDown, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Calendar as CalendarIcon, Plus, ChevronDown, X, ChevronLeft, ChevronRight, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Card,
@@ -29,9 +32,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import type { DateRange } from "react-day-picker";
 import type { Inquiry } from "@/types/inquiry";
 import { getInquiries } from "@/actions/retailer/get-inquiries";
+import { updateInquiry } from "@/actions/retailer/update-inquiry";
+import { deleteInquiry } from "@/actions/retailer/delete-inquiry";
 
 interface InquiryHistoryPageProps {
   userId: string;
@@ -55,6 +62,12 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date(2025, 9, 1)); // 초기값: 2025년 10월
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const requestIdRef = useRef(0);
@@ -224,6 +237,104 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
     }
     fetchInquiries();
   }, [userId, fetchInquiries]);
+
+  // 수정 모달 열기
+  const handleEditClick = () => {
+    if (selectedInquiry) {
+      setEditTitle(selectedInquiry.title);
+      setEditContent(selectedInquiry.content);
+      setShowEditModal(true);
+      setShowDetailModal(false);
+    }
+  };
+
+  // 수정 제출
+  const handleEditSubmit = async () => {
+    if (!selectedInquiry) return;
+
+    const title = editTitle.trim();
+    const content = editContent.trim();
+
+    if (!title || !content) {
+      toast.error("제목과 내용을 입력해주세요.");
+      return;
+    }
+
+    if (title.length > 200) {
+      toast.error("제목은 200자 이하로 입력해주세요.");
+      return;
+    }
+
+    if (content.length < 10 || content.length > 3000) {
+      toast.error("내용은 10자 이상 3000자 이하로 입력해주세요.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    console.log("✏️ [InquiryHistoryPage] 문의 수정 시작", { inquiryId: selectedInquiry.id });
+
+    try {
+      const result = await updateInquiry({
+        inquiryId: selectedInquiry.id,
+        title,
+        content,
+      });
+
+      if (!result.success) {
+        toast.error(result.error || "문의 수정에 실패했습니다.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      toast.success("문의가 수정되었습니다.");
+      setShowEditModal(false);
+      setIsSubmitting(false);
+      
+      // 문의 내역 새로고침
+      fetchInquiries();
+    } catch (error) {
+      console.error("❌ [InquiryHistoryPage] 문의 수정 실패:", error);
+      toast.error("문의 수정에 실패했습니다. 다시 시도해주세요.");
+      setIsSubmitting(false);
+    }
+  };
+
+  // 삭제 확인 다이얼로그 열기
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+    setShowDetailModal(false);
+  };
+
+  // 삭제 실행
+  const handleDeleteConfirm = async () => {
+    if (!selectedInquiry) return;
+
+    setIsDeleting(true);
+    console.log("🗑️ [InquiryHistoryPage] 문의 삭제 시작", { inquiryId: selectedInquiry.id });
+
+    try {
+      const result = await deleteInquiry({
+        inquiryId: selectedInquiry.id,
+      });
+
+      if (!result.success) {
+        toast.error(result.error || "문의 삭제에 실패했습니다.");
+        setIsDeleting(false);
+        return;
+      }
+
+      toast.success("문의가 삭제되었습니다.");
+      setShowDeleteDialog(false);
+      setIsDeleting(false);
+      
+      // 문의 내역 새로고침
+      fetchInquiries();
+    } catch (error) {
+      console.error("❌ [InquiryHistoryPage] 문의 삭제 실패:", error);
+      toast.error("문의 삭제에 실패했습니다. 다시 시도해주세요.");
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
@@ -558,8 +669,141 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                   )}
                 </div>
               </div>
+
+              {/* 답변완료 상태일 때 수정/삭제 버튼 */}
+              {selectedInquiry.status === "answered" && (
+                <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    onClick={handleEditClick}
+                    className="h-10 px-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    <Edit size={16} className="mr-2" />
+                    수정
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleDeleteClick}
+                    className="h-10 px-4 border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                  >
+                    <Trash2 size={16} className="mr-2" />
+                    삭제
+                  </Button>
+                </div>
+              )}
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 수정 모달 */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="w-[600px] max-w-[90vw] sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-black text-gray-900 dark:text-gray-100">
+              문의 수정
+            </DialogTitle>
+            <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
+              문의 제목과 내용을 수정할 수 있습니다.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col gap-4 mt-4">
+            {/* 제목 */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="edit-title" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                제목
+              </Label>
+              <Input
+                id="edit-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="제목을 입력하세요"
+                maxLength={200}
+                className="h-12 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {editTitle.length}/200자
+              </p>
+            </div>
+
+            {/* 내용 */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-content" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                  내용
+                </Label>
+                <span className={`text-xs ${
+                  editContent.length > 3000 
+                    ? "text-red-500" 
+                    : editContent.length > 2800 
+                    ? "text-orange-500" 
+                    : "text-gray-500 dark:text-gray-400"
+                }`}>
+                  {editContent.length}/3000자
+                </span>
+              </div>
+              <Textarea
+                id="edit-content"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="문의 내용을 입력하세요 (최대 3000자)"
+                rows={8}
+                maxLength={3000}
+                className="resize-none bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowEditModal(false)}
+              disabled={isSubmitting}
+              className="h-10 px-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleEditSubmit}
+              disabled={isSubmitting}
+              className="h-10 px-4 bg-green-600 dark:bg-green-600 hover:bg-green-500 dark:hover:bg-green-500 text-white transition-colors duration-200"
+            >
+              {isSubmitting ? "수정 중..." : "수정하기"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="w-[400px] max-w-[90vw] sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-black text-gray-900 dark:text-gray-100">
+              문의 삭제
+            </DialogTitle>
+            <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
+              정말로 이 문의를 삭제하시겠습니까? 삭제된 문의는 복구할 수 없습니다.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+              className="h-10 px-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="h-10 px-4 bg-red-600 dark:bg-red-600 hover:bg-red-500 dark:hover:bg-red-500 text-white transition-colors duration-200"
+            >
+              {isDeleting ? "삭제 중..." : "삭제하기"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

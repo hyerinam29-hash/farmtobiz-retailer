@@ -22,7 +22,18 @@ export default function BestListItem({ product, rank }: BestListItemProps) {
   const router = useRouter();
 
   const handleAddToCart = () => {
-    console.log("🛒 [베스트페이지] 상세 페이지로 이동:", {
+    console.log("🛒 [베스트페이지] 장바구니 페이지로 이동:", {
+      product_id: product.id,
+      product_name: product.standardized_name || product.name,
+      rank,
+    });
+
+    // 장바구니 페이지로 이동
+    router.push("/retailer/cart");
+  };
+
+  const handleImageClick = () => {
+    console.log("🖼️ [베스트페이지] 이미지 클릭 - 상세 페이지로 이동:", {
       product_id: product.id,
       product_name: product.standardized_name || product.name,
       rank,
@@ -40,7 +51,10 @@ export default function BestListItem({ product, rank }: BestListItemProps) {
       </div>
 
       {/* 상품 이미지 */}
-      <div className="w-20 h-28 md:w-24 md:h-32 lg:w-32 lg:h-40 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 relative">
+      <div 
+        onClick={handleImageClick}
+        className="w-20 h-28 md:w-24 md:h-32 lg:w-32 lg:h-40 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 relative cursor-pointer hover:opacity-90 transition-opacity"
+      >
         {product.image_url ? (
           <Image
             src={product.image_url}
