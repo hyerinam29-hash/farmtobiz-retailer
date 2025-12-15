@@ -100,25 +100,25 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
 
   return (
     <div
-      className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 pb-12 md:pb-16"
-      style={{ paddingTop: "2cm" }}
+      className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-8 sm:pb-12 md:pb-16"
+      style={{ paddingTop: "1rem" }}
     >
       {/* 헤더 */}
-      <div className="mb-12 md:mb-16">
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="mb-6 sm:mb-8 md:mb-12 lg:mb-16">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100">
           주문 내역
         </h1>
-        <p className="mt-4 text-lg md:text-xl text-gray-600 dark:text-gray-400">
+        <p className="mt-2 sm:mt-3 md:mt-4 text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400">
           주문 상태 및 배송 정보를 확인하세요
         </p>
       </div>
 
       {/* 검색 및 필터 */}
-      <div className="flex flex-col md:flex-row gap-8 mb-12">
+      <div className="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8 md:mb-12">
         {/* 검색창 */}
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 text-gray-400" />
+            <Search className="absolute left-3 sm:left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 text-gray-400" />
             <input
               type="text"
               placeholder="상품명, 주문번호로 검색"
@@ -128,20 +128,20 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
                 console.log("[OrdersClient] 검색어 변경", { value });
                 setSearchQuery(value);
               }}
-              className="w-full pl-20 pr-8 py-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 text-lg"
+              className="w-full pl-10 sm:pl-12 md:pl-16 lg:pl-20 pr-4 sm:pr-6 md:pr-8 py-3 sm:py-4 md:py-5 lg:py-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base md:text-lg"
             />
           </div>
         </div>
       </div>
 
       {/* 상태 필터 */}
-      <div className="flex gap-4 mb-12 overflow-x-auto pb-4">
+      <div className="flex gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8 md:mb-12 overflow-x-auto pb-2 sm:pb-3 md:pb-4">
         <button
           onClick={() => {
             console.log("[OrdersClient] 상태 필터 변경", { status: "all" });
             setSelectedStatus("all");
           }}
-          className={`px-8 py-4 rounded-full text-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-4 rounded-full text-xs sm:text-sm md:text-base lg:text-lg font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
             selectedStatus === "all"
               ? "bg-green-500 text-white"
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -154,7 +154,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
             console.log("[OrdersClient] 상태 필터 변경", { status: "preparing" });
             setSelectedStatus("preparing");
           }}
-          className={`px-8 py-4 rounded-full text-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-4 rounded-full text-xs sm:text-sm md:text-base lg:text-lg font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
             selectedStatus === "preparing"
               ? "bg-green-500 text-white"
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -167,7 +167,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
             console.log("[OrdersClient] 상태 필터 변경", { status: "shipping" });
             setSelectedStatus("shipping");
           }}
-          className={`px-8 py-4 rounded-full text-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-4 rounded-full text-xs sm:text-sm md:text-base lg:text-lg font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
             selectedStatus === "shipping"
               ? "bg-green-500 text-white"
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -180,7 +180,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
             console.log("[OrdersClient] 상태 필터 변경", { status: "delivered" });
             setSelectedStatus("delivered");
           }}
-          className={`px-8 py-4 rounded-full text-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-4 rounded-full text-xs sm:text-sm md:text-base lg:text-lg font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
             selectedStatus === "delivered"
               ? "bg-green-500 text-white"
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -193,7 +193,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
             console.log("[OrdersClient] 상태 필터 변경", { status: "cancelled" });
             setSelectedStatus("cancelled");
           }}
-          className={`px-8 py-4 rounded-full text-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-4 rounded-full text-xs sm:text-sm md:text-base lg:text-lg font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
             selectedStatus === "cancelled"
               ? "bg-green-500 text-white"
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -205,7 +205,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
 
       {/* 검색 결과 표시 */}
       {(searchQuery.trim() || selectedStatus !== "all") && (
-        <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mb-4 sm:mb-5 md:mb-6 text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400">
           {selectedStatus !== "all" && (
             <span>
               상태: <span className="font-semibold">
@@ -231,15 +231,15 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
       )}
 
       {/* 주문 목록 */}
-      <div className="space-y-8">
+      <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8">
         {filteredOrders.length === 0 ? (
-          <div className="p-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400">
+          <div className="p-6 sm:p-8 md:p-10 lg:p-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400">
               {searchQuery.trim() || selectedStatus !== "all"
                 ? "검색 결과가 없습니다"
                 : "주문 내역이 없습니다"}
             </p>
-            <p className="mt-2 text-base text-gray-500 dark:text-gray-500">
+            <p className="mt-2 text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-500">
               {searchQuery.trim() || selectedStatus !== "all"
                 ? "다른 검색어나 필터로 시도해보세요"
                 : "주문을 하시면 여기에 표시됩니다"}
@@ -249,27 +249,27 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
           filteredOrders.map((order) => (
             <div
               key={order.id}
-              className="p-8 sm:p-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+              className="p-4 sm:p-5 md:p-6 lg:p-8 xl:p-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
             >
               {/* 주문 헤더 */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8 pb-8 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex flex-col gap-2 min-w-0">
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span className="text-base sm:text-lg font-medium text-gray-600 dark:text-gray-400">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 md:gap-6 lg:gap-8 pb-4 sm:pb-5 md:pb-6 lg:pb-8 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col gap-2 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap">
+                    <span className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-gray-600 dark:text-gray-400">
                       {order.order_date}
                     </span>
-                    <span className="text-base sm:text-lg text-gray-400">·</span>
-                    <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 break-all">
+                    <span className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-400 hidden sm:inline">·</span>
+                    <span className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-gray-900 dark:text-gray-100 break-all">
                       {order.order_number}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap">
                     <span
-                      className={`inline-flex items-center px-5 py-1 rounded-full text-base font-medium ${statusColors[order.status as keyof typeof statusColors]}`}
+                      className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 md:px-4 md:py-1 lg:px-5 lg:py-1 rounded-full text-xs sm:text-sm md:text-base font-medium ${statusColors[order.status as keyof typeof statusColors]}`}
                     >
                       {order.status_label}
                     </span>
-                    <span className="text-base text-gray-500 dark:text-gray-400">
+                    <span className="text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-400">
                       {order.delivery_method}
                     </span>
                   </div>
@@ -277,19 +277,19 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
 
                 <Link
                   href={`/retailer/orders/${order.id}`}
-                  className="text-base sm:text-lg text-green-600 dark:text-green-400 font-medium hover:underline whitespace-nowrap flex-shrink-0"
+                  className="text-xs sm:text-sm md:text-base lg:text-lg text-green-600 dark:text-green-400 font-medium hover:underline whitespace-nowrap flex-shrink-0 mt-2 sm:mt-0"
                 >
                   상세 보기
                 </Link>
               </div>
 
               {/* 주문 내용 */}
-              <div className="py-8">
-                <div className="flex flex-col gap-4">
+              <div className="py-4 sm:py-5 md:py-6 lg:py-8">
+                <div className="flex flex-col gap-2 sm:gap-3 md:gap-4">
                   {order.products.map((product, index) => (
                     <p
                       key={index}
-                      className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 break-words"
+                      className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100 break-words"
                     >
                       {product.name}
                       {order.products.length > 1 &&
@@ -297,29 +297,31 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
                         ` 외 ${order.products.length - 1}건`}
                     </p>
                   ))}
-                  <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+                  <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-600 dark:text-gray-400">
                     수량: {order.products.reduce((sum, p) => sum + p.quantity, 0)}개
                   </p>
                 </div>
               </div>
 
               {/* 주문 푸터 */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex flex-col gap-2">
-                  <span className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-5 md:gap-6 lg:gap-8 pt-4 sm:pt-5 md:pt-6 lg:pt-8 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col gap-1 sm:gap-2">
+                  <span className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-600 dark:text-gray-400">
                     결제 금액
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100">
                     {order.total_price.toLocaleString()}원
                   </span>
                 </div>
 
-                <OrderListItemActions
-                  orderId={order.id}
-                  orderNumber={order.order_number}
-                  status={order.status}
-                  totalPrice={order.total_price}
-                />
+                <div className="mt-2 sm:mt-0">
+                  <OrderListItemActions
+                    orderId={order.id}
+                    orderNumber={order.order_number}
+                    status={order.status}
+                    totalPrice={order.total_price}
+                  />
+                </div>
               </div>
             </div>
           ))

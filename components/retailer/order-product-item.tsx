@@ -2,12 +2,13 @@
  * @file components/retailer/order-product-item.tsx
  * @description 주문 상세 페이지의 상품 항목 컴포넌트 (클라이언트 컴포넌트)
  *
- * 리뷰 쓰기/재구매 버튼의 onClick 핸들러를 처리하기 위한 클라이언트 컴포넌트입니다.
+ * 재구매 버튼의 onClick 핸들러를 처리하기 위한 클라이언트 컴포넌트입니다.
  */
 
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
 
 interface OrderProductItemProps {
@@ -25,6 +26,18 @@ export default function OrderProductItem({
   quantity,
   unit_price,
 }: OrderProductItemProps) {
+  const router = useRouter();
+
+  const handleRebuy = () => {
+    console.log("🔄 [주문 상세] 재구매 클릭", {
+      productId: id,
+      productName: name,
+    });
+    
+    // 상품 상세 페이지로 이동
+    router.push(`/retailer/products/${id}`);
+  };
+
   return (
     <div
       data-order-product-id={id}
@@ -55,20 +68,8 @@ export default function OrderProductItem({
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => {
-              console.log("✍️ [주문 상세] 리뷰 쓰기 클릭, 상품:", name);
-              // TODO: 리뷰 쓰기 페이지로 이동
-            }}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            리뷰 쓰기
-          </button>
-          <button
-            onClick={() => {
-              console.log("🔄 [주문 상세] 재구매 클릭, 상품:", name);
-              // TODO: 재구매 기능 구현
-            }}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            onClick={handleRebuy}
+            className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-gray-100"
           >
             재구매
           </button>
