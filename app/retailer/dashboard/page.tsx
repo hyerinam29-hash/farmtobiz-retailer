@@ -23,10 +23,8 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect, type MouseEvent } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { 
   ChevronRight, 
-  Clock, 
   ShoppingCart, 
   Truck, 
   Package,
@@ -359,11 +357,6 @@ export default function RetailerDashboardPage() {
         {/* 일일 특가 섹션 */}
         <section className="flex flex-col md:flex-row gap-8 md:gap-16 items-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-3xl p-8 md:p-12 border border-red-100 shadow-lg relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
           <div className="w-full md:w-1/2 space-y-6">
-            <div className="flex items-center gap-2 text-red-500 font-bold text-xl md:text-2xl">
-              <Clock size={24} />
-              <span>일일특가 24시간 한정</span>
-            </div>
-            
             <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
               제주 노지 감귤 10kg
             </h2>
@@ -715,25 +708,6 @@ export default function RetailerDashboardPage() {
               )}
             </div>
           </div>
-        </section>
-
-        {/* 하단 브랜드 배너 */}
-        <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-2xl">
-           <div className="relative z-10">
-             <h2 className="text-2xl md:text-4xl font-black text-white mb-4 drop-shadow-lg">
-               Farm to Biz 멤버십
-             </h2>
-             <p className="text-gray-200 mb-8 max-w-xl mx-auto text-lg">
-               지금 가입하고 매달 쏟아지는 할인 쿠폰과<br/>
-               무료 배송 혜택을 받아보세요!
-             </p>
-             <Link 
-               href="/sign-up-custom?type=retailer"
-               className="bg-white text-gray-900 px-10 py-4 rounded-full font-black text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105 active:scale-95 inline-block"
-             >
-               멤버십 혜택 자세히 보기
-             </Link>
-           </div>
         </section>
 
         {/* 회사소개 */}

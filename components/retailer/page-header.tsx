@@ -192,10 +192,10 @@ export default function PageHeader() {
               />
             </Link>
 
-            {/* 중앙: 검색 바 (절대 위치로 중앙 배치) */}
+            {/* 중앙: 검색 바 (데스크톱에서만 표시) */}
             <form
               onSubmit={handleSearch}
-              className="absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-4"
+              className="hidden lg:block absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-4"
             >
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
@@ -386,61 +386,22 @@ export default function PageHeader() {
           <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
               <div className="flex flex-col gap-1">
-                {/* 카테고리 드롭다운 (모바일) */}
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                    className="flex items-center justify-between px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Menu className="w-4 h-4" />
-                      카테고리
-                    </span>
-                    <ChevronDown className={cn(
-                      "w-4 h-4 transition-transform duration-200",
-                      categoryDropdownOpen && "rotate-180"
-                    )} />
-                  </button>
-                  
-                  {/* 카테고리 하위 메뉴 (모바일) */}
-                  {categoryDropdownOpen && (
-                    <div className="ml-4 flex flex-col gap-1 mt-1">
-                      {CATEGORIES.map((cat) => (
-                        <Link
-                          key={cat.id}
-                          href={`/retailer/products?category=${encodeURIComponent(cat.id)}`}
-                          onClick={() => {
-                            setCategoryDropdownOpen(false);
-                            handleLinkClick();
-                          }}
-                          className="px-4 py-2.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-green-600 dark:hover:text-green-400 transition-colors"
-                        >
-                          {cat.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 네비게이션 바 메뉴 */}
-                {navBarItems.map((item) => {
-                  const active = isActive(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={handleLinkClick}
-                      className={cn(
-                        "px-4 py-3 rounded-lg transition-colors text-sm font-medium",
-                        active
-                          ? "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
+                {/* 모바일 검색 바 */}
+                <form
+                  onSubmit={handleSearch}
+                  className="mb-2"
+                >
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="상품명이나 거래처를 검색하세요"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-full border-none outline-none text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+                    />
+                  </div>
+                </form>
 
                 {/* 구분선 */}
                 <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
