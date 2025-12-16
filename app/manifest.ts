@@ -15,38 +15,37 @@ export default function manifest(): MetadataRoute.Manifest {
       "도매의 민감 정보를 노출하지 않으면서 소매가 여러 도매의 상품을 비교하고 주문할 수 있는 B2B 플랫폼",
     start_url: "/",
     display: "standalone",
-    background_color: "#5B9A6F",
-    theme_color: "#5B9A6F",
+    background_color: "#ffffff",
+    theme_color: "#16a34a",
     orientation: "portrait-primary",
     icons: [
       {
         src: "/icons/icon-192x192.png",
         sizes: "192x192",
         type: "image/png",
-        purpose: "any",
+        purpose: "any maskable",
       },
       {
         src: "/icons/icon-256x256.png",
         sizes: "256x256",
         type: "image/png",
-        purpose: "any",
+        purpose: "any maskable",
       },
       {
         src: "/icons/icon-384x384.png",
         sizes: "384x384",
         type: "image/png",
-        purpose: "any",
+        purpose: "any maskable",
       },
       {
         src: "/icons/icon-512x512.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "maskable",
+        purpose: "any maskable",
       },
     ],
-    categories: ["business", "shopping"],
+    categories: ["business", "shopping", "productivity"],
     lang: "ko",
     dir: "ltr",
   };
 }
-

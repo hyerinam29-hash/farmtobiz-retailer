@@ -22,6 +22,8 @@
  * - components/retailer/sidebar.tsx (사이드바)
  */
 
+export const dynamic = "force-dynamic";
+
 import { headers } from "next/headers";
 import { requireRetailer } from "@/lib/clerk/auth";
 import RetailerLayoutClient from "./layout-client";

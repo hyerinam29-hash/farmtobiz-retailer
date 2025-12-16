@@ -16,6 +16,8 @@
  * - components/retailer/profile/MyPage.tsx
  */
 
+export const dynamic = "force-dynamic";
+
 import { requireRetailer, getCurrentUser } from "@/lib/clerk/auth";
 import { getOrderStats, getOrders } from "@/lib/supabase/queries/orders";
 import MyPage from "@/components/retailer/profile/MyPage";

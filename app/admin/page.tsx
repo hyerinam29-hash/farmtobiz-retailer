@@ -15,6 +15,8 @@
  * - app/admin/layout.tsx (권한 체크)
  */
 
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { requireAdmin } from "@/lib/clerk/auth";
 import { Store, ShoppingBag, Shield } from "lucide-react";

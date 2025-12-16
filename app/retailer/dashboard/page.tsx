@@ -18,6 +18,8 @@
  * @see {@link PRD.md} - R.DASH.01~04 요구사항
  */
 
+export const dynamic = "force-dynamic";
+
 "use client";
 
 import { useRouter } from "next/navigation";

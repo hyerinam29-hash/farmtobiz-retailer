@@ -1,4 +1,4 @@
-import type { Viewport } from "next";
+import type { MetadataRoute } from "next";
 
 /**
  * Viewport 설정
@@ -6,11 +6,21 @@ import type { Viewport } from "next";
  * 
  * 이 파일은 모바일 브라우저의 뷰포트 설정과 테마 색상을 정의합니다.
  */
-export const viewport: Viewport = {
-  themeColor: "#5B9A6F",
-  colorScheme: "light dark",
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
-};
-
+export default function viewport(): MetadataRoute.Viewport {
+  return {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    themeColor: [
+      {
+        media: "(prefers-color-scheme: light)",
+        color: "#ffffff",
+      },
+      {
+        media: "(prefers-color-scheme: dark)",
+        color: "#111827",
+      },
+    ],
+  };
+}

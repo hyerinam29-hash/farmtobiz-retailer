@@ -12,6 +12,8 @@
  * - components/retailer/profile/ProfileEditForm.tsx
  */
 
+export const dynamic = "force-dynamic";
+
 import { requireRetailer } from "@/lib/clerk/auth";
 import { User, MapPin, CreditCard, Globe } from "lucide-react";
 import {

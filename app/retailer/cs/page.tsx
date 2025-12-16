@@ -13,6 +13,8 @@
  * - app/retailer/cs/CsClient.tsx (클라이언트 컴포넌트)
  */
 
+export const dynamic = "force-dynamic";
+
 import { requireRetailer } from "@/lib/clerk/auth";
 import CsClient from "./CsClient";
 

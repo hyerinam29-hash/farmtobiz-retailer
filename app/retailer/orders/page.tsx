@@ -15,6 +15,8 @@
  * @see {@link PRD.md} - R.MY.01~03, R.SEARCH.01 요구사항
  */
 
+export const dynamic = "force-dynamic";
+
 import OrdersClient from "./OrdersClient";
 import { getOrders } from "@/lib/supabase/queries/orders";
 import type { OrderDetail } from "@/types/order";
