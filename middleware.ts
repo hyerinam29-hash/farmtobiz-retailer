@@ -22,6 +22,7 @@
  */
 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 /**
  * 공개 라우트 정의
@@ -47,10 +48,17 @@ const isPublicRoute = createRouteMatcher([
  * 인증되지 않은 사용자는 Clerk가 자동으로 로그인 페이지로 리다이렉트합니다.
  */
 export default clerkMiddleware(async (auth, request) => {
+  // 현재 경로를 헤더로 전달 (서버 컴포넌트에서 사용)
+  const url = new URL(request.url);
+  const response = NextResponse.next();
+  response.headers.set("x-pathname", url.pathname);
+  
   // 공개 라우트는 인증 확인하지 않음
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
+  
+  return response;
 });
 
 /**
