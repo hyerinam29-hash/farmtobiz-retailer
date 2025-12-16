@@ -40,7 +40,7 @@ export default function BestTopThreeCard({
       className="relative group cursor-pointer"
     >
       {/* 이미지 영역 */}
-      <div className="relative aspect-[4/5] rounded-lg overflow-hidden shadow-lg mb-4 bg-gray-100 flex items-center justify-center">
+      <div className="relative aspect-[4/5] rounded-lg overflow-hidden shadow-lg mb-4 bg-gray-100 dark:bg-gray-700 flex items-center justify-center transition-colors duration-200">
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -54,7 +54,7 @@ export default function BestTopThreeCard({
         
         {/* 순위 뱃지 */}
         <div
-          className={`absolute top-0 left-0 ${rankColor} text-white w-10 h-10 md:w-12 md:h-12 flex items-center justify-center font-black text-xl md:text-2xl shadow-md z-10 rounded-br-lg`}
+          className={`absolute top-0 left-0 ${rankColor} dark:bg-purple-500 text-white w-10 h-10 md:w-12 md:h-12 flex items-center justify-center font-black text-xl md:text-2xl shadow-md z-10 rounded-br-lg transition-colors duration-200`}
         >
           {rank}
         </div>
@@ -62,13 +62,13 @@ export default function BestTopThreeCard({
 
       {/* 상품 정보 */}
       <div className="text-center px-2">
-        <h3 className="font-bold text-gray-900 text-base md:text-lg mb-1 truncate">
+        <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg md:text-xl mb-1 truncate transition-colors duration-200">
           {product.standardized_name || product.name}
         </h3>
-        <p className="text-base md:text-xl text-gray-500 mb-2 line-clamp-1">
+        <p className="text-base md:text-xl text-gray-500 dark:text-gray-400 mb-2 line-clamp-1 transition-colors duration-200">
           {product.specification || "인기 상품"}
         </p>
-        <div className="text-lg md:text-xl font-black text-purple-700">
+        <div className="text-lg md:text-xl font-black text-purple-700 dark:text-purple-400 transition-colors duration-200">
           {product.price.toLocaleString()}원
         </div>
       </div>

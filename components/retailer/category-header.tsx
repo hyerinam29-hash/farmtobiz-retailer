@@ -33,16 +33,16 @@ const categoryEmojis: Record<string, string> = {
 };
 
 /**
- * 카테고리별 배경색 매핑
+ * 카테고리별 배경색 매핑 (라이트/다크 모드)
  */
 const categoryBgColors: Record<string, string> = {
-  과일: "bg-orange-50",
-  채소: "bg-green-50",
-  수산물: "bg-blue-50",
-  곡물: "bg-amber-50",
-  "곡물/견과류": "bg-amber-50",
-  견과류: "bg-amber-50",
-  기타: "bg-gray-50",
+  과일: "bg-orange-50 dark:bg-orange-900/20",
+  채소: "bg-green-50 dark:bg-green-900/20",
+  수산물: "bg-blue-50 dark:bg-blue-900/20",
+  곡물: "bg-amber-50 dark:bg-amber-900/20",
+  "곡물/견과류": "bg-amber-50 dark:bg-amber-900/20",
+  견과류: "bg-amber-50 dark:bg-amber-900/20",
+  기타: "bg-gray-50 dark:bg-gray-800",
 };
 
 /**
@@ -53,10 +53,10 @@ export default function CategoryHeader({ category }: CategoryHeaderProps) {
   const bgColor = categoryBgColors[category] || categoryBgColors["기타"];
 
   return (
-    <div className={`${bgColor} rounded-xl p-6 md:p-8 mb-8`}>
+    <div className={`${bgColor} rounded-xl p-6 md:p-8 mb-8 transition-colors duration-200`}>
       <div className="flex items-center gap-3">
         <span className="text-4xl md:text-5xl">{emoji}</span>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-200">
           {category}
         </h1>
       </div>

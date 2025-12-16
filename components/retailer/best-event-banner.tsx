@@ -10,9 +10,9 @@ import Image from "next/image";
 
 export default function BestEventBanner() {
   return (
-    <div className="relative bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl overflow-hidden shadow-xl group mb-12">
+    <div className="relative bg-gradient-to-br from-purple-500 to-indigo-600 dark:from-purple-700 dark:to-indigo-800 rounded-3xl overflow-hidden shadow-xl group mb-12 transition-colors duration-200">
       {/* 배경 장식 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-indigo-700/20"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-indigo-700/20 dark:from-purple-500/30 dark:to-indigo-900/30 transition-colors duration-200"></div>
       
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-8 md:p-16">
         {/* 왼쪽 텍스트 영역 */}
@@ -47,7 +47,7 @@ export default function BestEventBanner() {
 
         {/* 오른쪽 이미지 영역 (모바일에서는 숨김) */}
         <div className="relative z-20 perspective-1000 mt-4 md:mt-0">
-          <div className="relative w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 bg-purple-200">
+          <div className="relative w-72 h-48 md:w-96 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/40 dark:border-white/30 bg-purple-200 dark:bg-purple-800 transition-colors duration-200">
             <Image
               src="https://images.unsplash.com/photo-1761054189536-15ddd7ad9f11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTU3ODB8MHwxfHNlYXJjaHwxfHxmcmVzaCUyMGZydWl0cyUyMGFuZCUyMHZlZ2V0YWJsZXMlMjBhc3NvcnRtZW50JTIwbWFya2V0fGVufDB8fHx8MTc2NTM2MTY1Mnww&ixlib=rb-4.1.0&q=80&w=1080"
               alt="신선한 과일과 채소가 진열된 베스트 상품"

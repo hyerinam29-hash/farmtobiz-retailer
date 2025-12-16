@@ -205,11 +205,11 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         {/* 헤더 */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3 mb-2">
-            <ShoppingCart size={28} className="text-green-600" />
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3 mb-2 transition-colors duration-200">
+            <ShoppingCart size={28} className="text-green-600 dark:text-green-400 transition-colors duration-200" />
             장바구니
           </h1>
-          <p className="text-gray-500">총 {items.length}개의 상품이 담겨있습니다</p>
+          <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">총 {items.length}개의 상품이 담겨있습니다</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -217,11 +217,11 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-4">
             {/* 검증 에러 메시지 */}
             {!validationResult.isValid && validationResult.errors.length > 0 && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl transition-colors duration-200">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5 transition-colors duration-200" />
                   <div className="flex-1">
-                    <h3 className="text-sm font-bold text-red-900 mb-2">
+                    <h3 className="text-sm font-bold text-red-900 dark:text-red-300 mb-2 transition-colors duration-200">
                       주문 전 확인이 필요합니다
                     </h3>
                     <ul className="space-y-1">
@@ -247,7 +247,7 @@ export default function CartPage() {
             )}
 
             {/* 전체 선택 */}
-            <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-200">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -256,16 +256,16 @@ export default function CartPage() {
                     if (input) input.indeterminate = isIndeterminate;
                   }}
                   onChange={(e) => handleSelectAll(e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-green-600 dark:text-green-400 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-800 transition-colors duration-200"
                 />
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-200">
                   전체 선택 ({selectedItemIds.length}/{items.length})
                 </span>
               </label>
               <button
                 onClick={handleRemoveSelected}
                 disabled={selectedItemIds.length === 0}
-                className="text-sm text-gray-500 hover:text-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 선택 삭제
               </button>
@@ -273,14 +273,14 @@ export default function CartPage() {
 
             {/* 상품 목록 */}
             {items.length === 0 ? (
-              <div className="p-12 text-center bg-white rounded-2xl border border-gray-100 shadow-sm">
-                <ShoppingCart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-500 mb-4">
+              <div className="p-12 text-center bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-200">
+                <ShoppingCart className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4 transition-colors duration-200" />
+                <p className="text-gray-500 dark:text-gray-400 mb-4 transition-colors duration-200">
                   장바구니가 비어있습니다.
                 </p>
                 <Link
                   href="/retailer/dashboard"
-                  className="inline-block px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-xl transition-colors"
+                  className="inline-block px-6 py-2.5 bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors duration-200"
                 >
                   쇼핑하러 가기
                 </Link>
@@ -289,7 +289,7 @@ export default function CartPage() {
               items.map((item) => (
                 <div
                   key={item.id}
-                  className="p-4 md:p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                  className="p-4 md:p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200"
                 >
                   <div className="flex gap-3 md:gap-4">
                     {/* 체크박스 */}
@@ -297,11 +297,11 @@ export default function CartPage() {
                       type="checkbox"
                       checked={selectedItemIds.includes(item.id)}
                       onChange={(e) => handleSelectItem(item.id, e.target.checked)}
-                      className="w-5 h-5 mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500 flex-shrink-0"
+                      className="w-5 h-5 mt-1 rounded border-gray-300 dark:border-gray-600 text-green-600 dark:text-green-400 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-800 flex-shrink-0 transition-colors duration-200"
                     />
 
                     {/* 이미지 */}
-                    <div className="relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                    <div className="relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 transition-colors duration-200">
                       {item.product_image ? (
                         <Image
                           src={item.product_image}
@@ -322,16 +322,16 @@ export default function CartPage() {
                         <div className="flex-1 min-w-0 pr-2">
                           <Link
                             href={`/retailer/products/${item.product_id}`}
-                            className="font-bold text-base md:text-lg text-gray-800 hover:text-green-600 line-clamp-2 block"
+                            className="font-bold text-base md:text-lg text-gray-800 dark:text-gray-100 hover:text-green-600 dark:hover:text-green-400 line-clamp-2 block transition-colors duration-200"
                           >
                             {item.product_name}
                           </Link>
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-200">
                             {item.anonymous_seller_id} ({item.seller_region})
                           </p>
                           {/* 오늘출발 배지 */}
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">
+                            <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded font-medium transition-colors duration-200">
                               오늘출발
                             </span>
                           </div>
@@ -339,7 +339,7 @@ export default function CartPage() {
                         {/* 삭제 버튼 */}
                         <button
                           onClick={() => handleRemoveItem(item.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                          className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 p-1"
                           aria-label="상품 삭제"
                         >
                           <Trash2 size={18} />
@@ -373,21 +373,21 @@ export default function CartPage() {
                         })()}
 
                         {/* 수량 조절 */}
-                        <div className="flex items-center bg-gray-100 rounded-lg order-2 md:order-1 self-start md:self-auto">
+                        <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg order-2 md:order-1 self-start md:self-auto transition-colors duration-200">
                           <button
                             onClick={() => handleDecreaseQuantity(item.id, item.quantity, item.moq)}
                             disabled={item.quantity <= item.moq}
-                            className="p-2.5 text-gray-500 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="p-2.5 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                           >
                             <Minus size={16} />
                           </button>
-                          <span className="w-10 text-center font-bold text-gray-800">
+                          <span className="w-10 text-center font-bold text-gray-800 dark:text-gray-200 transition-colors duration-200">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => handleIncreaseQuantity(item.id, item.quantity, item.stock_quantity)}
                             disabled={item.quantity >= item.stock_quantity}
-                            className="p-2.5 text-gray-500 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="p-2.5 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                           >
                             <Plus size={16} />
                           </button>
@@ -430,7 +430,7 @@ export default function CartPage() {
                 {canCheckout ? (
                   <Link
                     href={checkoutUrl}
-                    className="flex items-center justify-center gap-2 w-full mt-6 py-3.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl border-b-4 border-green-700 shadow-lg active:border-b-0 active:translate-y-1 transition-all"
+                    className="flex items-center justify-center gap-2 w-full mt-6 py-3.5 bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700 text-white font-bold rounded-xl border-b-4 border-green-700 dark:border-green-800 shadow-lg active:border-b-0 active:translate-y-1 transition-all duration-200"
                   >
                     <span>₩{summary.totalPrice.toLocaleString()} 결제하기</span>
                     <ArrowRight size={18} />
@@ -438,7 +438,7 @@ export default function CartPage() {
                 ) : (
                   <button
                     disabled
-                    className="flex items-center justify-center gap-2 w-full mt-6 py-3.5 bg-gray-300 text-gray-500 font-bold rounded-xl cursor-not-allowed"
+                    className="flex items-center justify-center gap-2 w-full mt-6 py-3.5 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold rounded-xl cursor-not-allowed transition-colors duration-200"
                   >
                     <span>결제하기</span>
                     <ArrowRight size={18} />
@@ -447,8 +447,8 @@ export default function CartPage() {
               </div>
 
               {/* 안내 사항 */}
-              <div className="p-4 bg-gray-100 rounded-2xl">
-                <div className="text-xs text-gray-600 space-y-1.5">
+              <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-2xl transition-colors duration-200">
+                <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1.5 transition-colors duration-200">
                   <p>• 5만원 이상 구매 시 무료배송</p>
                   <p>• 신선식품은 배송 후 교환/환불 불가</p>
                   <p>• 결제 후 영업일 기준 1-2일 내 배송</p>
@@ -458,7 +458,7 @@ export default function CartPage() {
               {/* 쇼핑 계속하기 링크 */}
               <Link
                 href="/retailer/dashboard"
-                className="block text-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="block text-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200"
               >
                 쇼핑 계속하기
               </Link>

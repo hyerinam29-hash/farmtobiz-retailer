@@ -746,61 +746,67 @@ export default function RetailerDashboardPage() {
                 <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">엄선된 프리미엄 상품</p>
               </div>
             </div>
-            
-            {/* 구분선 */}
-            <div className="border-t border-gray-200 dark:border-gray-800 pt-8 transition-colors duration-200">
-              {/* 회사 정보 4칼럼 */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6 text-sm">
-                <div>
-                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">회사명</p>
-                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">팜투비즈</p>
-                </div>
-                <div>
-                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">대표이사</p>
-                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">홍길동</p>
-                </div>
-                <div>
-                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">사업자등록번호</p>
-                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">123-45-67890</p>
-                </div>
-                <div>
-                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">고객센터</p>
-                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">1588-0000</p>
-                </div>
-              </div>
-              
-              {/* 이용약관/개인정보처리방침 및 주소/저작권 */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 sm:gap-6">
-                {/* 왼쪽: 이용약관 및 개인정보처리방침 */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4">
-                  <Link
-                    href="/terms"
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm transition-colors duration-200 underline-offset-4 hover:underline"
-                  >
-                    이용약관
-                  </Link>
-                  <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-                  <Link
-                    href="/privacy"
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm transition-colors duration-200 underline-offset-4 hover:underline"
-                  >
-                    개인정보처리방침
-                  </Link>
-                </div>
-                
-                {/* 오른쪽: 주소 및 저작권 */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-2 sm:gap-4">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors duration-200">
-                    서울특별시 강남구 테헤란로 123 (우편번호 06234)
-                  </p>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors duration-200">
-                    © 2025 Farm to Biz. All rights reserved.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
+
+        {/* 푸터 */}
+        <footer className="w-full border-t border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm py-6 px-4 transition-colors duration-200">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+              {/* 회사 정보 */}
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">회사명:</span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">팜투비즈</span>
+              </div>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+              
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">대표이사:</span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">홍길동</span>
+              </div>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+              
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">사업자등록번호:</span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">123-45-67890</span>
+              </div>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+              
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">고객센터:</span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">1588-0000</span>
+              </div>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+              
+              {/* 이용약관 및 개인정보처리방침 */}
+              <Link
+                href="/terms"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 underline-offset-4 hover:underline"
+              >
+                이용약관
+              </Link>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+              
+              <Link
+                href="/privacy"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 underline-offset-4 hover:underline"
+              >
+                개인정보처리방침
+              </Link>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+              
+              {/* 주소 및 저작권 */}
+              <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
+                서울특별시 강남구 테헤란로 123 (우편번호 06234)
+              </span>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+              
+              <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
+                © 2025 Farm to Biz. All rights reserved.
+              </span>
+            </div>
+          </div>
+        </footer>
 
       </div>
       <ChatbotWidget />

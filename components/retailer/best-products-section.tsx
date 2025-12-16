@@ -3,11 +3,11 @@
  * @description 베스트 상품 섹션 컴포넌트
  *
  * 카테고리별 베스트 상품을 표시하는 섹션입니다.
- * 랭킹 1, 2, 3위 상품을 그리드 레이아웃으로 표시합니다.
+ * 랭킹 1, 2, 3, 4위 상품을 그리드 레이아웃으로 표시합니다.
  *
  * 주요 기능:
  * 1. 카테고리별 베스트 상품 조회
- * 2. 랭킹 1, 2, 3위 상품 표시
+ * 2. 랭킹 1, 2, 3, 4위 상품 표시
  * 3. 반응형 그리드 레이아웃
  *
  * @dependencies
@@ -33,7 +33,7 @@ export default async function BestProductsSection({
 
   let bestProducts;
   try {
-    bestProducts = await getBestRetailerProducts(category, 3);
+    bestProducts = await getBestRetailerProducts(category, 4);
   } catch (error) {
     console.error("❌ [베스트 상품 섹션] 베스트 상품 조회 실패:", error);
     // 에러 발생 시 빈 배열 반환
@@ -47,11 +47,11 @@ export default async function BestProductsSection({
 
   return (
     <section className="mb-12">
-      <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <span className="text-green-600">BEST</span> {category} 랭킹 🏆
+      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 transition-colors duration-200">
+        <span className="text-green-600 dark:text-green-400">BEST</span> {category} 랭킹 🏆
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {bestProducts.map((product, index) => (
           <BestProductCard
             key={product.id}

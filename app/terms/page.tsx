@@ -1,0 +1,279 @@
+/**
+ * @file app/terms/page.tsx
+ * @description 이용약관 페이지
+ *
+ * Farm to Biz 플랫폼의 이용약관을 표시하는 페이지입니다.
+ */
+
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+
+export default function TermsPage() {
+  return (
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-900 transition-colors duration-200">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <Link
+            href="/retailer/dashboard"
+            className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6 transition-colors duration-200"
+          >
+            <ChevronLeft size={20} />
+            <span>돌아가기</span>
+          </Link>
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+            이용약관
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors duration-200">
+            시행일: 2025년 12월 1일
+          </p>
+        </div>
+
+        {/* 약관 내용 */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 md:p-8 lg:p-10 space-y-8 transition-colors duration-200">
+          {/* 제1장 */}
+          <section className="space-y-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-200">
+              제1장 총칙 및 지위
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제1조 (목적)
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
+                  본 약관은 [플랫폼 법인명](이하 "회사")이 운영하는 온라인 중개 플랫폼 [서비스명](이하 "몰")에서 제공하는 전자상거래 서비스의 이용 조건 및 절차, 회사와 회원 간의 권리 및 의무를 규정함을 목적으로 한다.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제2조 (용어의 정의)
+                </h3>
+                <ul className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
+                  <li>
+                    <strong className="text-gray-900 dark:text-gray-100">몰:</strong> 회사가 재화 또는 용역의 거래를 중개하기 위하여 구축한 온라인 영업장.
+                  </li>
+                  <li>
+                    <strong className="text-gray-900 dark:text-gray-100">회원:</strong> 본 약관에 동의하고 서비스를 이용하는 자 (도매 파트너 및 소매 파트너).
+                  </li>
+                  <li>
+                    <strong className="text-gray-900 dark:text-gray-100">도매 파트너(판매자):</strong> 몰에 입점하여 재화 또는 용역을 판매할 목적으로 회원 등록한 자.
+                  </li>
+                  <li>
+                    <strong className="text-gray-900 dark:text-gray-100">소매 파트너(구매자):</strong> 몰을 통해 재화 또는 용역을 구매할 목적으로 회원 등록한 자.
+                  </li>
+                  <li>
+                    <strong className="text-gray-900 dark:text-gray-100">통신판매중개:</strong> 회사가 회원 간의 거래를 위한 시스템을 제공하는 행위.
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제3조 (약관의 효력 및 개정)
+                </h3>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>본 약관은 회원이 약관 내용에 동의하고 서비스에 가입함으로써 효력이 발생한다.</li>
+                  <li>회사는 「전자상거래법」, 「약관규제법」 등 관련 법령을 위반하지 않는 범위 내에서 본 약관을 개정할 수 있다.</li>
+                  <li>회사는 약관 개정 시, 적용일자 및 개정 사유를 명시하여 현행 약관과 함께 몰의 초기 화면에 적용일자 7일 이전부터 공지한다. (단, 회원에게 불리한 변경 시 30일 이상의 유예기간을 두고 공지한다.)</li>
+                </ol>
+              </div>
+            </div>
+          </section>
+
+          {/* 제2장 */}
+          <section className="space-y-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-200">
+              제2장 서비스 이용 계약 및 중개 지위
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제4조 (이용 계약의 체결 및 승낙 거부)
+                </h3>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>이용 계약은 회원이 되고자 하는 자가 약관에 동의하고 신청하면, 회사가 이를 승낙함으로써 체결된다.</li>
+                  <li>
+                    회사는 다음 각 호에 해당하는 신청에 대하여는 승낙을 거부할 수 있으며, 사후에 해당 사실이 확인될 경우 계약을 해지할 수 있다.
+                    <ul className="mt-2 ml-6 space-y-1 list-disc">
+                      <li>허위 정보 또는 타인의 명의를 사용하여 신청한 경우.</li>
+                      <li>법령 위반 또는 공서양속에 반하는 목적으로 신청한 경우.</li>
+                      <li>도매 파트너의 경우, [입점 계약서]상의 필수 서류를 제출하지 않은 경우.</li>
+                    </ul>
+                  </li>
+                </ol>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제5조 (통신판매중개자의 지위 및 책임 한계 강화)
+                </h3>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>회사는 통신판매중개업자로서, 회원 간 거래의 당사자가 아니다.</li>
+                  <li>회사는 재화 또는 용역의 품질, 안전성, 적법성 및 타인의 권리 비침해성, 도매 파트너가 등록하는 정보의 진실성 등 일체에 대하여 보증하거나 책임지지 않는다.</li>
+                  <li>거래와 관련된 모든 위험과 책임(클레임, 배송, 환불, 품질 문제 등)은 해당 거래 당사자인 도매 파트너와 소매 파트너에게 전적으로 귀속된다.</li>
+                </ol>
+              </div>
+            </div>
+          </section>
+
+          {/* 제3장 */}
+          <section className="space-y-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-200">
+              제3장 서비스의 이용 및 회사의 의무
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제6조 (서비스의 제공)
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-2 transition-colors duration-200">
+                  회사는 다음과 같은 업무를 수행한다.
+                </p>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>재화 또는 용역에 대한 정보 제공 및 구매 계약의 체결 중개.</li>
+                  <li>결제 시스템 및 정산 시스템 운영 관리.</li>
+                  <li>기타 회사가 정하는 업무.</li>
+                </ol>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제7조 (회사의 의무)
+                </h3>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>회사는 본 약관과 관계 법령이 정하는 바에 따라 지속적이고 안정적으로 서비스를 제공하도록 노력한다.</li>
+                  <li>회사는 회원의 개인정보 보호를 위한 보안 시스템을 구축하며, [개인정보 처리방침]을 준수한다.</li>
+                </ol>
+              </div>
+            </div>
+          </section>
+
+          {/* 제4장 */}
+          <section className="space-y-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-200">
+              제4장 회원의 의무 및 금지 행위
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제8조 (회원의 의무)
+                </h3>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>회원은 관계 법령 및 본 약관, 회사가 정한 제반 정책을 준수해야 한다.</li>
+                  <li>도매 파트너는 상품 관련 클레임 발생 시 자신의 노력과 비용으로 문제를 해결하고, 이로 인해 회사가 제3자로부터 법적 조치를 당한 경우 회사를 면책시키고 모든 손해를 배상해야 한다.</li>
+                  <li>회원은 자신의 아이디와 비밀번호를 철저히 관리할 책임이 있으며, 타인의 무단 사용을 인지한 경우 즉시 회사에 통보해야 한다.</li>
+                </ol>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제9조 (금지 행위)
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-2 transition-colors duration-200">
+                  회원은 다음 각 호의 행위를 해서는 안 된다.
+                </p>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>허위 또는 과장된 정보로 재화 또는 용역을 등록하거나 판매하는 행위.</li>
+                  <li>회사의 영업 활동을 방해하거나 시스템에 장애를 유발하는 행위.</li>
+                  <li>타인의 지식재산권, 저작권, 상표권을 침해하는 상품을 등록하거나 판매하는 행위.</li>
+                  <li>몰을 통해 취득한 타 회원(소매 파트너 등)의 정보를 본 계약 목적 외 용도로 사용하는 행위.</li>
+                </ol>
+              </div>
+            </div>
+          </section>
+
+          {/* 제5장 */}
+          <section className="space-y-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-200">
+              제5장 계약 해지 및 책임
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제10조 (계약 해지 및 서비스 중단)
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-200">
+                      [회원 탈퇴]
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
+                      회원은 언제든지 회사에 탈퇴를 요청하여 이용 계약을 해지할 수 있다. 단, 탈퇴 시점까지 진행 중인 거래가 있거나 미납된 채무가 있을 경우 해당 거래 및 채무가 완료될 때까지 탈퇴 처리가 유보될 수 있다.
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-200">
+                      [정보 보존 의무]
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
+                      제1항에 따라 이용 계약이 해지되는 경우, 회사는 [개인정보 처리방침] 및 관계 법령(「전자상거래법」, 「통신비밀보호법」 등)에 따라 회원의 정보를 일정 기간 보존할 의무가 있으며, 이 경우 보존되는 정보는 해당 법령이 정한 목적 외 다른 목적으로 이용되지 않는다.
+                    </p>
+                  </div>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
+                    회사는 회원이 제9조의 금지 행위를 하거나 [입점 계약서]를 중대하게 위반한 경우, 사전 통보 없이 서비스 이용을 일시 정지하거나 계약을 해지할 수 있다.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제11조 (손해배상)
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
+                  회사 또는 회원이 본 약관을 위반하여 상대방에게 손해를 입힌 경우, 귀책사유 있는 당사자는 이를 배상해야 한다. 특히 도매 파트너의 귀책으로 인해 회사가 제3자에게 손해를 배상할 경우, 도매 파트너는 <strong className="text-gray-900 dark:text-gray-100">회사에 그 손해액 전액을 지체 없이 상환(Indemnify)</strong>해야 한다.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* 제6장 */}
+          <section className="space-y-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-200">
+              제6장 기타 사항
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제12조 (저작권의 귀속 및 이용 제한)
+                </h3>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>회사가 작성한 저작물에 대한 저작권 및 기타 지적재산권은 회사에 귀속된다.</li>
+                  <li>회원은 몰을 이용함으로써 얻은 정보를 회사의 사전 서면 승낙 없이 복제, 송신, 출판 등 영리 목적으로 이용하거나 제3자에게 이용하게 하여서는 안 된다.</li>
+                </ol>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  제13조 (분쟁 해결 및 관할 법원)
+                </h3>
+                <ol className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed list-decimal list-inside transition-colors duration-200">
+                  <li>회사는 회원으로부터 제기되는 정당한 의견이나 불만을 처리하기 위하여 고객 응대 조직을 운영한다.</li>
+                  <li>본 약관과 관련하여 분쟁이 발생하는 경우, 소송의 관할 법원은 [도매 파트너 입점 및 서비스 이용계약서] 제7조에 명시된 바에 따른다.</li>
+                </ol>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* 하단 버튼 */}
+        <div className="mt-8 flex justify-center">
+          <Link
+            href="/retailer/dashboard"
+            className="px-6 py-3 bg-green-600 dark:bg-green-700 text-white rounded-xl font-bold hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200"
+          >
+            확인
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+

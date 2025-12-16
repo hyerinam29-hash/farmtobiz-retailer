@@ -95,9 +95,9 @@ export default function BestProductCard({
       className="block group"
       aria-label={`${product.standardized_name || product.name} 상세보기`}
     >
-      <div className="flex md:flex-col gap-4 bg-white p-4 rounded-xl border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer">
+      <div className="flex md:flex-col gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer">
         {/* 이미지 영역 */}
-        <div className="relative w-32 md:w-full aspect-square flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+        <div className="relative w-32 md:w-full aspect-square flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center transition-colors duration-200">
           {product.image_url ? (
             <Image
               src={product.image_url}
@@ -109,26 +109,26 @@ export default function BestProductCard({
             <span className="text-4xl">🍎</span>
           )}
           {/* 랭킹 번호 배지 */}
-          <div className="absolute top-0 left-0 bg-gray-900 text-white w-8 h-8 flex items-center justify-center font-bold text-lg shadow-md z-10">
+          <div className="absolute top-0 left-0 bg-gray-900 dark:bg-gray-900 text-white w-8 h-8 flex items-center justify-center font-bold text-lg shadow-md z-10 transition-colors duration-200">
             {rank}
           </div>
         </div>
 
         {/* 상품 정보 */}
         <div className="flex-1 flex flex-col justify-center">
-          <h4 className="font-bold text-gray-900 mb-1 line-clamp-1">
+          <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1 transition-colors duration-200">
             {product.standardized_name || product.name}
           </h4>
           {product.specification && (
-            <p className="text-sm text-gray-500 mb-3 line-clamp-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-1 transition-colors duration-200">
               {product.specification}
             </p>
           )}
           <div className="flex items-center gap-2 mb-3">
             {discountRate && (
-              <span className="text-red-500 font-bold">{discountRate}%</span>
+              <span className="text-red-500 dark:text-red-400 font-bold transition-colors duration-200">{discountRate}%</span>
             )}
-            <span className="font-bold text-lg">
+            <span className="font-bold text-lg text-gray-900 dark:text-gray-100 transition-colors duration-200">
               {product.price.toLocaleString()}원
             </span>
           </div>
@@ -139,7 +139,7 @@ export default function BestProductCard({
               handleAddToCart();
             }}
             disabled={product.stock_quantity === 0}
-            className="w-full py-2 border border-gray-200 rounded-lg flex items-center justify-center gap-2 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+            className="w-full py-2 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 disabled:cursor-not-allowed"
           >
             <ShoppingCart size={16} />
             <span>담기</span>
