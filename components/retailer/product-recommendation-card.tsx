@@ -104,10 +104,10 @@ export default function ProductRecommendationCard({
   return (
     <Link
       href={`/retailer/products/${product.id}`}
-      className="group bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer h-full flex flex-col border border-gray-100 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
+      className="group bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer h-full flex flex-col border border-gray-100 dark:border-gray-800 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
     >
       {/* 상품 이미지 영역 */}
-      <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 group-hover:bg-green-50 transition-colors">
+      <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-800 group-hover:bg-green-50 dark:group-hover:bg-green-900/30 transition-colors duration-200">
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -116,7 +116,7 @@ export default function ProductRecommendationCard({
             className="object-cover group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
             <span className="text-6xl drop-shadow-sm">🍎</span>
           </div>
         )}
@@ -128,16 +128,16 @@ export default function ProductRecommendationCard({
       </div>
 
       {/* 상품 정보 영역 */}
-      <div className="p-5 space-y-3 flex-1 flex flex-col bg-white">
+      <div className="p-5 space-y-3 flex-1 flex flex-col bg-white dark:bg-gray-900 transition-colors duration-200">
         <div className="flex-1">
           {/* 상품명 */}
-          <h3 className="font-bold text-base text-gray-900 line-clamp-2 mb-1">
+          <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 line-clamp-2 mb-1 transition-colors duration-200">
             {displayName}
           </h3>
           
           {/* 원산지/지역 */}
-          <p className="text-xs text-gray-500 flex items-center gap-1">
-            <MapPin size={12} className="text-gray-400" />
+          <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 transition-colors duration-200">
+            <MapPin size={12} className="text-gray-400 dark:text-gray-500 transition-colors duration-200" />
             {product.wholesaler_region ? (
               <span>국산 ({product.wholesaler_region})</span>
             ) : (
@@ -147,15 +147,15 @@ export default function ProductRecommendationCard({
         </div>
 
         {/* 가격 정보 */}
-        <div className="border-t border-gray-100 pt-3">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-3 transition-colors duration-200">
           {/* 판매가 (굵게, 초록색) */}
-          <div className="font-black text-xl text-green-600 tracking-tight">
+          <div className="font-black text-xl text-green-600 dark:text-green-400 tracking-tight transition-colors duration-200">
             ₩{product.price.toLocaleString()}
           </div>
           
           {/* 단가 문구 */}
           {unitPrice && (
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 transition-colors duration-200">
               1kg 당 ₩{unitPrice.toLocaleString()} (예상)
             </div>
           )}
@@ -164,9 +164,9 @@ export default function ProductRecommendationCard({
         {/* 담기 버튼 */}
         <button
           onClick={handleAddToCart}
-          className="w-full py-2 text-sm h-10 border-2 border-gray-200 rounded-xl flex items-center justify-center gap-2 font-bold text-gray-600 hover:bg-green-50 hover:border-green-300 hover:text-green-600 transition-all active:translate-y-0.5"
+          className="w-full py-2 text-sm h-10 border-2 border-gray-200 dark:border-gray-700 rounded-xl flex items-center justify-center gap-2 font-bold text-gray-600 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:border-green-300 dark:hover:border-green-600 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200 active:translate-y-0.5"
         >
-          <ShoppingCart size={16} />
+          <ShoppingCart size={16} className="transition-colors duration-200" />
           <span>담기</span>
         </button>
       </div>

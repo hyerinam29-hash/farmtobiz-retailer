@@ -21,6 +21,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState, useEffect, type MouseEvent } from "react";
 import Image from "next/image";
 import { 
@@ -711,72 +712,92 @@ export default function RetailerDashboardPage() {
         </section>
 
         {/* 회사소개 */}
-        <section className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-100 shadow-lg mb-10">
+        <section className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-100 dark:border-gray-800 shadow-lg mb-10 transition-colors duration-200">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">Farm to Biz</h2>
-            <p className="text-gray-600 text-lg mb-10">농장에서 당신의 비즈니스까지, 신선함을 전달합니다</p>
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-4 transition-colors duration-200">Farm to Biz</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-lg mb-10 transition-colors duration-200">농장에서 당신의 비즈니스까지, 신선함을 전달합니다</p>
             
             {/* 특징 3가지 - 아이콘 배지 추가 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
               <div className="flex flex-col items-center">
                 {/* 체크 아이콘 배지 */}
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                  <Check className="w-8 h-8 text-green-600" strokeWidth={3} />
+                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 transition-colors duration-200">
+                  <Check className="w-8 h-8 text-green-600 dark:text-green-400" strokeWidth={3} />
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 mb-2">산지 직송</h3>
-                <p className="text-gray-600 text-sm">신선한 농산물을 직접 배송</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">산지 직송</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">신선한 농산물을 직접 배송</p>
               </div>
               
               <div className="flex flex-col items-center">
                 {/* 달러 아이콘 배지 */}
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                  <DollarSign className="w-8 h-8 text-green-600" strokeWidth={3} />
+                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 transition-colors duration-200">
+                  <DollarSign className="w-8 h-8 text-green-600 dark:text-green-400" strokeWidth={3} />
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 mb-2">합리적인 가격</h3>
-                <p className="text-gray-600 text-sm">중간 유통 없는 최저가</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">합리적인 가격</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">중간 유통 없는 최저가</p>
               </div>
               
               <div className="flex flex-col items-center">
                 {/* 동그라미 안에 체크 아이콘 배지 */}
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                  <CheckCircle className="w-8 h-8 text-green-600" strokeWidth={3} />
+                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 transition-colors duration-200">
+                  <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" strokeWidth={3} />
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 mb-2">품질 보증</h3>
-                <p className="text-gray-600 text-sm">엄선된 프리미엄 상품</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">품질 보증</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">엄선된 프리미엄 상품</p>
               </div>
             </div>
             
             {/* 구분선 */}
-            <div className="border-t border-gray-200 pt-8">
+            <div className="border-t border-gray-200 dark:border-gray-800 pt-8 transition-colors duration-200">
               {/* 회사 정보 4칼럼 */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6 text-sm">
                 <div>
-                  <p className="font-bold text-gray-700 mb-1">회사명</p>
-                  <p className="text-gray-500">팜투비즈</p>
+                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">회사명</p>
+                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">팜투비즈</p>
                 </div>
                 <div>
-                  <p className="font-bold text-gray-700 mb-1">대표이사</p>
-                  <p className="text-gray-500">홍길동</p>
+                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">대표이사</p>
+                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">홍길동</p>
                 </div>
                 <div>
-                  <p className="font-bold text-gray-700 mb-1">사업자등록번호</p>
-                  <p className="text-gray-500">123-45-67890</p>
+                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">사업자등록번호</p>
+                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">123-45-67890</p>
                 </div>
                 <div>
-                  <p className="font-bold text-gray-700 mb-1">고객센터</p>
-                  <p className="text-gray-500">1588-0000</p>
+                  <p className="font-bold text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">고객센터</p>
+                  <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">1588-0000</p>
                 </div>
               </div>
               
-              {/* 주소 */}
-              <p className="text-gray-500 text-sm mb-2">
-                서울특별시 강남구 테헤란로 123 (우편번호 06234)
-              </p>
-              
-              {/* 저작권 */}
-              <p className="text-gray-500 text-sm">
-                © 2024 Farm to Biz. All rights reserved.
-              </p>
+              {/* 이용약관/개인정보처리방침 및 주소/저작권 */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 sm:gap-6">
+                {/* 왼쪽: 이용약관 및 개인정보처리방침 */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4">
+                  <Link
+                    href="/terms"
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm transition-colors duration-200 underline-offset-4 hover:underline"
+                  >
+                    이용약관
+                  </Link>
+                  <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
+                  <Link
+                    href="/privacy"
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm transition-colors duration-200 underline-offset-4 hover:underline"
+                  >
+                    개인정보처리방침
+                  </Link>
+                </div>
+                
+                {/* 오른쪽: 주소 및 저작권 */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-2 sm:gap-4">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors duration-200">
+                    서울특별시 강남구 테헤란로 123 (우편번호 06234)
+                  </p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors duration-200">
+                    © 2025 Farm to Biz. All rights reserved.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>

@@ -71,23 +71,23 @@ export default function ProductRecommendationSection() {
             POPULAR
           </span>
         </div>
-        <h2 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white mb-3 transition-colors duration-200">
+        <h2 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-gray-100 mb-3 transition-colors duration-200">
           이 상품 어때요?
         </h2>
-        <p className="text-gray-600 text-lg">가장 인기 있는 상품만 모아봤어요</p>
+        <p className="text-gray-600 dark:text-gray-400 text-lg transition-colors duration-200">가장 인기 있는 상품만 모아봤어요</p>
       </div>
 
       {/* 로딩 상태 */}
       {loading && (
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-100 shadow-md p-8 text-center">
-          <p className="text-gray-500">상품을 불러오는 중...</p>
+        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md p-8 text-center transition-colors duration-200">
+          <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">상품을 불러오는 중...</p>
         </div>
       )}
 
       {/* 에러 상태 */}
       {error && (
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-100 shadow-md p-8 text-center">
-          <p className="text-red-500">{error}</p>
+        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md p-8 text-center transition-colors duration-200">
+          <p className="text-red-500 dark:text-red-400 transition-colors duration-200">{error}</p>
         </div>
       )}
 
@@ -106,8 +106,8 @@ export default function ProductRecommendationSection() {
 
       {/* 빈 상태 */}
       {!loading && !error && products.length === 0 && (
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-100 shadow-md p-8 text-center">
-          <p className="text-gray-500">현재 추천할 상품이 없습니다.</p>
+        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-md p-8 text-center transition-colors duration-200">
+          <p className="text-gray-500 dark:text-gray-400 transition-colors duration-200">현재 추천할 상품이 없습니다.</p>
         </div>
       )}
     </section>
