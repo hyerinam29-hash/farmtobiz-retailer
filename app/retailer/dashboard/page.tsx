@@ -83,7 +83,7 @@ export default function RetailerDashboardPage() {
   const addToCart = useCartStore((state) => state.addToCart);
 
   // 카운트다운 타이머 상태 (24시간 = 86400초) - 향후 사용 예정
-  const [_timeLeft, setTimeLeft] = useState(86400);
+  // const [timeLeft, setTimeLeft] = useState(86400);
   const [hotDeals, setHotDeals] = useState<RetailerProduct[]>([]);
   const [isHotDealsLoading, setIsHotDealsLoading] = useState(true);
   const [recentOrders, setRecentOrders] = useState<DashboardRecentOrder[]>([]);
@@ -205,29 +205,29 @@ export default function RetailerDashboardPage() {
   }, []);
 
   // 1초마다 시간 감소시키는 useEffect - 향후 사용 예정
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 0) {
-          console.log("⏰ [대시보드] 타이머 종료!");
-          clearInterval(timer);
-          return 0;
-        }
-        const newTime = prev - 1;
-        if (newTime % 60 === 0) {
-          console.log("⏰ [대시보드] 타이머 업데이트, 남은 시간:", newTime, "초");
-        }
-        return newTime;
-      });
-    }, 1000);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setTimeLeft((prev) => {
+  //       if (prev <= 0) {
+  //         console.log("⏰ [대시보드] 타이머 종료!");
+  //         clearInterval(timer);
+  //         return 0;
+  //       }
+  //       const newTime = prev - 1;
+  //       if (newTime % 60 === 0) {
+  //         console.log("⏰ [대시보드] 타이머 업데이트, 남은 시간:", newTime, "초");
+  //       }
+  //       return newTime;
+  //     });
+  //   }, 1000);
 
-    // 컴포넌트가 사라질 때 타이머 정리
-    return () => {
-      console.log("⏰ [대시보드] 타이머 정리");
-      clearInterval(timer);
-    };
-    // timeLeft는 함수형 업데이트(prev => ...)를 사용하므로 의존성 배열에 포함하지 않음
-  }, []);
+  //   // 컴포넌트가 사라질 때 타이머 정리
+  //   return () => {
+  //     console.log("⏰ [대시보드] 타이머 정리");
+  //     clearInterval(timer);
+  //   };
+  //   // timeLeft는 함수형 업데이트(prev => ...)를 사용하므로 의존성 배열에 포함하지 않음
+  // }, []);
 
   // HOT DEAL 데이터 로드
   useEffect(() => {

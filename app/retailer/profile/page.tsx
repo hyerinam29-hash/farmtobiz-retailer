@@ -21,6 +21,8 @@ import { getOrderStats, getOrders } from "@/lib/supabase/queries/orders";
 import MyPage from "@/components/retailer/profile/MyPage";
 import type { OrderDetail } from "@/types/order";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProfilePage() {
   // 소매점 권한 확인
   const profile = await requireRetailer();

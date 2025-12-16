@@ -16,6 +16,8 @@
 import { requireRetailer } from "@/lib/clerk/auth";
 import CsClient from "./CsClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CsPage() {
   // 소매점 권한 확인
   const profile = await requireRetailer();
