@@ -234,6 +234,20 @@ PRD 3.4 섹션 참조.
     - [X] 결제 승인 API (`/api/payments/confirm`) 호출
     - [X] 필수 파라미터 검증 (`paymentKey`, `orderId`, `amount`)
     - [X] 에러 처리 및 로깅
+  - [X] 결제 승인 API 라우트 생성 (`app/api/payments/confirm/route.ts`)
+    - [X] 토스페이먼츠 결제 승인 API 호출
+    - [X] 주문 번호로 주문 정보 조회 (order_number로 order_id 찾기)
+    - [X] 주문 상태 업데이트 (payment_key, paid_at, status: 'confirmed')
+    - [X] 정산 데이터 생성 및 저장
+      - [X] 환경 변수 `PLATFORM_FEE_RATE`에서 수수료율 가져오기
+      - [X] 정산 금액 계산 (platform_fee, wholesaler_amount)
+      - [X] 영업일 기준 +7일 계산 (주말 제외)
+      - [X] 정산 테이블에 데이터 저장 (status: 'pending', completed_at: null)
+    - [X] 결제 데이터 저장 (payments 테이블)
+    - [X] 에러 처리 및 로깅
+  - [X] 영업일 계산 유틸리티 생성 (`lib/utils/business-days.ts`)
+    - [X] 주말(토요일, 일요일) 제외한 영업일 계산 함수
+    - [X] `addBusinessDays()` 함수 구현
   - [X] 결제 요청 페이지 수정 (`app/retailer/checkout/checkout-client.tsx`)
     - [X] `successUrl` 올바른 경로 설정 (`/retailer/checkout/success`)
     - [X] `failUrl` 설정 (`/retailer/checkout/fail`)
