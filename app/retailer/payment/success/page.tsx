@@ -3,13 +3,14 @@
  * @description 결제 성공 페이지
  *
  * 토스 페이먼츠 결제 성공 후 리다이렉트되는 페이지입니다.
- * 결제 성공 시 주문을 생성하고, 장바구니를 비웁니다.
+ * 결제 승인 API를 호출한 후 주문을 생성하고, 장바구니를 비웁니다.
  *
  * 주요 기능:
  * 1. 결제 성공 확인
- * 2. 주문 생성 (Server Action 호출)
- * 3. 장바구니 비우기
- * 4. 주문 완료 UI 표시 및 주문/쇼핑 이동 버튼
+ * 2. 결제 승인 API 호출 (/api/payments/confirm)
+ * 3. 주문 생성 (Server Action 호출)
+ * 4. 장바구니 비우기
+ * 5. 주문 완료 UI 표시 및 주문/쇼핑 이동 버튼
  */
 
 "use client";
@@ -29,6 +30,7 @@ export default function PaymentSuccessPage() {
   
   const paymentKey = searchParams.get("paymentKey");
   const orderId = searchParams.get("orderId");
+  const amount = searchParams.get("amount"); // ✨ 추가: amount 파라미터
   
   const [status, setStatus] = useState<OrderStatus>("loading");
   const [orderNumbers, setOrderNumbers] = useState<string[]>([]);
@@ -44,7 +46,7 @@ export default function PaymentSuccessPage() {
       isProcessing.current = true;
 
       console.group("📦 [결제 성공] 주문 처리 시작");
-      console.log("결제 정보:", { paymentKey, orderId });
+      console.log("결제 정보:", { paymentKey, orderId, amount });
 
       if (!paymentKey || !orderId) {
         console.error("❌ 결제 정보 누락");
@@ -76,7 +78,24 @@ export default function PaymentSuccessPage() {
           });
         }
 
-        // 주문 생성 Server Action 호출
+        // 금액 검증 (보안: 클라이언트에서 조작 방지)
+        const confirmAmount = amount 
+          ? Number(amount) 
+          : pendingOrder.totalAmount; // amount가 없으면 localStorage 값 사용
+        if (amount && Math.abs(Number(amount) - pendingOrder.totalAmount) > 100) {
+          console.error("❌ 결제 금액 불일치:", {
+            urlAmount: amount,
+            expectedAmount: pendingOrder.totalAmount,
+            diff: Math.abs(Number(amount) - pendingOrder.totalAmount),
+          });
+          setStatus("error");
+          setErrorMessage("결제 금액이 일치하지 않습니다. 고객센터로 문의해주세요.");
+          console.groupEnd();
+          return;
+        }
+
+        // ✨ 1단계: 주문 생성 (먼저 실행 - orders 테이블에 저장)
+        console.log("📦 [주문 생성] 주문 생성 시작");
         const result = await createOrder({
           paymentKey,
           orderId,
@@ -102,6 +121,33 @@ export default function PaymentSuccessPage() {
 
         console.log("✅ 주문 생성 성공:", result.orderNumbers);
 
+        // ✨ 2단계: 결제 승인 API 호출 (주문 생성 후 실행)
+        console.log("💳 [결제 승인] 결제 승인 API 호출 시작");
+        const confirmResponse = await fetch("/api/payments/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paymentKey,
+            orderId,
+            amount: confirmAmount,
+          }),
+        });
+
+        if (!confirmResponse.ok) {
+          const errorData = await confirmResponse.json().catch(() => ({}));
+          console.error("❌ 결제 승인 실패:", errorData);
+          // 주문은 생성되었지만 결제 승인 실패 - 사용자에게 알림
+          setStatus("error");
+          setErrorMessage(
+            errorData.error || "주문은 생성되었으나 결제 승인에 실패했습니다. 고객센터로 문의해주세요."
+          );
+          console.groupEnd();
+          return;
+        }
+
+        const confirmResult = await confirmResponse.json();
+        console.log("✅ 결제 승인 성공:", confirmResult);
+
         // 성공 시 처리
         setOrderNumbers(result.orderNumbers || [orderId]);
         setStatus("success");
@@ -123,7 +169,7 @@ export default function PaymentSuccessPage() {
     }
 
     processOrder();
-  }, [paymentKey, orderId, clearCart]);
+  }, [paymentKey, orderId, amount, clearCart]);
 
   // 로딩 상태
   if (status === "loading") {
