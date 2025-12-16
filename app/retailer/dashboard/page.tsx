@@ -483,9 +483,6 @@ export default function RetailerDashboardPage() {
                           🛒
                         </div>
                       )}
-                      <span className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
-                        산지직송
-                      </span>
                       <button
                         onClick={(event) => handleAddToCart(product, event)}
                         className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 dark:text-gray-200 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"

@@ -23,7 +23,7 @@ import ProductRecommendationCard from "./product-recommendation-card";
 const STATUS_LABELS: Array<"인기" | "신상품" | "할인" | "추천"> = [
   "인기",
   "신상품",
-  "할인",
+  "인기",
   "추천",
 ];
 
