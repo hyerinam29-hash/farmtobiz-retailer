@@ -146,6 +146,10 @@ export default function RetailerDashboardPage() {
         setTimeout(() => scrollToDeliveryTracking(), 100);
         setTimeout(() => scrollToDeliveryTracking(), 300);
         setTimeout(() => scrollToDeliveryTracking(), 500);
+      } else if (scrollToSection === "footer") {
+        setTimeout(() => scrollToFooter(), 100);
+        setTimeout(() => scrollToFooter(), 300);
+        setTimeout(() => scrollToFooter(), 500);
       }
       // 사용 후 삭제 (한 번만 실행되도록)
       sessionStorage.removeItem("scrollToSection");

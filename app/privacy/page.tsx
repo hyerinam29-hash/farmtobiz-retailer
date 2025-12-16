@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         {/* 헤더 */}
         <div className="mb-8">
           <Link
-            href="/retailer/dashboard#footer"
+            href="/retailer/dashboard"
             className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6 transition-colors duration-200"
           >
             <ChevronLeft size={20} />
@@ -289,7 +289,7 @@ export default function PrivacyPage() {
         {/* 하단 버튼 */}
         <div className="mt-8 flex justify-center">
           <Link
-            href="/retailer/dashboard#footer"
+            href="/retailer/dashboard"
             className="px-6 py-3 bg-green-600 dark:bg-green-700 text-white rounded-xl font-bold hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200"
           >
             확인
