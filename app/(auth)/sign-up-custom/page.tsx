@@ -24,7 +24,7 @@ interface SignUpCustomPageProps {
 export default async function SignUpCustomPage({
   searchParams,
 }: SignUpCustomPageProps) {
-  const { type } = await searchParams;
+  await searchParams; // 향후 type 파라미터 사용 예정
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] py-12 px-4 font-sans">

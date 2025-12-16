@@ -82,8 +82,8 @@ export default function RetailerDashboardPage() {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
 
-  // 카운트다운 타이머 상태 (24시간 = 86400초)
-  const [timeLeft, setTimeLeft] = useState(86400);
+  // 카운트다운 타이머 상태 (24시간 = 86400초) - 향후 사용 예정
+  const [_timeLeft, setTimeLeft] = useState(86400);
   const [hotDeals, setHotDeals] = useState<RetailerProduct[]>([]);
   const [isHotDealsLoading, setIsHotDealsLoading] = useState(true);
   const [recentOrders, setRecentOrders] = useState<DashboardRecentOrder[]>([]);
@@ -129,6 +129,10 @@ export default function RetailerDashboardPage() {
       scrollToElement("delivery-tracking", "🚚 [대시보드] 배송 조회 섹션으로 스크롤");
     };
 
+    const scrollToFooter = () => {
+      scrollToElement("footer", "📄 [대시보드] 푸터 섹션으로 스크롤");
+    };
+
     // sessionStorage에서 스크롤 위치 확인 (해시 없이 이동한 경우)
     const scrollToSection = sessionStorage.getItem("scrollToSection");
     if (scrollToSection) {
@@ -154,6 +158,8 @@ export default function RetailerDashboardPage() {
         scrollToRecentOrders();
       } else if (hash === "#delivery-tracking") {
         scrollToDeliveryTracking();
+      } else if (hash === "#footer") {
+        scrollToFooter();
       }
     };
 
@@ -194,7 +200,7 @@ export default function RetailerDashboardPage() {
     };
   }, []);
 
-  // 1초마다 시간 감소시키는 useEffect
+  // 1초마다 시간 감소시키는 useEffect - 향후 사용 예정
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -281,7 +287,8 @@ export default function RetailerDashboardPage() {
     fetchAllOrders();
   }, []);
 
-  // 초를 시:분:초 형식으로 변환하는 함수
+  // 초를 시:분:초 형식으로 변환하는 함수 - 향후 사용 예정
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -750,7 +757,7 @@ export default function RetailerDashboardPage() {
         </section>
 
         {/* 푸터 */}
-        <footer className="w-full border-t border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm py-6 px-4 transition-colors duration-200">
+        <footer id="footer" className="w-full border-t border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm py-6 px-4 transition-colors duration-200">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
               {/* 회사 정보 */}

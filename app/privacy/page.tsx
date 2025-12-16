@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         {/* 헤더 */}
         <div className="mb-8">
           <Link
-            href="/retailer/dashboard"
+            href="/retailer/dashboard#footer"
             className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6 transition-colors duration-200"
           >
             <ChevronLeft size={20} />
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
           {/* 서문 */}
           <div className="pb-6 border-b border-gray-200 dark:border-gray-700">
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
-              [플랫폼 법인명] (이하 "회사")은 정보주체의 개인정보를 「개인정보보호법」에 따라 처리하고, 본 처리방침을 통해 정보주체가 쉽게 확인할 수 있도록 상세하게 공개합니다.
+              [플랫폼 법인명] (이하 &quot;회사&quot;)은 정보주체의 개인정보를 「개인정보보호법」에 따라 처리하고, 본 처리방침을 통해 정보주체가 쉽게 확인할 수 있도록 상세하게 공개합니다.
             </p>
           </div>
 
@@ -248,7 +248,7 @@ export default function PrivacyPage() {
               9. 개인정보 자동 수집 장치의 설치/운영 및 거부에 관한 사항
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
-              회사는 서비스 제공을 위해 이용 정보를 저장하고 수시로 불러오는 <strong className="text-gray-900 dark:text-gray-100">'쿠키(Cookie)'</strong>를 사용하며, 이용자는 웹 브라우저 옵션 설정을 통해 쿠키 저장을 거부할 수 있습니다. (단, 거부 시 일부 서비스 이용이 제한될 수 있습니다.)
+              회사는 서비스 제공을 위해 이용 정보를 저장하고 수시로 불러오는 <strong className="text-gray-900 dark:text-gray-100">&apos;쿠키(Cookie)&apos;</strong>를 사용하며, 이용자는 웹 브라우저 옵션 설정을 통해 쿠키 저장을 거부할 수 있습니다. (단, 거부 시 일부 서비스 이용이 제한될 수 있습니다.)
             </p>
           </section>
 
@@ -289,7 +289,7 @@ export default function PrivacyPage() {
         {/* 하단 버튼 */}
         <div className="mt-8 flex justify-center">
           <Link
-            href="/retailer/dashboard"
+            href="/retailer/dashboard#footer"
             className="px-6 py-3 bg-green-600 dark:bg-green-700 text-white rounded-xl font-bold hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200"
           >
             확인

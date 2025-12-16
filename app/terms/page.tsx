@@ -15,7 +15,7 @@ export default function TermsPage() {
         {/* 헤더 */}
         <div className="mb-8">
           <Link
-            href="/retailer/dashboard"
+            href="/retailer/dashboard#footer"
             className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6 transition-colors duration-200"
           >
             <ChevronLeft size={20} />
@@ -43,7 +43,7 @@ export default function TermsPage() {
                   제1조 (목적)
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-200">
-                  본 약관은 [플랫폼 법인명](이하 "회사")이 운영하는 온라인 중개 플랫폼 [서비스명](이하 "몰")에서 제공하는 전자상거래 서비스의 이용 조건 및 절차, 회사와 회원 간의 권리 및 의무를 규정함을 목적으로 한다.
+                  본 약관은 [플랫폼 법인명](이하 &quot;회사&quot;)이 운영하는 온라인 중개 플랫폼 [서비스명](이하 &quot;몰&quot;)에서 제공하는 전자상거래 서비스의 이용 조건 및 절차, 회사와 회원 간의 권리 및 의무를 규정함을 목적으로 한다.
                 </p>
               </div>
 
@@ -266,7 +266,7 @@ export default function TermsPage() {
         {/* 하단 버튼 */}
         <div className="mt-8 flex justify-center">
           <Link
-            href="/retailer/dashboard"
+            href="/retailer/dashboard#footer"
             className="px-6 py-3 bg-green-600 dark:bg-green-700 text-white rounded-xl font-bold hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200"
           >
             확인
