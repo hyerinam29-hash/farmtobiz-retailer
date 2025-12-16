@@ -21,8 +21,6 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/clerk/auth";
 import { Store, ShoppingBag, Shield } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
-
 export default async function AdminPage() {
   // 관리자 권한 확인 (레이아웃에서도 확인하지만, 페이지에서도 명시적으로 확인)
   const profile = await requireAdmin();

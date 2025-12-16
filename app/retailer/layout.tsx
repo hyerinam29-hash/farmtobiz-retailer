@@ -28,8 +28,6 @@ import { headers } from "next/headers";
 import { requireRetailer } from "@/lib/clerk/auth";
 import RetailerLayoutClient from "./layout-client";
 
-export const dynamic = 'force-dynamic';
-
 export default async function RetailerLayout({
   children,
 }: {

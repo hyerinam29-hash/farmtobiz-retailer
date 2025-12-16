@@ -21,8 +21,6 @@ import OrdersClient from "./OrdersClient";
 import { getOrders } from "@/lib/supabase/queries/orders";
 import type { OrderDetail } from "@/types/order";
 
-export const dynamic = 'force-dynamic';
-
 // 타입 정의
 type OrderStatus = "preparing" | "shipping" | "delivered" | "cancelled";
 

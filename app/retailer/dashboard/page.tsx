@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * @file app/retailer/dashboard/page.tsx
  * @description 소매점 대시보드 페이지
@@ -17,10 +19,6 @@
  *
  * @see {@link PRD.md} - R.DASH.01~04 요구사항
  */
-
-export const dynamic = "force-dynamic";
-
-"use client";
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";

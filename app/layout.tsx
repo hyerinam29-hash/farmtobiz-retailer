@@ -40,11 +40,6 @@ export const metadata: Metadata = {
     shortcut: "/logo.ico",
     apple: "/logo.png",
   },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "FarmToBiz",
-  },
   manifest: "/manifest.json",
   openGraph: {
     title: "FarmToBiz - 도매와 소매를 연결하는 B2B 중개 플랫폼",

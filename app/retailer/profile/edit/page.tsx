@@ -28,8 +28,6 @@ import ProfileEditFormClient from "@/components/retailer/profile/profile-edit-fo
 import AccountDeleteModal from "@/components/retailer/profile/account-delete-modal";
 import PasswordChangeButton from "@/components/retailer/profile/password-change-button";
 
-export const dynamic = 'force-dynamic';
-
 export default async function ProfileEditPage() {
   // 소매점 권한 확인
   const profile = await requireRetailer();
