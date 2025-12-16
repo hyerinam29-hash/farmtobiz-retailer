@@ -320,7 +320,7 @@ export default function PageHeader() {
                   }}
                   className="flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 >
-                  <Menu className="w-4 h-4" />
+                  <Menu className="w-4 h-4 hidden lg:block" />
                   카테고리
                   <ChevronDown className={cn(
                     "w-4 h-4 transition-transform duration-200",
