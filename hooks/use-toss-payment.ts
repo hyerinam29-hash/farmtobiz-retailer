@@ -22,6 +22,9 @@ interface RequestPaymentParams {
     orderName?: string;
     customerName?: string;
     customerEmail?: string;
+    successUrl?: string;
+    failUrl?: string;
+    amount?: number;
 }
 
 export function useTossPayment({
@@ -94,9 +97,24 @@ export function useTossPayment({
 
     const finalOrderId = params?.orderId || orderId;
     const finalOrderName = params?.orderName || orderName;
+    const finalAmount = params?.amount || amount;
     // ✨ 실제 유저 정보가 없으면 기본값 사용
     const finalCustomerName = params?.customerName || "구매자"; 
     const finalCustomerEmail = params?.customerEmail || "customer@example.com";
+
+    // ✨ [수정] successUrl과 failUrl을 파라미터로 받거나 기본값 사용
+    // 토스페이먼츠는 리다이렉트 시 자동으로 paymentKey, orderId, amount를 쿼리 파라미터로 추가합니다
+    const finalSuccessUrl = params?.successUrl || `${window.location.origin}/retailer/checkout/success`;
+    const finalFailUrl = params?.failUrl || `${window.location.origin}/retailer/checkout/fail`;
+
+    console.group("💳 [결제 요청] 결제 요청 시작");
+    console.log("📋 [결제 요청] 결제 정보:", {
+      orderId: finalOrderId,
+      orderName: finalOrderName,
+      amount: finalAmount,
+      successUrl: finalSuccessUrl,
+      failUrl: finalFailUrl,
+    });
 
     setIsLoading(true);
 
@@ -104,13 +122,16 @@ export function useTossPayment({
       await widgetsRef.current.requestPayment({
         orderId: finalOrderId,
         orderName: finalOrderName,
-        successUrl: `${window.location.origin}/retailer/payment/success`,
-        failUrl: `${window.location.origin}/retailer/payment/fail`,
+        successUrl: finalSuccessUrl,
+        failUrl: finalFailUrl,
         customerEmail: finalCustomerEmail, // ✨ 동적 할당
         customerName: finalCustomerName,   // ✨ 동적 할당
       });
+      console.log("✅ [결제 요청] 결제 요청 성공");
+      console.groupEnd();
     } catch (error: any) {
-      console.error("❌ [V2] 결제 요청 실패:", error);
+      console.error("❌ [결제 요청] 결제 요청 실패:", error);
+      console.groupEnd();
       if (onFail) {
         onFail({
           code: error.code || "PAYMENT_FAILED",

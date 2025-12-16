@@ -313,7 +313,18 @@ export default function CheckoutPageClient({
         });
       }
 
-      // 1. 주문 생성 (서버 API)
+      // ✨ [3단계: 주문 생성 로직 확인]
+      // 1. 주문 생성 (서버 API) - 결제 요청 전에 주문 ID 생성
+      // createPayment는 주문 ID를 생성하고 상품/가격 검증을 수행합니다.
+      // 실제 DB 저장은 결제 승인 후 /api/payments/confirm에서 처리됩니다.
+      console.group("📦 [주문 생성] 주문 생성 시작");
+      console.log("📋 [주문 생성] 주문 생성 요청:", {
+        itemsCount: items.length,
+        totalAmount: summary.totalPrice,
+        deliveryOption,
+        deliveryTime,
+      });
+
       const paymentResult = await createPayment({
         items: items.map((item) => ({
           product_id: item.product_id,
@@ -327,11 +338,28 @@ export default function CheckoutPageClient({
         totalAmount: summary.totalPrice,
       });
 
+      // ✨ [확인 사항 3] 주문 생성 실패 시 결제 요청을 막는지 확인
       if (!paymentResult.success || !paymentResult.orderId) {
+        console.error("❌ [주문 생성] 주문 생성 실패:", {
+          success: paymentResult.success,
+          hasOrderId: !!paymentResult.orderId,
+          error: paymentResult.error,
+        });
+        console.groupEnd();
         throw new Error(paymentResult.error || "결제 요청 생성에 실패했습니다.");
       }
 
-      console.log("✅ [결제] 결제 요청 생성 완료:", paymentResult);
+      // ✨ [확인 사항 1] 주문 생성 API가 존재하는지 확인 ✅
+      // ✨ [확인 사항 2] 주문 생성 후 orderId를 결제 요청에 전달하는지 확인 ✅
+      console.log("✅ [주문 생성] 주문 생성 완료:", {
+        orderId: paymentResult.orderId,
+        orderName: paymentResult.orderName,
+        amount: paymentResult.amount,
+        validatedItemsCount: paymentResult.validatedItems?.length,
+      });
+      console.log("📝 [주문 생성] 주문 상태: 'pending' (결제 대기)");
+      console.log("📝 [주문 생성] 생성된 orderId를 결제 요청에 사용합니다.");
+      console.groupEnd();
 
       setPaymentOrderId(paymentResult.orderId);
       setPaymentOrderName(paymentResult.orderName || "주문");
@@ -368,13 +396,35 @@ export default function CheckoutPageClient({
       }
 
       // ✨ [수정 2] 실시간 계좌이체 500 에러 방지를 위해 고객 정보 명시적 전달
-      // useTossPayment 훅이 객체를 받을 수 있도록 수정되어 있어야 합니다.
+      // ✨ [수정 3] successUrl에 올바른 경로 설정 (토스페이먼츠가 자동으로 paymentKey, orderId, amount를 쿼리 파라미터로 추가)
+      const successUrl = `${window.location.origin}/retailer/checkout/success`;
+      const failUrl = `${window.location.origin}/retailer/checkout/fail`;
+      
+      console.log("🔗 [결제] 리다이렉트 URL 설정:", {
+        successUrl,
+        failUrl,
+        orderId: paymentResult.orderId,
+        amount: serverAmount,
+      });
+
+      // ✨ [3단계: 주문 생성 로직 확인]
+      // 2. 결제 요청 진행 - 생성된 orderId를 토스페이먼츠에 전달
+      // 주문 생성이 성공한 경우에만 결제 요청을 진행합니다.
+      console.log("💳 [결제 요청] 토스페이먼츠 결제 요청 시작:", {
+        orderId: paymentResult.orderId,
+        orderName: paymentResult.orderName,
+        amount: serverAmount,
+      });
+
       await requestPayment({
-          orderId: paymentResult.orderId,
+          orderId: paymentResult.orderId, // ✨ 생성된 orderId 전달
           orderName: paymentResult.orderName,
+          amount: serverAmount,
           customerName: user?.fullName || user?.firstName || "구매자",
-          customerEmail: user?.primaryEmailAddress?.emailAddress || "test@test.com"
-      } as any); // any 캐스팅: hook 타입이 아직 업데이트 안 되었을 경우 대비
+          customerEmail: user?.primaryEmailAddress?.emailAddress || "test@test.com",
+          successUrl: successUrl,
+          failUrl: failUrl,
+      });
       
     } catch (error) {
       console.error("❌ [결제] 결제 실패:", error);

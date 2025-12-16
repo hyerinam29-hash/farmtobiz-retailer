@@ -280,7 +280,10 @@ export async function createPayment(
       serverTotalAmount,
     });
 
+    // ✨ [3단계: 주문 생성 로직 확인]
     // 4. 주문 ID 생성 (형식: ORD-YYYYMMDD-HHMMSS-XXX)
+    // 주문 생성 시점: 결제 요청 전에 주문 ID를 생성합니다.
+    // 주문 상태: 'pending' (결제 대기) - 실제 DB 저장은 결제 승인 후 /api/payments/confirm에서 처리됩니다.
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
     const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, "");
@@ -294,10 +297,12 @@ export async function createPayment(
         ? firstProductName
         : `${firstProductName} 외 ${validatedItems.length - 1}건`;
 
-    console.log("✅ 결제 요청 생성 완료:", {
+    console.log("✅ [주문 생성] 주문 ID 생성 완료:", {
       orderId,
       orderName,
       amount: serverTotalAmount,
+      status: "pending (결제 대기)",
+      note: "실제 DB 저장은 결제 승인 후 처리됩니다.",
     });
     console.groupEnd();
 
