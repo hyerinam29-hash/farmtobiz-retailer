@@ -58,26 +58,28 @@ export default async function RetailerLayout({
     finalPathname,
   });
 
-  // 결제 성공/실패 페이지는 레이아웃 없이 렌더링 (인증 체크 건너뛰기)
-  // "success" 또는 "fail"이 포함되어 있으면 건너뛰기
-  if (finalPathname.includes("success") || 
+  // 결제 성공/실패 페이지는 인증 체크만 건너뛰기 (레이아웃 구조는 유지)
+  // 레이아웃 구조를 항상 동일하게 유지해야 클라이언트 네비게이션 시 헤더가 정상 표시됨
+  const isPaymentPage = finalPathname.includes("success") ||
       finalPathname.includes("fail") ||
-      finalPathname.includes("/payment/success") || 
-      finalPathname.includes("/payment/fail")) {
+      finalPathname.includes("/payment/success") ||
+      finalPathname.includes("/payment/fail");
+
+  if (isPaymentPage) {
     console.log("🔓 [retailer] 레이아웃: 결제 페이지 - 인증 체크 건너뜀", {
       finalPathname,
     });
-    return <>{children}</>;
+  } else {
+    // 일반 소매점 페이지는 인증 체크
+    const profile = await requireRetailer();
+
+    console.log("✅ [retailer] 레이아웃: 권한 확인됨", {
+      email: profile.email,
+      role: profile.role,
+    });
   }
 
-  // 일반 소매점 페이지는 인증 체크
-  const profile = await requireRetailer();
-
-  console.log("✅ [retailer] 레이아웃: 권한 확인됨", {
-    email: profile.email,
-    role: profile.role,
-  });
-
+  // 항상 동일한 레이아웃 구조 반환 (헤더 표시 여부는 layout-client.tsx에서 처리)
   return <RetailerLayoutClient>{children}</RetailerLayoutClient>;
 }
 
