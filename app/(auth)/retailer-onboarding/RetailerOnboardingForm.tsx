@@ -25,6 +25,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import Script from "next/script";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -40,8 +41,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { MapPin } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -63,10 +64,34 @@ import {
 } from "@/lib/validation/retailer";
 import { createRetailer } from "@/actions/retailer/create-retailer";
 
+// Daum Postcode 타입 정의
+declare global {
+  interface Window {
+    daum: {
+      Postcode: new (options: {
+        oncomplete: (data: {
+          address: string;
+          addressType: string;
+          bname: string;
+          buildingName: string;
+          zonecode: string;
+        }) => void;
+        onresize?: (size: { width: number; height: number }) => void;
+        width?: string;
+        height?: string;
+      }) => {
+        open: () => void;
+        embed: (element: HTMLElement) => void;
+      };
+    };
+  }
+}
+
 export default function RetailerOnboardingForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isPostcodeLoaded, setIsPostcodeLoaded] = useState(false);
 
   const form = useForm<RetailerOnboardingFormData>({
     resolver: zodResolver(retailerOnboardingSchema),
@@ -94,6 +119,49 @@ export default function RetailerOnboardingForm() {
     }
 
     form.setValue("phone", formatted, { shouldValidate: true });
+  };
+
+  // 주소 검색 팝업 열기 핸들러
+  const handleAddressSearch = () => {
+    if (!isPostcodeLoaded || !window.daum) {
+      toast.error("주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        // 주소 선택 시 실행되는 콜백
+        let fullAddress = data.address; // 기본 주소
+        let extraAddress = ""; // 참고항목
+
+        // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+        if (data.addressType === "R") {
+          // 도로명 주소인 경우
+          if (data.bname !== "") {
+            extraAddress += data.bname;
+          }
+          // 건물명이 있는 경우 추가
+          if (data.buildingName !== "") {
+            extraAddress +=
+              extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
+          }
+          // 조합된 참고항목을 해당 필드에 넣는다.
+          if (extraAddress !== "") {
+            fullAddress += ` (${extraAddress})`;
+          }
+        }
+
+        // 주소 필드에 값 설정
+        form.setValue("address", fullAddress, { shouldValidate: true });
+
+        console.log("✅ [RetailerOnboardingForm] 주소 선택 완료:", {
+          zonecode: data.zonecode,
+          address: fullAddress,
+        });
+      },
+      width: "100%",
+      height: "100%",
+    }).open();
   };
 
   // 폼 제출 핸들러
@@ -134,8 +202,23 @@ export default function RetailerOnboardingForm() {
   };
 
   return (
-    <div className="w-full">
-      {/* 환영 메시지 Dialog */}
+    <>
+      {/* Daum 우편번호 서비스 스크립트 로드 */}
+      <Script
+        src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+        strategy="lazyOnload"
+        onLoad={() => {
+          setIsPostcodeLoaded(true);
+          console.log("✅ [RetailerOnboardingForm] Daum 우편번호 서비스 로드 완료");
+        }}
+        onError={() => {
+          console.error("❌ [RetailerOnboardingForm] Daum 우편번호 서비스 로드 실패");
+          toast.error("주소 검색 서비스를 불러올 수 없습니다.");
+        }}
+      />
+
+      <div className="w-full">
+        {/* 환영 메시지 Dialog */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -226,12 +309,26 @@ export default function RetailerOnboardingForm() {
                   <FormItem>
                     <FormLabel>주소 *</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="예: 서울시 강남구 테헤란로 123"
-                        {...field}
-                        rows={3}
-                        disabled={isSubmitting}
-                      />
+                      <div className="flex flex-col gap-3 md:flex-row">
+                        <Input
+                          placeholder="예: 서울시 강남구 테헤란로 123"
+                          {...field}
+                          disabled={isSubmitting}
+                          readOnly
+                          onClick={handleAddressSearch}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleAddressSearch}
+                          disabled={isSubmitting || !isPostcodeLoaded}
+                          variant="outline"
+                          className="md:w-auto"
+                        >
+                          <MapPin className="mr-2 h-4 w-4" />
+                          주소 검색
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormDescription>사업장(주소)를 입력해주세요</FormDescription>
                     <FormMessage />
@@ -265,7 +362,7 @@ export default function RetailerOnboardingForm() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="min-w-[120px]"
+                  className="min-w-[120px] bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-600 transition-colors"
                 >
                   {isSubmitting ? (
                     <>
@@ -281,7 +378,8 @@ export default function RetailerOnboardingForm() {
           </Form>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }
 
