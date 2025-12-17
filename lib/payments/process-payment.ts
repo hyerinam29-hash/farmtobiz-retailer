@@ -56,11 +56,30 @@ export async function processPaymentAfterApproval(
     const supabase = getServiceRoleClient();
 
     // 1. 주문 조회 (order_number로 조회)
-    const { data: orders, error: orderError } = await supabase
+    // 단일 상품: order_number = orderId
+    // 여러 상품: order_number LIKE orderId-%
+    let orders;
+    let orderError;
+
+    // 먼저 정확한 order_number로 조회 (단일 상품)
+    const exactMatch = await supabase
       .from("orders")
       .select("id, order_number, wholesaler_id, total_amount, payment_key")
-      .eq("order_number", params.orderId)
-      .limit(1);
+      .eq("order_number", params.orderId);
+
+    if (exactMatch.data && exactMatch.data.length > 0) {
+      orders = exactMatch.data;
+      orderError = exactMatch.error;
+    } else {
+      // 정확한 매치가 없으면 패턴으로 조회 (여러 상품: ORD-xxx-1, ORD-xxx-2 ...)
+      const patternMatch = await supabase
+        .from("orders")
+        .select("id, order_number, wholesaler_id, total_amount, payment_key")
+        .like("order_number", `${params.orderId}-%`);
+
+      orders = patternMatch.data;
+      orderError = patternMatch.error;
+    }
 
     if (orderError) {
       console.error("❌ 주문 조회 실패:", orderError);
@@ -80,6 +99,7 @@ export async function processPaymentAfterApproval(
       };
     }
 
+    // 첫 번째 주문을 기준으로 처리 (대표 주문)
     const order = orders[0];
 
     // 중복 처리 방지: 이미 payment_key가 설정되어 있으면 스킵
@@ -109,9 +129,11 @@ export async function processPaymentAfterApproval(
       orderNumber: order.order_number,
       wholesalerId: order.wholesaler_id,
       totalAmount: order.total_amount,
+      totalOrders: orders.length,
     });
 
-    // 2. 주문 상태 업데이트 (payment_key, paid_at)
+    // 2. 모든 관련 주문 상태 업데이트 (payment_key, paid_at)
+    const orderIds = orders.map((o: { id: string }) => o.id);
     const { error: updateError } = await supabase
       .from("orders")
       .update({
@@ -119,7 +141,7 @@ export async function processPaymentAfterApproval(
         paid_at: params.approvedAt,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", order.id);
+      .in("id", orderIds);
 
     if (updateError) {
       console.error("❌ 주문 업데이트 실패:", updateError);
@@ -130,7 +152,7 @@ export async function processPaymentAfterApproval(
       };
     }
 
-    console.log("✅ 주문 업데이트 완료");
+    console.log("✅ 주문 업데이트 완료:", { updatedOrders: orderIds.length });
 
     // 3. 정산 데이터 생성
     const platformFeeRate = 0.05; // 5% 플랫폼 수수료

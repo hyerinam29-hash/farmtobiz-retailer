@@ -280,10 +280,7 @@ export async function createPayment(
       serverTotalAmount,
     });
 
-    // ✨ [3단계: 주문 생성 로직 확인]
     // 4. 주문 ID 생성 (형식: ORD-YYYYMMDD-HHMMSS-XXX)
-    // 주문 생성 시점: 결제 요청 전에 주문 ID를 생성합니다.
-    // 주문 상태: 'pending' (결제 대기) - 실제 DB 저장은 결제 승인 후 /api/payments/confirm에서 처리됩니다.
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
     const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, "");
@@ -297,12 +294,47 @@ export async function createPayment(
         ? firstProductName
         : `${firstProductName} 외 ${validatedItems.length - 1}건`;
 
-    console.log("✅ [주문 생성] 주문 ID 생성 완료:", {
+    // 6. 주문을 DB에 저장 (pending 상태)
+    // 현재 스키마는 단일 상품 기준이므로 각 상품별로 별도 주문 생성
+    // 같은 결제에 대한 주문들은 order_number에 인덱스 추가로 구분
+    console.log("📝 [주문 생성] 주문 DB 저장 시작...");
+
+    const orderInserts = validatedItems.map((item, index) => ({
+      order_number: validatedItems.length === 1 ? orderId : `${orderId}-${index + 1}`,
+      retailer_id: retailers[0].id,
+      product_id: item.product_id,
+      wholesaler_id: item.wholesaler_id,
+      quantity: item.quantity,
+      unit_price: item.server_unit_price,
+      shipping_fee: item.shipping_fee_total,
+      total_amount: item.total_amount,
+      delivery_address: request.deliveryAddress,
+      request_note: request.deliveryNote || null,
+      delivery_option: request.deliveryOption,
+      delivery_time: request.deliveryTime || null,
+      status: "pending",
+    }));
+
+    const { data: insertedOrders, error: insertError } = await supabase
+      .from("orders")
+      .insert(orderInserts)
+      .select("id, order_number");
+
+    if (insertError) {
+      console.error("❌ 주문 DB 저장 실패:", insertError);
+      console.groupEnd();
+      return {
+        success: false,
+        error: `주문 생성에 실패했습니다: ${insertError.message}`,
+      };
+    }
+
+    console.log("✅ [주문 생성] 주문 DB 저장 완료:", {
       orderId,
       orderName,
       amount: serverTotalAmount,
+      ordersCreated: insertedOrders?.length || 0,
       status: "pending (결제 대기)",
-      note: "실제 DB 저장은 결제 승인 후 처리됩니다.",
     });
     console.groupEnd();
 

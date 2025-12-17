@@ -1,8 +1,13 @@
 /**
  * @file app/api/payments/confirm/route.ts
- * @description 토스페이먼츠 결제 승인 API
+ * @description 토스페이먼츠 결제 승인 API (외부 웹훅/콜백용)
  *
- * 결제 성공 후 토스페이먼츠 결제 승인 API를 호출하고 DB에 저장합니다.
+ * 주요 용도:
+ * - 외부 서비스에서 호출하는 웹훅 엔드포인트
+ * - 토스페이먼츠 콜백 처리
+ *
+ * 참고: 클라이언트 결제 승인은 Server Action을 사용합니다.
+ * @see actions/retailer/confirm-payment.ts
  *
  * 주요 기능:
  * 1. 토스페이먼츠 결제 승인 API 호출
