@@ -106,7 +106,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
     >
       {/* 헤더 */}
       <div className="mb-6 sm:mb-8 md:mb-12 lg:mb-16">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-gray-100">
           주문 내역
         </h1>
         <p className="mt-2 sm:mt-3 md:mt-4 text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400">
