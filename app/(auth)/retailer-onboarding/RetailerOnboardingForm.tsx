@@ -237,7 +237,7 @@ export default function RetailerOnboardingForm() {
           <DialogFooter className="sm:justify-center">
             <Button
               onClick={handleSuccessConfirm}
-              className="w-full sm:w-auto min-w-[120px] bg-blue-600 hover:bg-blue-700"
+              className="w-full sm:w-auto min-w-[120px] bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-600 transition-colors"
             >
               확인
             </Button>
