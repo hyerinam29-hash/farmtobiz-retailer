@@ -37,6 +37,10 @@ const isPublicRoute = createRouteMatcher([
   "/api/market-prices(.*)",
   "/api/test-market-api(.*)",
   // 결제 성공/실패 페이지는 토스페이먼츠 리다이렉트로 접근하므로 공개 라우트로 설정
+  // 실제 사용 경로: /retailer/checkout/success, /retailer/checkout/fail
+  "/retailer/checkout/success(.*)",
+  "/retailer/checkout/fail(.*)",
+  // 레거시 경로 (하위 호환성)
   "/retailer/payment/success(.*)",
   "/retailer/payment/fail(.*)",
 ]);
