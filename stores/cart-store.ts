@@ -127,14 +127,21 @@ export const useCartStore = create<CartStore>()(
           0
         );
 
-        // 총 결제 예상 금액 = 상품 총액 (배송비 없음)
-        const totalPrice = totalProductPrice;
+        // 총 배송비 계산: 각 아이템의 shipping_fee_total 합계
+        const totalShippingFee = items.reduce(
+          (sum, item) => sum + (item.shipping_fee_total || 0),
+          0
+        );
+
+        // 총 결제 예상 금액 = 상품 총액 + 배송비
+        const totalPrice = totalProductPrice + totalShippingFee;
 
         // 장바구니 아이템 개수
         const itemCount = items.length;
 
         return {
           totalProductPrice,
+          totalShippingFee,
           totalPrice,
           itemCount,
         };
@@ -203,6 +210,8 @@ export const useCartStore = create<CartStore>()(
             // 가격이나 배송방법이 변경되었을 수 있으므로 업데이트
             unit_price: input.unit_price,
             delivery_method: input.delivery_method,
+            shipping_fee: input.shipping_fee,
+            shipping_fee_total: input.shipping_fee * newQuantity,
             // 검증 정보도 업데이트
             moq: input.moq,
             stock_quantity: input.stock_quantity,
@@ -244,6 +253,7 @@ export const useCartStore = create<CartStore>()(
             id: newItemId,
             ...input,
             quantity: inputQuantity, // Number로 보장
+            shipping_fee_total: input.shipping_fee * inputQuantity, // 배송비 총액 계산
           };
 
           set({ items: [...items, newItem] });
