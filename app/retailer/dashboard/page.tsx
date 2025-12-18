@@ -24,35 +24,25 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, type MouseEvent } from "react";
 import Image from "next/image";
-import { 
-  ChevronRight, 
-  ShoppingCart, 
-  Truck, 
+import {
+  ChevronRight,
+  ShoppingCart,
+  Truck,
   Package,
   Check,
   DollarSign,
-  CheckCircle
-} from 'lucide-react';
+  CheckCircle,
+} from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
-import { useCartOptions } from "@/hooks/use-cart-options";
+import { CartOptionsProvider, useCartOptionsContext } from "@/contexts/cart-options-context";
 import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
-import { getHotDealProducts } from "@/actions/retailer/get-hot-deal-products";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
-import {
-  getRecentOrdersForDashboard,
-  type DashboardRecentOrder,
-} from "@/actions/retailer/get-recent-orders";
-import { getAllOrders } from "@/actions/retailer/get-all-orders";
 import type { OrderDetail } from "@/types/order";
+import {
+  getDashboardData,
+  type DashboardRecentOrder,
+} from "@/actions/retailer/get-dashboard-data";
 import ChatbotWidget from "@/components/retailer/chatbot/chatbot-widget";
-
-// TODO: 추후 API로 교체 예정
-// 임시 목 데이터 - 최근 주문 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
-// const mockRecentOrders = [...];
-
-// TODO: 추후 API로 교체 예정
-// 임시 목 데이터 - 배송 예정 알림 (현재 사용되지 않음, 추후 API 연동 시 사용 예정)
-// const mockDeliverySchedules = [...];
 
 // 버튼 컴포넌트
 const Button = ({
@@ -66,32 +56,41 @@ const Button = ({
   className?: string;
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 }) => {
-  const baseStyles = 'font-bold rounded-xl flex items-center justify-center gap-2 relative overflow-hidden transition-all duration-200';
+  const baseStyles =
+    "font-bold rounded-xl flex items-center justify-center gap-2 relative overflow-hidden transition-all duration-200";
   const variants = {
-    primary: 'bg-green-600 dark:bg-green-700 text-white border-b-4 border-green-800 dark:border-green-900 shadow-lg hover:bg-green-500 dark:hover:bg-green-600 active:border-b-0 active:translate-y-1',
-    secondary: 'bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 border-2 border-b-4 border-green-600 dark:border-green-500 shadow-md hover:bg-green-50 dark:hover:bg-green-900/30 active:border-b-2 active:translate-y-0.5',
-    outline: 'bg-transparent text-gray-600 dark:text-gray-300 border-2 border-b-4 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 active:border-b-2 active:translate-y-0.5',
+    primary:
+      "bg-green-600 dark:bg-green-700 text-white border-b-4 border-green-800 dark:border-green-900 shadow-lg hover:bg-green-500 dark:hover:bg-green-600 active:border-b-0 active:translate-y-1",
+    secondary:
+      "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 border-2 border-b-4 border-green-600 dark:border-green-500 shadow-md hover:bg-green-50 dark:hover:bg-green-900/30 active:border-b-2 active:translate-y-0.5",
+    outline:
+      "bg-transparent text-gray-600 dark:text-gray-300 border-2 border-b-4 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 active:border-b-2 active:translate-y-0.5",
   };
   return (
-    <button className={`${baseStyles} ${variants[variant]} ${className}`} onClick={onClick}>
+    <button
+      className={`${baseStyles} ${variants[variant]} ${className}`}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
 };
 
-export default function RetailerDashboardPage() {
+function DashboardContent() {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
-  const { retailerId, supabaseClient } = useCartOptions();
+  const {
+    retailerId,
+    supabaseClient,
+    isLoading: isCartOptionsLoading,
+  } = useCartOptionsContext();
 
   // 카운트다운 타이머 상태 (24시간 = 86400초) - 향후 사용 예정
   // const [timeLeft, setTimeLeft] = useState(86400);
   const [hotDeals, setHotDeals] = useState<RetailerProduct[]>([]);
-  const [isHotDealsLoading, setIsHotDealsLoading] = useState(true);
   const [recentOrders, setRecentOrders] = useState<DashboardRecentOrder[]>([]);
-  const [isRecentOrdersLoading, setIsRecentOrdersLoading] = useState(true);
   const [shippingOrders, setShippingOrders] = useState<OrderDetail[]>([]);
-  const [isShippingOrdersLoading, setIsShippingOrdersLoading] = useState(true);
+  const [isDashboardLoading, setIsDashboardLoading] = useState(true);
 
   const statusLabelMap: Record<string, string> = {
     pending: "준비 중",
@@ -124,11 +123,17 @@ export default function RetailerDashboardPage() {
     };
 
     const scrollToRecentOrders = () => {
-      scrollToElement("recent-orders", "📦 [대시보드] 최근 주문 내역 섹션으로 스크롤");
+      scrollToElement(
+        "recent-orders",
+        "📦 [대시보드] 최근 주문 내역 섹션으로 스크롤",
+      );
     };
 
     const scrollToDeliveryTracking = () => {
-      scrollToElement("delivery-tracking", "🚚 [대시보드] 배송 조회 섹션으로 스크롤");
+      scrollToElement(
+        "delivery-tracking",
+        "🚚 [대시보드] 배송 조회 섹션으로 스크롤",
+      );
     };
 
     const scrollToFooter = () => {
@@ -138,7 +143,9 @@ export default function RetailerDashboardPage() {
     // sessionStorage에서 스크롤 위치 확인 (해시 없이 이동한 경우)
     const scrollToSection = sessionStorage.getItem("scrollToSection");
     if (scrollToSection) {
-      console.log(`📌 [대시보드] sessionStorage에서 스크롤 위치 확인: ${scrollToSection}`);
+      console.log(
+        `📌 [대시보드] sessionStorage에서 스크롤 위치 확인: ${scrollToSection}`,
+      );
       // 스크롤 실행
       if (scrollToSection === "recent-orders") {
         setTimeout(() => scrollToRecentOrders(), 100);
@@ -231,66 +238,33 @@ export default function RetailerDashboardPage() {
   //   // timeLeft는 함수형 업데이트(prev => ...)를 사용하므로 의존성 배열에 포함하지 않음
   // }, []);
 
-  // HOT DEAL 데이터 로드
+  // 대시보드 데이터 통합 로드 (HOT DEAL + 최근 주문 + 배송 조회)
   useEffect(() => {
-    const fetchHotDeals = async () => {
+    const fetchDashboardData = async () => {
       try {
-        console.log("🔥 [대시보드-HOT DEAL] 실데이터 불러오기 시작");
-        const products = await getHotDealProducts();
-        setHotDeals(products);
-        console.log("🔥 [대시보드-HOT DEAL] 실데이터 불러오기 완료", {
-          count: products.length,
+        console.log("📊 [대시보드] 통합 데이터 불러오기 시작");
+        const data = await getDashboardData();
+
+        setHotDeals(data.hotDeals);
+        setRecentOrders(data.recentOrders);
+        setShippingOrders(data.shippingOrders);
+
+        console.log("✅ [대시보드] 통합 데이터 불러오기 완료", {
+          hotDeals: data.hotDeals.length,
+          recentOrders: data.recentOrders.length,
+          shippingOrders: data.shippingOrders.length,
         });
       } catch (error) {
-        console.error("❌ [대시보드-HOT DEAL] 불러오기 실패", error);
-      } finally {
-        setIsHotDealsLoading(false);
-      }
-    };
-
-    fetchHotDeals();
-  }, []);
-
-  // 최근 주문 데이터 로드
-  useEffect(() => {
-    const fetchRecentOrders = async () => {
-      try {
-        console.log("📦 [대시보드] 최근 주문 불러오기 시작");
-        const data = await getRecentOrdersForDashboard();
-        setRecentOrders(data);
-        console.log("📦 [대시보드] 최근 주문 불러오기 완료", {
-          count: data.length,
-        });
-      } catch (error) {
-        console.error("❌ [대시보드] 최근 주문 불러오기 실패", error);
+        console.error("❌ [대시보드] 통합 데이터 불러오기 실패", error);
+        setHotDeals([]);
         setRecentOrders([]);
-      } finally {
-        setIsRecentOrdersLoading(false);
-      }
-    };
-
-    fetchRecentOrders();
-  }, []);
-
-  // 전체 주문 목록 데이터 로드 (주문 내역 페이지와 동일)
-  useEffect(() => {
-    const fetchAllOrders = async () => {
-      try {
-        console.log("🚚 [대시보드] 전체 주문 목록 불러오기 시작");
-        const data = await getAllOrders();
-        setShippingOrders(data);
-        console.log("🚚 [대시보드] 전체 주문 목록 불러오기 완료", {
-          count: data.length,
-        });
-      } catch (error) {
-        console.error("❌ [대시보드] 전체 주문 목록 불러오기 실패", error);
         setShippingOrders([]);
       } finally {
-        setIsShippingOrdersLoading(false);
+        setIsDashboardLoading(false);
       }
     };
 
-    fetchAllOrders();
+    fetchDashboardData();
   }, []);
 
   // 초를 시:분:초 형식으로 변환하는 함수 - 향후 사용 예정
@@ -300,9 +274,9 @@ export default function RetailerDashboardPage() {
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
     return {
-      hours: hours.toString().padStart(2, '0'),
-      minutes: minutes.toString().padStart(2, '0'),
-      seconds: secs.toString().padStart(2, '0'),
+      hours: hours.toString().padStart(2, "0"),
+      minutes: minutes.toString().padStart(2, "0"),
+      seconds: secs.toString().padStart(2, "0"),
     };
   };
 
@@ -324,7 +298,10 @@ export default function RetailerDashboardPage() {
   };
 
   // 장바구니 담기 핸들러
-  const handleAddToCart = (product: RetailerProduct, event?: MouseEvent) => {
+  const handleAddToCart = async (
+    product: RetailerProduct,
+    event?: MouseEvent,
+  ) => {
     if (event) {
       event.stopPropagation();
     }
@@ -332,33 +309,54 @@ export default function RetailerDashboardPage() {
     console.log("🛒 [대시보드-HOT DEAL] 장바구니 담기 시도:", {
       productId: product.id,
       productName: product.name,
+      retailerId,
+      isLoading: isCartOptionsLoading,
     });
 
-    addToCart(
-      {
-        product_id: product.id,
-        variant_id: null,
-        quantity: product.moq ?? 1,
-        unit_price: product.price,
-        shipping_fee: product.shipping_fee,
-        delivery_method: product.delivery_method ?? "courier",
-        wholesaler_id: product.wholesaler_id,
-        product_name: product.name,
-        anonymous_seller_id: product.wholesaler_anonymous_code,
-        seller_region: product.wholesaler_region,
-        product_image: product.image_url,
-        specification: product.specification,
-        moq: product.moq,
-        stock_quantity: product.stock_quantity,
-      },
-      {
-        retailerId: retailerId ?? undefined,
-        supabaseClient: supabaseClient ?? undefined,
-      }
-    );
+    // 로딩 중이거나 retailerId가 없으면 중단
+    if (isCartOptionsLoading || !retailerId || !supabaseClient) {
+      console.warn(
+        "⚠️ [대시보드-HOT DEAL] 장바구니 담기 실패: 아직 준비되지 않음",
+        {
+          isLoading: isCartOptionsLoading,
+          hasRetailerId: !!retailerId,
+          hasSupabaseClient: !!supabaseClient,
+        },
+      );
+      return;
+    }
 
-    console.log("✅ [대시보드-HOT DEAL] 장바구니 담기 완료, 장바구니 페이지로 이동");
-    router.push("/retailer/cart");
+    try {
+      await addToCart(
+        {
+          product_id: product.id,
+          variant_id: null,
+          quantity: product.moq ?? 1,
+          unit_price: product.price,
+          shipping_fee: product.shipping_fee,
+          delivery_method: product.delivery_method ?? "courier",
+          wholesaler_id: product.wholesaler_id,
+          product_name: product.name,
+          anonymous_seller_id: product.wholesaler_anonymous_code,
+          seller_region: product.wholesaler_region,
+          product_image: product.image_url,
+          specification: product.specification,
+          moq: product.moq,
+          stock_quantity: product.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        },
+      );
+
+      console.log(
+        "✅ [대시보드-HOT DEAL] 장바구니 담기 완료, 장바구니 페이지로 이동",
+      );
+      router.push("/retailer/cart");
+    } catch (error) {
+      console.error("❌ [대시보드-HOT DEAL] 장바구니 담기 실패:", error);
+    }
   };
   return (
     <div className="pb-20 relative overflow-hidden min-h-screen font-sans bg-[#F8F9FA] dark:bg-gray-900 transition-colors duration-200">
@@ -370,7 +368,7 @@ export default function RetailerDashboardPage() {
       {/* 3D 플로팅 오브젝트 */}
       <div className="absolute top-[15%] left-[5%] w-32 h-32 bg-gradient-to-br from-white/60 dark:from-gray-800/60 to-white/10 dark:to-gray-800/10 backdrop-blur-md rounded-full shadow-lg border border-white/30 dark:border-gray-700/30 -z-10 transition-colors duration-200"></div>
       <div className="absolute top-[40%] right-[10%] w-24 h-24 bg-gradient-to-br from-green-100/60 dark:from-green-900/40 to-emerald-50/10 dark:to-emerald-900/10 backdrop-blur-md rounded-[2rem] rotate-12 shadow-lg border border-white/30 dark:border-gray-700/30 -z-10 transition-colors duration-200"></div>
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 mt-12 relative z-10">
         {/* 섹션 1: 이 상품 어때요? */}
         <ProductRecommendationSection />
@@ -381,22 +379,26 @@ export default function RetailerDashboardPage() {
             <h2 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-gray-100 leading-tight transition-colors duration-200">
               제주 노지 감귤 10kg
             </h2>
-            
-            <p className="text-gray-600 dark:text-gray-300 text-lg transition-colors duration-200">제주의 햇살을 머금은 달콤한 감귤</p>
-            
+
+            <p className="text-gray-600 dark:text-gray-300 text-lg transition-colors duration-200">
+              제주의 햇살을 머금은 달콤한 감귤
+            </p>
+
             <div className="flex items-end gap-3">
-              <span className="text-4xl font-black text-gray-900 dark:text-gray-100 transition-colors duration-200">11,000원</span>
+              <span className="text-4xl font-black text-gray-900 dark:text-gray-100 transition-colors duration-200">
+                11,000원
+              </span>
             </div>
-             
-            <Button 
-              variant="primary" 
+
+            <Button
+              variant="primary"
               className="w-full md:w-auto px-10 py-4 text-lg mt-10 bg-red-500 border-red-700 hover:bg-red-600"
               onClick={handleDailyDealClick}
             >
               지금 바로 구매하기
             </Button>
           </div>
-          
+
           <div className="w-full md:w-1/2">
             <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-gray-800 bg-orange-100 dark:bg-orange-900/30 group-hover:scale-[1.02] transition-all duration-500">
               <Image
@@ -426,8 +428,12 @@ export default function RetailerDashboardPage() {
           <div className="absolute inset-0 bg-black/60"></div>
           {/* 텍스트 */}
           <div className="text-center text-white z-10 relative">
-            <h3 className="text-2xl font-bold mb-1">우리 농산물 살리기 프로젝트</h3>
-            <p className="text-white/90">산지 직송으로 더 신선하게 만나보세요</p>
+            <h3 className="text-2xl font-bold mb-1">
+              우리 농산물 살리기 프로젝트
+            </h3>
+            <p className="text-white/90">
+              산지 직송으로 더 신선하게 만나보세요
+            </p>
           </div>
         </section>
 
@@ -447,7 +453,9 @@ export default function RetailerDashboardPage() {
             <button
               className="text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 font-medium flex items-center gap-1 transition-colors duration-200"
               onClick={() => {
-                console.log("🔥 [대시보드-HOT DEAL] 전체보기 클릭 -> 상품 목록 이동");
+                console.log(
+                  "🔥 [대시보드-HOT DEAL] 전체보기 클릭 -> 상품 목록 이동",
+                );
                 router.push("/retailer/products");
               }}
             >
@@ -455,109 +463,126 @@ export default function RetailerDashboardPage() {
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {isHotDealsLoading ? (
-              Array.from({ length: 4 }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white/80 dark:bg-gray-800/80 rounded-2xl h-full border border-gray-100 dark:border-gray-700 shadow-md animate-pulse transition-colors duration-200"
-                >
-                  <div className="aspect-square bg-gray-100 dark:bg-gray-700" />
-                  <div className="p-5 space-y-3">
-                    <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-3/4" />
-                    <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded w-1/2" />
-                    <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-1/3" />
-                  </div>
-                </div>
-              ))
-            ) : (
-              hotDeals.map((product) => {
-                const imageSrc = product.image_url;
-                return (
+            {isDashboardLoading
+              ? Array.from({ length: 4 }).map((_, idx) => (
                   <div
-                    key={product.id}
-                    onClick={() => handleProductClick(product.id)}
-                    className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 dark:border-gray-700 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
+                    key={idx}
+                    className="bg-white/80 dark:bg-gray-800/80 rounded-2xl h-full border border-gray-100 dark:border-gray-700 shadow-md animate-pulse transition-colors duration-200"
                   >
-                    <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-700 group-hover:bg-green-50 dark:group-hover:bg-green-900/30 transition-colors duration-200">
-                      {imageSrc ? (
-                        <Image
-                          src={imageSrc}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform duration-500 text-4xl">
-                          🛒
-                        </div>
-                      )}
-                      <button
-                        onClick={(event) => handleAddToCart(product, event)}
-                        className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 dark:text-gray-200 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white"
-                      >
-                        <ShoppingCart size={20} />
-                      </button>
-                    </div>
-                    <div className="p-5 space-y-3 flex-1 flex flex-col bg-white dark:bg-gray-800 transition-colors duration-200">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 line-clamp-2 transition-colors duration-200">
-                          {product.name}
-                        </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1 transition-colors duration-200">
-                          {product.wholesaler_region || "산지 미정"} · 무료배송
-                        </p>
-                      </div>
-                      <div className="border-t border-gray-100 dark:border-gray-700 pt-3 transition-colors duration-200">
-                        <div className="font-black text-xl text-green-600 dark:text-green-400 tracking-tight transition-colors duration-200">
-                          {product.price.toLocaleString()}원
-                        </div>
-                        <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 transition-colors duration-200">
-                          {product.specification || "규격 정보 준비중"}
-                        </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        className="w-full py-2 text-sm h-10 border-gray-200 dark:border-gray-700"
-                        onClick={(event) => handleAddToCart(product, event)}
-                      >
-                        <ShoppingCart size={16} />
-                        <span>담기</span>
-                      </Button>
+                    <div className="aspect-square bg-gray-100 dark:bg-gray-700" />
+                    <div className="p-5 space-y-3">
+                      <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-3/4" />
+                      <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded w-1/2" />
+                      <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-1/3" />
                     </div>
                   </div>
-                );
-              })
-            )}
+                ))
+              : hotDeals.map((product) => {
+                  const imageSrc = product.image_url;
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => handleProductClick(product.id)}
+                      className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col border border-gray-100 dark:border-gray-700 shadow-md hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="aspect-square relative flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-700 group-hover:bg-green-50 dark:group-hover:bg-green-900/30 transition-colors duration-200">
+                        {imageSrc ? (
+                          <Image
+                            src={imageSrc}
+                            alt={product.name}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform duration-500 text-4xl">
+                            🛒
+                          </div>
+                        )}
+                        <button
+                          onClick={(event) => handleAddToCart(product, event)}
+                          disabled={
+                            isCartOptionsLoading ||
+                            !retailerId ||
+                            !supabaseClient
+                          }
+                          className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full flex items-center justify-center text-gray-800 dark:text-gray-200 shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-green-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/90 disabled:dark:hover:bg-gray-800/90 disabled:hover:text-gray-800 disabled:dark:hover:text-gray-200"
+                        >
+                          <ShoppingCart size={20} />
+                        </button>
+                      </div>
+                      <div className="p-5 space-y-3 flex-1 flex flex-col bg-white dark:bg-gray-800 transition-colors duration-200">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 line-clamp-2 transition-colors duration-200">
+                            {product.name}
+                          </h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1 transition-colors duration-200">
+                            {product.wholesaler_region || "산지 미정"} ·
+                            무료배송
+                          </p>
+                        </div>
+                        <div className="border-t border-gray-100 dark:border-gray-700 pt-3 transition-colors duration-200">
+                          <div className="font-black text-xl text-green-600 dark:text-green-400 tracking-tight transition-colors duration-200">
+                            {product.price.toLocaleString()}원
+                          </div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 transition-colors duration-200">
+                            {product.specification || "규격 정보 준비중"}
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="w-full py-2 text-sm h-10 border-gray-200 dark:border-gray-700"
+                          onClick={(event) => handleAddToCart(product, event)}
+                        >
+                          <ShoppingCart size={16} />
+                          <span>담기</span>
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
           </div>
         </section>
 
         {/* 배송 조회 & 주문 내역 */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* 배송 조회 */}
-          <div id="delivery-tracking" className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-green-100 dark:border-green-800 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow">
+          <div
+            id="delivery-tracking"
+            className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-green-100 dark:border-green-800 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow"
+          >
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <Truck size={24} className="text-green-600 dark:text-green-400" /> 배송 조회
+                <Truck
+                  size={24}
+                  className="text-green-600 dark:text-green-400"
+                />{" "}
+                배송 조회
               </h3>
-            <button
-              className="text-sm text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400"
-              onClick={() => {
-                console.log("🚚 [대시보드] 배송 조회 더보기 클릭, 주문 내역 페이지로 이동");
-                router.push("/retailer/orders");
-              }}
-            >
-              더보기
-            </button>
+              <button
+                className="text-sm text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400"
+                onClick={() => {
+                  console.log(
+                    "🚚 [대시보드] 배송 조회 더보기 클릭, 주문 내역 페이지로 이동",
+                  );
+                  router.push("/retailer/orders");
+                }}
+              >
+                더보기
+              </button>
             </div>
             <div className="space-y-4">
-              {isShippingOrdersLoading ? (
+              {isDashboardLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="text-gray-400 text-sm">배송 정보를 불러오는 중...</div>
+                  <div className="text-gray-400 text-sm">
+                    배송 정보를 불러오는 중...
+                  </div>
                 </div>
               ) : shippingOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <Truck size={32} className="text-gray-300 mb-2" />
-                  <div className="text-gray-400 text-sm">주문 내역이 없습니다</div>
+                  <div className="text-gray-400 text-sm">
+                    주문 내역이 없습니다
+                  </div>
                 </div>
               ) : (
                 shippingOrders.slice(0, 2).map((order) => {
@@ -565,7 +590,7 @@ export default function RetailerDashboardPage() {
                     order.product?.name ||
                     order.product?.standardized_name ||
                     "상품명 없음";
-                  
+
                   // 주문 상태에 따른 라벨 및 스타일
                   const orderStatus = order.status;
                   const statusInfo = (() => {
@@ -586,7 +611,9 @@ export default function RetailerDashboardPage() {
                           timeText: (() => {
                             const orderDate = new Date(order.created_at);
                             const estimatedHour = orderDate.getHours() + 24;
-                            return `${estimatedHour.toString().padStart(2, "0")}:00 도착 예정`;
+                            return `${estimatedHour
+                              .toString()
+                              .padStart(2, "0")}:00 도착 예정`;
                           })(),
                         };
                       case "completed":
@@ -594,7 +621,9 @@ export default function RetailerDashboardPage() {
                           label: "배송완료",
                           bgColor: "bg-blue-100 dark:bg-blue-900/30",
                           textColor: "text-blue-700 dark:text-blue-500",
-                          timeText: new Date(order.created_at).toLocaleDateString("ko-KR"),
+                          timeText: new Date(
+                            order.created_at,
+                          ).toLocaleDateString("ko-KR"),
                         };
                       default:
                         return {
@@ -616,8 +645,13 @@ export default function RetailerDashboardPage() {
                           status: orderStatus,
                         });
                         // 배송 중이거나 완료된 경우에만 배송 조회 페이지로 이동
-                        if (orderStatus === "shipped" || orderStatus === "completed") {
-                          router.push(`/retailer/delivery-tracking?orderId=${order.id}`);
+                        if (
+                          orderStatus === "shipped" ||
+                          orderStatus === "completed"
+                        ) {
+                          router.push(
+                            `/retailer/delivery-tracking?orderId=${order.id}`,
+                          );
                         } else {
                           // 그 외의 경우 주문 상세 페이지로 이동
                           router.push(`/retailer/orders/${order.id}`);
@@ -632,11 +666,15 @@ export default function RetailerDashboardPage() {
                         <div className="font-bold text-gray-800 dark:text-gray-100 truncate">
                           {productName}
                         </div>
-                        <div className={`text-sm ${statusInfo.textColor} font-medium`}>
+                        <div
+                          className={`text-sm ${statusInfo.textColor} font-medium`}
+                        >
                           {statusInfo.timeText}
                         </div>
                       </div>
-                      <span className={`${statusInfo.bgColor} ${statusInfo.textColor} text-xs font-bold px-3 py-1 rounded-lg whitespace-nowrap`}>
+                      <span
+                        className={`${statusInfo.bgColor} ${statusInfo.textColor} text-xs font-bold px-3 py-1 rounded-lg whitespace-nowrap`}
+                      >
                         {statusInfo.label}
                       </span>
                     </div>
@@ -647,15 +685,24 @@ export default function RetailerDashboardPage() {
           </div>
 
           {/* 주문 내역 */}
-          <div id="recent-orders" className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-purple-100 dark:border-purple-800/50 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow transition-colors duration-200">
+          <div
+            id="recent-orders"
+            className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-purple-100 dark:border-purple-800/50 rounded-3xl p-8 shadow-lg h-full relative overflow-hidden hover:shadow-xl transition-shadow transition-colors duration-200"
+          >
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 transition-colors duration-200">
-                <Package size={24} className="text-purple-600 dark:text-purple-400" /> 최근 주문 내역
+                <Package
+                  size={24}
+                  className="text-purple-600 dark:text-purple-400"
+                />{" "}
+                최근 주문 내역
               </h3>
               <button
                 className="text-sm text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200"
                 onClick={() => {
-                  console.log("📦 [대시보드] 최근 주문 더보기 클릭, 프로필 페이지로 이동");
+                  console.log(
+                    "📦 [대시보드] 최근 주문 더보기 클릭, 프로필 페이지로 이동",
+                  );
                   router.push("/retailer/profile");
                 }}
               >
@@ -663,7 +710,7 @@ export default function RetailerDashboardPage() {
               </button>
             </div>
             <div className="space-y-4">
-              {isRecentOrdersLoading ? (
+              {isDashboardLoading ? (
                 Array.from({ length: 2 }).map((_, idx) => (
                   <div
                     key={idx}
@@ -686,12 +733,15 @@ export default function RetailerDashboardPage() {
                 </div>
               ) : (
                 recentOrders.map((order) => {
-                  const otherItems = order.quantity > 1 ? order.quantity - 1 : 0;
+                  const otherItems =
+                    order.quantity > 1 ? order.quantity - 1 : 0;
                   const displayName =
                     otherItems > 0
                       ? `${order.productName} 외 ${otherItems}건`
                       : order.productName;
-                  const formattedDate = new Date(order.createdAt).toLocaleDateString("ko-KR");
+                  const formattedDate = new Date(
+                    order.createdAt,
+                  ).toLocaleDateString("ko-KR");
                   const formattedPrice = order.totalAmount.toLocaleString();
                   const statusLabel = statusLabelMap[order.status] ?? "준비 중";
 
@@ -699,9 +749,12 @@ export default function RetailerDashboardPage() {
                     <div
                       key={order.id}
                       onClick={() => {
-                        console.log("📦 [대시보드] 최근 주문 클릭, 주문 상세 페이지 이동", {
-                          orderId: order.id,
-                        });
+                        console.log(
+                          "📦 [대시보드] 최근 주문 클릭, 주문 상세 페이지 이동",
+                          {
+                            orderId: order.id,
+                          },
+                        );
                         router.push(`/retailer/orders/${order.id}`);
                       }}
                       className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-white dark:hover:bg-gray-700 hover:border-purple-200 dark:hover:border-purple-800 transition-all duration-200 group"
@@ -710,11 +763,17 @@ export default function RetailerDashboardPage() {
                         <Package size={20} />
                       </div>
                       <div className="flex-1">
-                        <div className="font-bold text-gray-800 dark:text-gray-100 transition-colors duration-200">{displayName}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">{formattedDate}</div>
+                        <div className="font-bold text-gray-800 dark:text-gray-100 transition-colors duration-200">
+                          {displayName}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
+                          {formattedDate}
+                        </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-gray-800 dark:text-green-500">{formattedPrice}원</div>
+                        <div className="font-bold text-gray-800 dark:text-green-500">
+                          {formattedPrice}원
+                        </div>
                         <span className="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-gray-100 text-gray-600 mt-1">
                           {statusLabel}
                         </span>
@@ -730,70 +789,122 @@ export default function RetailerDashboardPage() {
         {/* 회사소개 */}
         <section className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-100 dark:border-gray-800 shadow-lg mb-10 transition-colors duration-200">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-4 transition-colors duration-200">Farm to Biz</h2>
-            <p className="text-gray-600 dark:text-gray-400 text-lg mb-10 transition-colors duration-200">농장에서 당신의 비즈니스까지, 신선함을 전달합니다</p>
-            
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-4 transition-colors duration-200">
+              Farm to Biz
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-lg mb-10 transition-colors duration-200">
+              농장에서 당신의 비즈니스까지, 신선함을 전달합니다
+            </p>
+
             {/* 특징 3가지 - 아이콘 배지 추가 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
               <div className="flex flex-col items-center">
                 {/* 체크 아이콘 배지 */}
                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 transition-colors duration-200">
-                  <Check className="w-8 h-8 text-green-600 dark:text-green-400" strokeWidth={3} />
+                  <Check
+                    className="w-8 h-8 text-green-600 dark:text-green-400"
+                    strokeWidth={3}
+                  />
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">산지 직송</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">신선한 농산물을 직접 배송</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  산지 직송
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">
+                  신선한 농산물을 직접 배송
+                </p>
               </div>
-              
+
               <div className="flex flex-col items-center">
                 {/* 달러 아이콘 배지 */}
                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 transition-colors duration-200">
-                  <DollarSign className="w-8 h-8 text-green-600 dark:text-green-400" strokeWidth={3} />
+                  <DollarSign
+                    className="w-8 h-8 text-green-600 dark:text-green-400"
+                    strokeWidth={3}
+                  />
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">합리적인 가격</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">중간 유통 없는 최저가</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  합리적인 가격
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">
+                  중간 유통 없는 최저가
+                </p>
               </div>
-              
+
               <div className="flex flex-col items-center">
                 {/* 동그라미 안에 체크 아이콘 배지 */}
                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 transition-colors duration-200">
-                  <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" strokeWidth={3} />
+                  <CheckCircle
+                    className="w-8 h-8 text-green-600 dark:text-green-400"
+                    strokeWidth={3}
+                  />
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">품질 보증</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">엄선된 프리미엄 상품</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-200">
+                  품질 보증
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-200">
+                  엄선된 프리미엄 상품
+                </p>
               </div>
             </div>
           </div>
         </section>
 
         {/* 푸터 */}
-        <footer id="footer" className="w-full border-t border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm py-6 px-4 transition-colors duration-200">
+        <footer
+          id="footer"
+          className="w-full border-t border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm py-6 px-4 transition-colors duration-200"
+        >
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
               {/* 회사 정보 */}
               <div className="flex items-center gap-1">
-                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">회사명:</span>
-                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">팜투비즈</span>
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                  회사명:
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
+                  팜투비즈
+                </span>
               </div>
-              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-              
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">
+                |
+              </span>
+
               <div className="flex items-center gap-1">
-                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">대표이사:</span>
-                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">홍길동</span>
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                  대표이사:
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
+                  홍길동
+                </span>
               </div>
-              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-              
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">
+                |
+              </span>
+
               <div className="flex items-center gap-1">
-                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">사업자등록번호:</span>
-                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">123-45-67890</span>
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                  사업자등록번호:
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
+                  123-45-67890
+                </span>
               </div>
-              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-              
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">
+                |
+              </span>
+
               <div className="flex items-center gap-1">
-                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">고객센터:</span>
-                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">1588-0000</span>
+                <span className="font-bold text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                  고객센터:
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
+                  1588-0000
+                </span>
               </div>
-              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-              
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">
+                |
+              </span>
+
               {/* 이용약관 및 개인정보처리방침 */}
               <Link
                 href="/terms"
@@ -801,31 +912,44 @@ export default function RetailerDashboardPage() {
               >
                 이용약관
               </Link>
-              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-              
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">
+                |
+              </span>
+
               <Link
                 href="/privacy"
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 underline-offset-4 hover:underline"
               >
                 개인정보처리방침
               </Link>
-              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-              
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">
+                |
+              </span>
+
               {/* 주소 및 저작권 */}
               <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
                 서울특별시 강남구 테헤란로 123 (우편번호 06234)
               </span>
-              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">|</span>
-              
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-600">
+                |
+              </span>
+
               <span className="text-gray-500 dark:text-gray-400 transition-colors duration-200">
                 © 2025 Farm to Biz. All rights reserved.
               </span>
             </div>
           </div>
         </footer>
-
       </div>
       <ChatbotWidget />
     </div>
+  );
+}
+
+export default function RetailerDashboardPage() {
+  return (
+    <CartOptionsProvider>
+      <DashboardContent />
+    </CartOptionsProvider>
   );
 }

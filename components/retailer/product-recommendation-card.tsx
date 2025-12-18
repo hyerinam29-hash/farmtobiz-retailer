@@ -27,7 +27,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, MapPin } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
-import { useCartOptions } from "@/hooks/use-cart-options";
+import { useCartOptionsContext } from "@/contexts/cart-options-context";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 
 interface ProductRecommendationCardProps {
@@ -66,47 +66,63 @@ export default function ProductRecommendationCard({
 }: ProductRecommendationCardProps) {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
-  const { retailerId, supabaseClient } = useCartOptions();
-  
+  const { retailerId, supabaseClient, isLoading } = useCartOptionsContext();
+
   const displayName = product.standardized_name || product.name;
   const weight = extractWeight(product.specification);
   const unitPrice = calculateUnitPrice(product.price, weight);
-  
+
   // 장바구니 담기 핸들러
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     console.log("🛒 [추천상품카드] 장바구니 담기 시도:", {
       productId: product.id,
       productName: displayName,
+      retailerId,
+      isLoading,
     });
 
-    addToCart(
-      {
-        product_id: product.id,
-        variant_id: null,
-        quantity: product.moq || 1,
-        unit_price: product.price,
-        shipping_fee: product.shipping_fee,
-        delivery_method: product.delivery_method ?? "courier",
-        wholesaler_id: product.wholesaler_id,
-        product_name: displayName,
-        anonymous_seller_id: product.wholesaler_anonymous_code,
-        seller_region: product.wholesaler_region,
-        product_image: product.image_url,
-        specification: product.specification,
-        moq: product.moq || 1,
-        stock_quantity: product.stock_quantity,
-      },
-      {
-        retailerId: retailerId ?? undefined,
-        supabaseClient: supabaseClient ?? undefined,
-      }
-    );
+    // 로딩 중이거나 retailerId가 없으면 중단
+    if (isLoading || !retailerId || !supabaseClient) {
+      console.warn("⚠️ [추천상품카드] 장바구니 담기 실패: 아직 준비되지 않음", {
+        isLoading,
+        hasRetailerId: !!retailerId,
+        hasSupabaseClient: !!supabaseClient,
+      });
+      return;
+    }
 
-    console.log("✅ [추천상품카드] 장바구니 담기 완료, 장바구니 페이지로 이동");
-    router.push("/retailer/cart");
+    try {
+      await addToCart(
+        {
+          product_id: product.id,
+          variant_id: null,
+          quantity: product.moq || 1,
+          unit_price: product.price,
+          shipping_fee: product.shipping_fee,
+          delivery_method: product.delivery_method ?? "courier",
+          wholesaler_id: product.wholesaler_id,
+          product_name: displayName,
+          anonymous_seller_id: product.wholesaler_anonymous_code,
+          seller_region: product.wholesaler_region,
+          product_image: product.image_url,
+          specification: product.specification,
+          moq: product.moq || 1,
+          stock_quantity: product.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        }
+      );
+
+      console.log("✅ [추천상품카드] 장바구니 담기 완료, 장바구니 페이지로 이동");
+      router.push("/retailer/cart");
+    } catch (error) {
+      console.error("❌ [추천상품카드] 장바구니 담기 실패:", error);
+    }
   };
 
   return (
@@ -172,10 +188,11 @@ export default function ProductRecommendationCard({
         {/* 담기 버튼 */}
         <button
           onClick={handleAddToCart}
-          className="w-full py-2 text-sm h-10 border-2 border-gray-200 dark:border-gray-700 rounded-xl flex items-center justify-center gap-2 font-bold text-gray-600 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:border-green-300 dark:hover:border-green-600 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200 active:translate-y-0.5"
+          disabled={isLoading || !retailerId || !supabaseClient}
+          className="w-full py-2 text-sm h-10 border-2 border-gray-200 dark:border-gray-700 rounded-xl flex items-center justify-center gap-2 font-bold text-gray-600 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:border-green-300 dark:hover:border-green-600 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-gray-200 disabled:dark:hover:border-gray-700 disabled:hover:text-gray-600 disabled:dark:hover:text-gray-300"
         >
           <ShoppingCart size={16} className="transition-colors duration-200" />
-          <span>담기</span>
+          <span>{isLoading ? "로딩 중..." : "담기"}</span>
         </button>
       </div>
     </Link>

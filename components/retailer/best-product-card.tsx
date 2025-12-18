@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
+import { useCartOptions } from "@/hooks/use-cart-options";
 import type { Product } from "@/types/product";
 
 interface BestProductCardProps {
@@ -47,8 +48,9 @@ export default function BestProductCard({
 }: BestProductCardProps) {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient, isLoading } = useCartOptions();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const displayName = product.standardized_name || product.name;
     const quantityToAdd = product.moq || 1;
 
@@ -57,27 +59,49 @@ export default function BestProductCard({
       product_name: displayName,
       rank,
       quantity: quantityToAdd,
+      retailerId,
+      isLoading,
     });
 
-    addToCart({
-      product_id: product.id,
-      variant_id: null,
-      quantity: quantityToAdd,
-      unit_price: product.price,
-      shipping_fee: product.shipping_fee,
-      delivery_method: product.delivery_method,
-      wholesaler_id: product.wholesaler_id,
-      product_name: displayName,
-      anonymous_seller_id: product.wholesaler_anonymous_code,
-      seller_region: product.wholesaler_region,
-      product_image: product.image_url,
-      specification: product.specification,
-      moq: product.moq || 1,
-      stock_quantity: product.stock_quantity,
-    });
+    // 로딩 중이거나 retailerId가 없으면 중단
+    if (isLoading || !retailerId || !supabaseClient) {
+      console.warn("⚠️ [베스트 상품] 장바구니 담기 실패: 아직 준비되지 않음", {
+        isLoading,
+        hasRetailerId: !!retailerId,
+        hasSupabaseClient: !!supabaseClient,
+      });
+      return;
+    }
 
-    console.log("✅ [베스트 상품] 장바구니 담기 완료, 장바구니 페이지로 이동");
-    router.push("/retailer/cart");
+    try {
+      await addToCart(
+        {
+          product_id: product.id,
+          variant_id: null,
+          quantity: quantityToAdd,
+          unit_price: product.price,
+          shipping_fee: product.shipping_fee,
+          delivery_method: product.delivery_method,
+          wholesaler_id: product.wholesaler_id,
+          product_name: displayName,
+          anonymous_seller_id: product.wholesaler_anonymous_code,
+          seller_region: product.wholesaler_region,
+          product_image: product.image_url,
+          specification: product.specification,
+          moq: product.moq || 1,
+          stock_quantity: product.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        }
+      );
+
+      console.log("✅ [베스트 상품] 장바구니 담기 완료, 장바구니 페이지로 이동");
+      router.push("/retailer/cart");
+    } catch (error) {
+      console.error("❌ [베스트 상품] 장바구니 담기 실패:", error);
+    }
   };
 
   // 할인율 계산 (원가가 있는 경우)
@@ -138,11 +162,11 @@ export default function BestProductCard({
               event.stopPropagation();
               handleAddToCart();
             }}
-            disabled={product.stock_quantity === 0}
+            disabled={product.stock_quantity === 0 || isLoading || !retailerId || !supabaseClient}
             className="w-full py-2 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 disabled:cursor-not-allowed"
           >
             <ShoppingCart size={16} />
-            <span>담기</span>
+            <span>{isLoading ? "로딩 중..." : "담기"}</span>
           </button>
         </div>
       </div>

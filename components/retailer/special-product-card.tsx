@@ -13,6 +13,7 @@ import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart-store";
+import { useCartOptionsContext } from "@/contexts/cart-options-context";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 
 interface SpecialProductCardProps {
@@ -22,39 +23,62 @@ interface SpecialProductCardProps {
 export default function SpecialProductCard({ product }: SpecialProductCardProps) {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient, isLoading } = useCartOptionsContext();
   const displayName = product.standardized_name || product.name;
 
   const discountRate = 50;
   const originalPrice = Math.round(product.price / (1 - discountRate / 100));
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     console.log("🛒 [special-product-card] 장바구니 담기 시도", {
       productId: product.id,
       productName: displayName,
+      retailerId,
+      isLoading,
     });
 
-    addToCart({
-      product_id: product.id,
-      variant_id: null,
-      quantity: product.moq || 1,
-      unit_price: product.price,
-      shipping_fee: product.shipping_fee,
-      delivery_method: product.delivery_method ?? "courier",
-      wholesaler_id: product.wholesaler_id,
-      product_name: displayName,
-      anonymous_seller_id: product.wholesaler_anonymous_code,
-      seller_region: product.wholesaler_region,
-      product_image: product.image_url,
-      specification: product.specification,
-      moq: product.moq || 1,
-      stock_quantity: product.stock_quantity,
-    });
+    // 로딩 중이거나 retailerId가 없으면 중단
+    if (isLoading || !retailerId || !supabaseClient) {
+      console.warn("⚠️ [special-product-card] 장바구니 담기 실패: 아직 준비되지 않음", {
+        isLoading,
+        hasRetailerId: !!retailerId,
+        hasSupabaseClient: !!supabaseClient,
+      });
+      return;
+    }
 
-    console.log("✅ [special-product-card] 장바구니 담기 완료, 장바구니 페이지로 이동");
-    router.push("/retailer/cart");
+    try {
+      await addToCart(
+        {
+          product_id: product.id,
+          variant_id: null,
+          quantity: product.moq || 1,
+          unit_price: product.price,
+          shipping_fee: product.shipping_fee,
+          delivery_method: product.delivery_method ?? "courier",
+          wholesaler_id: product.wholesaler_id,
+          product_name: displayName,
+          anonymous_seller_id: product.wholesaler_anonymous_code,
+          seller_region: product.wholesaler_region,
+          product_image: product.image_url,
+          specification: product.specification,
+          moq: product.moq || 1,
+          stock_quantity: product.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        }
+      );
+
+      console.log("✅ [special-product-card] 장바구니 담기 완료, 장바구니 페이지로 이동");
+      router.push("/retailer/cart");
+    } catch (error) {
+      console.error("❌ [special-product-card] 장바구니 담기 실패:", error);
+    }
   };
 
   return (
@@ -104,11 +128,11 @@ export default function SpecialProductCard({ product }: SpecialProductCardProps)
 
           <button
             onClick={handleAddToCart}
-            disabled={product.stock_quantity === 0}
+            disabled={product.stock_quantity === 0 || isLoading || !retailerId || !supabaseClient}
             className="w-full py-2 text-sm h-10 border-2 border-red-500/20 rounded-xl text-red-600 font-bold hover:bg-red-50 flex items-center justify-center gap-2 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
           >
             <ShoppingCart size={16} />
-            <span>담기</span>
+            <span>{isLoading ? "로딩 중..." : "담기"}</span>
           </button>
         </div>
       </div>

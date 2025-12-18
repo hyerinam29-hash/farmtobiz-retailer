@@ -26,8 +26,8 @@ interface ProductActionsProps {
 export function ProductActions({ product }: ProductActionsProps) {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
-  const { retailerId, supabaseClient } = useCartOptions();
-  
+  const { retailerId, supabaseClient, isLoading } = useCartOptions();
+
   // 수량 상태 (1부터 시작)
   const [quantity, setQuantity] = useState(product.moq);
 
@@ -48,13 +48,24 @@ export function ProductActions({ product }: ProductActionsProps) {
   };
 
   // 장바구니 담기 (장바구니 페이지로 이동)
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     // quantity를 명시적으로 Number로 변환하여 타입 보장
     const quantityToAdd = Number(quantity);
-    
+
     if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
       console.error("❌ [상품상세] 잘못된 수량:", quantityToAdd);
       toast.error("올바른 수량을 선택해주세요");
+      return;
+    }
+
+    // 로딩 중이거나 retailerId가 없으면 중단
+    if (isLoading || !retailerId || !supabaseClient) {
+      console.warn("⚠️ [상품상세] 장바구니 담기 실패: 아직 준비되지 않음", {
+        isLoading,
+        hasRetailerId: !!retailerId,
+        hasSupabaseClient: !!supabaseClient,
+      });
+      toast.error("잠시 후 다시 시도해주세요");
       return;
     }
 
@@ -63,43 +74,59 @@ export function ProductActions({ product }: ProductActionsProps) {
       quantity: quantityToAdd,
     });
 
-    addToCart(
-      {
-        product_id: product.id,
-        variant_id: null,
-        quantity: quantityToAdd, // Number로 보장
-        unit_price: product.price,
-        shipping_fee: product.shipping_fee,
-        delivery_method: product.delivery_method ?? "courier",
-        wholesaler_id: product.wholesaler_id,
-        product_name: product.standardized_name || product.name,
-        anonymous_seller_id: product.wholesaler_anonymous_code,
-        seller_region: product.wholesaler_region,
-        product_image: product.image_url,
-        specification: product.specification,
-        moq: product.moq || 1,
-        stock_quantity: product.stock_quantity,
-      },
-      {
-        retailerId: retailerId ?? undefined,
-        supabaseClient: supabaseClient ?? undefined,
-      }
-    );
+    try {
+      await addToCart(
+        {
+          product_id: product.id,
+          variant_id: null,
+          quantity: quantityToAdd, // Number로 보장
+          unit_price: product.price,
+          shipping_fee: product.shipping_fee,
+          delivery_method: product.delivery_method ?? "courier",
+          wholesaler_id: product.wholesaler_id,
+          product_name: product.standardized_name || product.name,
+          anonymous_seller_id: product.wholesaler_anonymous_code,
+          seller_region: product.wholesaler_region,
+          product_image: product.image_url,
+          specification: product.specification,
+          moq: product.moq || 1,
+          stock_quantity: product.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        }
+      );
 
-    console.log("✅ [상품상세] 장바구니 담기 완료, quantity:", quantityToAdd);
-    
-    // 장바구니 페이지로 이동
-    router.push("/retailer/cart");
+      console.log("✅ [상품상세] 장바구니 담기 완료, quantity:", quantityToAdd);
+
+      // 장바구니 페이지로 이동
+      router.push("/retailer/cart");
+    } catch (error) {
+      console.error("❌ [상품상세] 장바구니 담기 실패:", error);
+      toast.error("장바구니 담기에 실패했습니다");
+    }
   };
 
   // 바로구매 (결제 페이지로 이동)
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     // quantity를 명시적으로 Number로 변환하여 타입 보장
     const quantityToAdd = Number(quantity);
-    
+
     if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
       console.error("❌ [상품상세] 잘못된 수량:", quantityToAdd);
       toast.error("올바른 수량을 선택해주세요");
+      return;
+    }
+
+    // 로딩 중이거나 retailerId가 없으면 중단
+    if (isLoading || !retailerId || !supabaseClient) {
+      console.warn("⚠️ [상품상세] 바로구매 실패: 아직 준비되지 않음", {
+        isLoading,
+        hasRetailerId: !!retailerId,
+        hasSupabaseClient: !!supabaseClient,
+      });
+      toast.error("잠시 후 다시 시도해주세요");
       return;
     }
 
@@ -108,35 +135,40 @@ export function ProductActions({ product }: ProductActionsProps) {
       quantity: quantityToAdd,
     });
 
-    addToCart(
-      {
-        product_id: product.id,
-        variant_id: null,
-        quantity: quantityToAdd, // Number로 보장
-        unit_price: product.price,
-        shipping_fee: product.shipping_fee,
-        delivery_method: product.delivery_method ?? "courier",
-        wholesaler_id: product.wholesaler_id,
-        product_name: product.standardized_name || product.name,
-        anonymous_seller_id: product.wholesaler_anonymous_code,
-        seller_region: product.wholesaler_region,
-        product_image: product.image_url,
-        specification: product.specification,
-        moq: product.moq || 1,
-        stock_quantity: product.stock_quantity,
-      },
-      {
-        retailerId: retailerId ?? undefined,
-        supabaseClient: supabaseClient ?? undefined,
-      }
-    );
+    try {
+      await addToCart(
+        {
+          product_id: product.id,
+          variant_id: null,
+          quantity: quantityToAdd, // Number로 보장
+          unit_price: product.price,
+          shipping_fee: product.shipping_fee,
+          delivery_method: product.delivery_method ?? "courier",
+          wholesaler_id: product.wholesaler_id,
+          product_name: product.standardized_name || product.name,
+          anonymous_seller_id: product.wholesaler_anonymous_code,
+          seller_region: product.wholesaler_region,
+          product_image: product.image_url,
+          specification: product.specification,
+          moq: product.moq || 1,
+          stock_quantity: product.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        }
+      );
 
-    console.log("✅ [상품상세] 바로구매, quantity:", quantityToAdd);
-    
-    // 결제 페이지로 이동 (상품 ID와 수량을 쿼리 파라미터로 전달)
-    const checkoutUrl = `/retailer/checkout?productId=${product.id}&quantity=${quantityToAdd}`;
-    console.log("🔗 [상품상세] 결제 페이지 이동:", checkoutUrl);
-    router.push(checkoutUrl);
+      console.log("✅ [상품상세] 바로구매, quantity:", quantityToAdd);
+
+      // 결제 페이지로 이동 (상품 ID와 수량을 쿼리 파라미터로 전달)
+      const checkoutUrl = `/retailer/checkout?productId=${product.id}&quantity=${quantityToAdd}`;
+      console.log("🔗 [상품상세] 결제 페이지 이동:", checkoutUrl);
+      router.push(checkoutUrl);
+    } catch (error) {
+      console.error("❌ [상품상세] 바로구매 실패:", error);
+      toast.error("바로구매에 실패했습니다");
+    }
   };
 
   const isOutOfStock = product.stock_quantity === 0;
@@ -209,19 +241,19 @@ export function ProductActions({ product }: ProductActionsProps) {
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || isLoading || !retailerId || !supabaseClient}
           className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
         >
           <ShoppingCart className="w-5 h-5" />
-          <span>장바구니 담기</span>
+          <span>{isLoading ? "로딩 중..." : "장바구니 담기"}</span>
         </button>
         <button
           type="button"
           onClick={handleBuyNow}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || isLoading || !retailerId || !supabaseClient}
           className="flex-1 px-6 py-4 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors"
         >
-          바로 구매
+          {isLoading ? "로딩 중..." : "바로 구매"}
         </button>
       </div>
     </div>
