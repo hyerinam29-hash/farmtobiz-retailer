@@ -24,6 +24,7 @@ import Image from "next/image";
 import { Trash2, Minus, Plus, ShoppingCart, AlertCircle, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { useCartOptions } from "@/hooks/use-cart-options";
+import { useCartData } from "@/hooks/use-cart-data";
 import { calculateTotals } from "@/lib/utils/shipping";
 import {
   validateCartItems,
@@ -37,6 +38,9 @@ export default function CartPage() {
   const updateCartItem = useCartStore((state) => state.updateCartItem);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   const { retailerId, supabaseClient } = useCartOptions();
+
+  // DB에서 장바구니 데이터 로드
+  useCartData();
 
   // 선택된 항목 ID 배열 관리 (초기 상태: 빈 배열 - 아무것도 선택 안 됨)
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
