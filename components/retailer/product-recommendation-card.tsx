@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, MapPin } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
+import { useCartOptions } from "@/hooks/use-cart-options";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 
 interface ProductRecommendationCardProps {
@@ -65,6 +66,7 @@ export default function ProductRecommendationCard({
 }: ProductRecommendationCardProps) {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient } = useCartOptions();
   
   const displayName = product.standardized_name || product.name;
   const weight = extractWeight(product.specification);
@@ -80,22 +82,28 @@ export default function ProductRecommendationCard({
       productName: displayName,
     });
 
-    addToCart({
-      product_id: product.id,
-      variant_id: null,
-      quantity: product.moq || 1,
-      unit_price: product.price,
-      shipping_fee: product.shipping_fee,
-      delivery_method: product.delivery_method ?? "courier",
-      wholesaler_id: product.wholesaler_id,
-      product_name: displayName,
-      anonymous_seller_id: product.wholesaler_anonymous_code,
-      seller_region: product.wholesaler_region,
-      product_image: product.image_url,
-      specification: product.specification,
-      moq: product.moq || 1,
-      stock_quantity: product.stock_quantity,
-    });
+    addToCart(
+      {
+        product_id: product.id,
+        variant_id: null,
+        quantity: product.moq || 1,
+        unit_price: product.price,
+        shipping_fee: product.shipping_fee,
+        delivery_method: product.delivery_method ?? "courier",
+        wholesaler_id: product.wholesaler_id,
+        product_name: displayName,
+        anonymous_seller_id: product.wholesaler_anonymous_code,
+        seller_region: product.wholesaler_region,
+        product_image: product.image_url,
+        specification: product.specification,
+        moq: product.moq || 1,
+        stock_quantity: product.stock_quantity,
+      },
+      {
+        retailerId: retailerId ?? undefined,
+        supabaseClient: supabaseClient ?? undefined,
+      }
+    );
 
     console.log("✅ [추천상품카드] 장바구니 담기 완료, 장바구니 페이지로 이동");
     router.push("/retailer/cart");

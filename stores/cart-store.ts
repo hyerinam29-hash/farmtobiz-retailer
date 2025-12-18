@@ -10,17 +10,18 @@
  * 2. 총 금액 계산 (상품 총액, 배송비, 최종 금액)
  * 3. 장바구니 추가/수정/삭제 액션
  * 4. 로컬 스토리지 연동 (페이지 새로고침 대응)
+ * 5. 데이터베이스 연동 (cart_items 테이블에 저장)
  *
  * @dependencies
  * - zustand
  * - types/cart.ts
+ * - @supabase/supabase-js
  *
  * @see {@link docs/retailer/RE_PRD.md} - R.CART.01 요구사항
  */
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { calculateTotals } from "@/lib/utils/shipping";
 import type {
   CartItem,
   CartSummary,
@@ -28,6 +29,7 @@ import type {
   UpdateCartItemInput,
   DeliveryMethod,
 } from "@/types/cart";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * 장바구니 스토어 상태 타입
@@ -38,13 +40,36 @@ interface CartStore {
   /** 장바구니 요약 정보 계산 */
   getSummary: () => CartSummary;
   /** 장바구니에 상품 추가 */
-  addToCart: (input: AddToCartInput) => void;
+  addToCart: (
+    input: AddToCartInput,
+    options?: {
+      retailerId?: string;
+      supabaseClient?: SupabaseClient;
+    }
+  ) => Promise<void>;
   /** 장바구니 아이템 수정 */
-  updateCartItem: (input: UpdateCartItemInput) => void;
+  updateCartItem: (
+    input: UpdateCartItemInput,
+    options?: {
+      retailerId?: string;
+      supabaseClient?: SupabaseClient;
+    }
+  ) => Promise<void>;
   /** 장바구니에서 아이템 삭제 */
-  removeFromCart: (itemId: string) => void;
+  removeFromCart: (
+    itemId: string,
+    options?: {
+      retailerId?: string;
+      supabaseClient?: SupabaseClient;
+    }
+  ) => Promise<void>;
   /** 장바구니 전체 비우기 */
-  clearCart: () => void;
+  clearCart: (
+    options?: {
+      retailerId?: string;
+      supabaseClient?: SupabaseClient;
+    }
+  ) => Promise<void>;
 }
 
 /**
@@ -96,34 +121,20 @@ export const useCartStore = create<CartStore>()(
       getSummary: (): CartSummary => {
         const { items } = get();
 
-        const totals = items.reduce(
-          (sum, item) => {
-            const { productTotal, shippingFee } = calculateTotals({
-              unitPrice: item.unit_price,
-              shippingUnitFee: item.shipping_fee ?? 0,
-              quantity: item.quantity,
-            });
-
-            return {
-              product: sum.product + productTotal,
-              shipping: sum.shipping + shippingFee,
-            };
-          },
-          { product: 0, shipping: 0 }
+        // 상품 총액 계산: 각 아이템의 (단가 * 수량) 합계
+        const totalProductPrice = items.reduce(
+          (sum, item) => sum + item.unit_price * item.quantity,
+          0
         );
 
-        const totalProductPrice = totals.product;
-        const totalShippingFee = totals.shipping;
-
-        // 총 결제 예상 금액 = 상품 총액 + 배송비 총액
-        const totalPrice = totalProductPrice + totalShippingFee;
+        // 총 결제 예상 금액 = 상품 총액 (배송비 없음)
+        const totalPrice = totalProductPrice;
 
         // 장바구니 아이템 개수
         const itemCount = items.length;
 
         return {
           totalProductPrice,
-          totalShippingFee,
           totalPrice,
           itemCount,
         };
@@ -134,14 +145,21 @@ export const useCartStore = create<CartStore>()(
        *
        * 같은 상품(product_id + variant_id 조합)이 이미 있으면 수량을 증가시키고,
        * 없으면 새 아이템으로 추가합니다.
+       * retailerId와 supabaseClient가 제공되면 데이터베이스에도 저장합니다.
        *
        * @param input 추가할 상품 정보
+       * @param options 옵션 (retailerId, supabaseClient)
        */
-      addToCart: (input: AddToCartInput) => {
+      addToCart: async (
+        input: AddToCartInput,
+        options?: {
+          retailerId?: string;
+          supabaseClient?: SupabaseClient;
+        }
+      ) => {
         // quantity를 명시적으로 Number로 변환하여 타입 보장
         const inputQuantity = Number(input.quantity);
-        const shippingFee = Number(input.shipping_fee ?? 0);
-
+        
         if (isNaN(inputQuantity) || inputQuantity <= 0) {
           console.error("❌ [cart-store] 잘못된 수량:", inputQuantity);
           return;
@@ -151,7 +169,8 @@ export const useCartStore = create<CartStore>()(
           productId: input.product_id,
           inputQuantity: inputQuantity,
           originalInput: input.quantity,
-          shippingFee,
+          hasRetailerId: !!options?.retailerId,
+          hasSupabaseClient: !!options?.supabaseClient,
         });
 
         const { items } = get();
@@ -168,59 +187,88 @@ export const useCartStore = create<CartStore>()(
           // 같은 상품이 있으면 수량 증가
           const existingQuantity = Number(items[existingItemIndex].quantity);
           const newQuantity = existingQuantity + inputQuantity;
-          const { shippingFee: shippingFeeTotal } = calculateTotals({
-            unitPrice: input.unit_price,
-            shippingUnitFee: shippingFee,
-            quantity: newQuantity,
-          });
           
           console.log("🔄 [cart-store] 기존 상품 수량 증가:", {
             productId: input.product_id,
             existingQuantity,
             inputQuantity,
             newQuantity,
-            shippingFee,
-            shippingFeeTotal,
           });
 
           const updatedItems = [...items];
+          const existingItem = updatedItems[existingItemIndex];
           updatedItems[existingItemIndex] = {
-            ...updatedItems[existingItemIndex],
+            ...existingItem,
             quantity: newQuantity, // Number로 보장
             // 가격이나 배송방법이 변경되었을 수 있으므로 업데이트
             unit_price: input.unit_price,
             delivery_method: input.delivery_method,
-            shipping_fee: shippingFee,
-            shipping_fee_total: shippingFeeTotal,
             // 검증 정보도 업데이트
             moq: input.moq,
             stock_quantity: input.stock_quantity,
           };
 
           set({ items: updatedItems });
+
+          // 데이터베이스 업데이트
+          if (options?.retailerId && options?.supabaseClient) {
+            try {
+              const { error } = await options.supabaseClient
+                .from("cart_items")
+                .update({
+                  quantity: newQuantity,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("retailer_id", options.retailerId)
+                .eq("product_id", input.product_id)
+                .eq("variant_id", input.variant_id || null);
+
+              if (error) {
+                console.error("❌ [cart-store] 데이터베이스 업데이트 실패:", error);
+              } else {
+                console.log("✅ [cart-store] 데이터베이스 업데이트 완료");
+              }
+            } catch (error) {
+              console.error("❌ [cart-store] 데이터베이스 업데이트 예외:", error);
+            }
+          }
         } else {
           // 같은 상품이 없으면 새 아이템 추가
           console.log("➕ [cart-store] 새 상품 추가:", {
             productId: input.product_id,
             quantity: inputQuantity,
-            shippingFee,
           });
 
-          const { shippingFee: shippingFeeTotal } = calculateTotals({
-            unitPrice: input.unit_price,
-            shippingUnitFee: shippingFee,
-            quantity: inputQuantity,
-          });
+          const newItemId = generateCartItemId();
           const newItem: CartItem = {
-            id: generateCartItemId(),
+            id: newItemId,
             ...input,
             quantity: inputQuantity, // Number로 보장
-            shipping_fee: shippingFee,
-            shipping_fee_total: shippingFeeTotal,
-            // 참고: unit_price, shipping_fee는 그대로 아이템에 저장됨
           };
 
           set({ items: [...items, newItem] });
+
+          // 데이터베이스에 저장
+          if (options?.retailerId && options?.supabaseClient) {
+            try {
+              const { error } = await options.supabaseClient
+                .from("cart_items")
+                .insert({
+                  retailer_id: options.retailerId,
+                  product_id: input.product_id,
+                  variant_id: input.variant_id || null,
+                  quantity: inputQuantity,
+                });
+
+              if (error) {
+                console.error("❌ [cart-store] 데이터베이스 저장 실패:", error);
+              } else {
+                console.log("✅ [cart-store] 데이터베이스 저장 완료");
+              }
+            } catch (error) {
+              console.error("❌ [cart-store] 데이터베이스 저장 예외:", error);
+            }
+          }
         }
       },
 
@@ -228,8 +276,15 @@ export const useCartStore = create<CartStore>()(
        * 장바구니 아이템 수정
        *
        * @param input 수정할 아이템 정보 (id 필수, 나머지는 선택)
+       * @param options 옵션 (retailerId, supabaseClient)
        */
-      updateCartItem: (input: UpdateCartItemInput) => {
+      updateCartItem: async (
+        input: UpdateCartItemInput,
+        options?: {
+          retailerId?: string;
+          supabaseClient?: SupabaseClient;
+        }
+      ) => {
         const { items } = get();
 
         const itemIndex = items.findIndex((item) => item.id === input.id);
@@ -239,22 +294,10 @@ export const useCartStore = create<CartStore>()(
           return;
         }
 
+        const existingItem = items[itemIndex];
         const updatedItems = [...items];
-        const nextQuantity =
-          input.quantity !== undefined ? input.quantity : updatedItems[itemIndex].quantity;
-        const nextUnitPrice =
-          input.unit_price !== undefined ? input.unit_price : updatedItems[itemIndex].unit_price;
-        const nextShippingFee =
-          updatedItems[itemIndex].shipping_fee ?? 0;
-
-        const { shippingFee: shippingFeeTotal } = calculateTotals({
-          unitPrice: nextUnitPrice,
-          shippingUnitFee: nextShippingFee,
-          quantity: nextQuantity,
-        });
-
         updatedItems[itemIndex] = {
-          ...updatedItems[itemIndex],
+          ...existingItem,
           ...(input.quantity !== undefined && { quantity: input.quantity }),
           ...(input.unit_price !== undefined && {
             unit_price: input.unit_price,
@@ -262,30 +305,105 @@ export const useCartStore = create<CartStore>()(
           ...(input.delivery_method !== undefined && {
             delivery_method: input.delivery_method,
           }),
-          shipping_fee_total: shippingFeeTotal,
         };
 
         set({ items: updatedItems });
+
+        // 데이터베이스 업데이트
+        if (options?.retailerId && options?.supabaseClient && input.quantity !== undefined) {
+          try {
+            const { error } = await options.supabaseClient
+              .from("cart_items")
+              .update({
+                quantity: input.quantity,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("retailer_id", options.retailerId)
+              .eq("product_id", existingItem.product_id)
+              .eq("variant_id", existingItem.variant_id || null);
+
+            if (error) {
+              console.error("❌ [cart-store] 데이터베이스 업데이트 실패:", error);
+            } else {
+              console.log("✅ [cart-store] 데이터베이스 업데이트 완료");
+            }
+          } catch (error) {
+            console.error("❌ [cart-store] 데이터베이스 업데이트 예외:", error);
+          }
+        }
       },
 
       /**
        * 장바구니에서 아이템 삭제
        *
        * @param itemId 삭제할 아이템 ID
+       * @param options 옵션 (retailerId, supabaseClient)
        */
-      removeFromCart: (itemId: string) => {
+      removeFromCart: async (
+        itemId: string,
+        options?: {
+          retailerId?: string;
+          supabaseClient?: SupabaseClient;
+        }
+      ) => {
         const { items } = get();
 
+        const itemToRemove = items.find((item) => item.id === itemId);
         const filteredItems = items.filter((item) => item.id !== itemId);
 
         set({ items: filteredItems });
+
+        // 데이터베이스에서 삭제
+        if (options?.retailerId && options?.supabaseClient && itemToRemove) {
+          try {
+            const { error } = await options.supabaseClient
+              .from("cart_items")
+              .delete()
+              .eq("retailer_id", options.retailerId)
+              .eq("product_id", itemToRemove.product_id)
+              .eq("variant_id", itemToRemove.variant_id || null);
+
+            if (error) {
+              console.error("❌ [cart-store] 데이터베이스 삭제 실패:", error);
+            } else {
+              console.log("✅ [cart-store] 데이터베이스 삭제 완료");
+            }
+          } catch (error) {
+            console.error("❌ [cart-store] 데이터베이스 삭제 예외:", error);
+          }
+        }
       },
 
       /**
        * 장바구니 전체 비우기
+       *
+       * @param options 옵션 (retailerId, supabaseClient)
        */
-      clearCart: () => {
+      clearCart: async (
+        options?: {
+          retailerId?: string;
+          supabaseClient?: SupabaseClient;
+        }
+      ) => {
         set({ items: [] });
+
+        // 데이터베이스에서 전체 삭제
+        if (options?.retailerId && options?.supabaseClient) {
+          try {
+            const { error } = await options.supabaseClient
+              .from("cart_items")
+              .delete()
+              .eq("retailer_id", options.retailerId);
+
+            if (error) {
+              console.error("❌ [cart-store] 데이터베이스 전체 삭제 실패:", error);
+            } else {
+              console.log("✅ [cart-store] 데이터베이스 전체 삭제 완료");
+            }
+          } catch (error) {
+            console.error("❌ [cart-store] 데이터베이스 전체 삭제 예외:", error);
+          }
+        }
       },
     }),
     {

@@ -23,6 +23,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Trash2, Minus, Plus, ShoppingCart, AlertCircle, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
+import { useCartOptions } from "@/hooks/use-cart-options";
 import { calculateTotals } from "@/lib/utils/shipping";
 import {
   validateCartItems,
@@ -35,6 +36,7 @@ export default function CartPage() {
   const items = useCartStore((state) => state.items);
   const updateCartItem = useCartStore((state) => state.updateCartItem);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const { retailerId, supabaseClient } = useCartOptions();
 
   // 선택된 항목 ID 배열 관리 (초기 상태: 빈 배열 - 아무것도 선택 안 됨)
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
@@ -67,7 +69,10 @@ export default function CartPage() {
   const handleRemoveSelected = () => {
     console.log("🗑️ [장바구니] 선택 삭제 시도:", selectedItemIds);
     selectedItemIds.forEach((itemId) => {
-      removeFromCart(itemId);
+      removeFromCart(itemId, {
+        retailerId: retailerId ?? undefined,
+        supabaseClient: supabaseClient ?? undefined,
+      });
     });
     setSelectedItemIds([]);
     console.log("✅ [장바구니] 선택 삭제 완료");
@@ -112,7 +117,13 @@ export default function CartPage() {
     console.log("➖ [장바구니] 수량 감소 시도:", { itemId, currentQuantity, moq });
     
     if (currentQuantity > moq) {
-      updateCartItem({ id: itemId, quantity: currentQuantity - 1 });
+      updateCartItem(
+        { id: itemId, quantity: currentQuantity - 1 },
+        {
+          retailerId: retailerId ?? undefined,
+          supabaseClient: supabaseClient ?? undefined,
+        }
+      );
       console.log("✅ [장바구니] 수량 감소 완료:", currentQuantity - 1);
     } else {
       console.log("⚠️ [장바구니] 최소 주문 수량 이하로 감소 불가");
@@ -124,7 +135,13 @@ export default function CartPage() {
     console.log("➕ [장바구니] 수량 증가 시도:", { itemId, currentQuantity, stockQuantity });
     
     if (currentQuantity < stockQuantity) {
-      updateCartItem({ id: itemId, quantity: currentQuantity + 1 });
+      updateCartItem(
+        { id: itemId, quantity: currentQuantity + 1 },
+        {
+          retailerId: retailerId ?? undefined,
+          supabaseClient: supabaseClient ?? undefined,
+        }
+      );
       console.log("✅ [장바구니] 수량 증가 완료:", currentQuantity + 1);
     } else {
       console.log("⚠️ [장바구니] 재고 부족으로 증가 불가");
@@ -134,7 +151,10 @@ export default function CartPage() {
   // 삭제
   const handleRemoveItem = (itemId: string) => {
     console.log("🗑️ [장바구니] 상품 삭제 시도:", itemId);
-    removeFromCart(itemId);
+    removeFromCart(itemId, {
+      retailerId: retailerId ?? undefined,
+      supabaseClient: supabaseClient ?? undefined,
+    });
     console.log("✅ [장바구니] 상품 삭제 완료");
   };
 

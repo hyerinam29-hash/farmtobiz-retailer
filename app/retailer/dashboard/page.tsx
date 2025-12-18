@@ -34,6 +34,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useCartStore } from "@/stores/cart-store";
+import { useCartOptions } from "@/hooks/use-cart-options";
 import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
 import { getHotDealProducts } from "@/actions/retailer/get-hot-deal-products";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
@@ -81,6 +82,7 @@ const Button = ({
 export default function RetailerDashboardPage() {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient } = useCartOptions();
 
   // 카운트다운 타이머 상태 (24시간 = 86400초) - 향후 사용 예정
   // const [timeLeft, setTimeLeft] = useState(86400);
@@ -332,22 +334,28 @@ export default function RetailerDashboardPage() {
       productName: product.name,
     });
 
-    addToCart({
-      product_id: product.id,
-      variant_id: null,
-      quantity: product.moq ?? 1,
-      unit_price: product.price,
-      shipping_fee: product.shipping_fee,
+    addToCart(
+      {
+        product_id: product.id,
+        variant_id: null,
+        quantity: product.moq ?? 1,
+        unit_price: product.price,
+        shipping_fee: product.shipping_fee,
         delivery_method: product.delivery_method ?? "courier",
-      wholesaler_id: product.wholesaler_id,
-      product_name: product.name,
-      anonymous_seller_id: product.wholesaler_anonymous_code,
-      seller_region: product.wholesaler_region,
-      product_image: product.image_url,
-      specification: product.specification,
-      moq: product.moq,
-      stock_quantity: product.stock_quantity,
-    });
+        wholesaler_id: product.wholesaler_id,
+        product_name: product.name,
+        anonymous_seller_id: product.wholesaler_anonymous_code,
+        seller_region: product.wholesaler_region,
+        product_image: product.image_url,
+        specification: product.specification,
+        moq: product.moq,
+        stock_quantity: product.stock_quantity,
+      },
+      {
+        retailerId: retailerId ?? undefined,
+        supabaseClient: supabaseClient ?? undefined,
+      }
+    );
 
     console.log("✅ [대시보드-HOT DEAL] 장바구니 담기 완료, 장바구니 페이지로 이동");
     router.push("/retailer/cart");

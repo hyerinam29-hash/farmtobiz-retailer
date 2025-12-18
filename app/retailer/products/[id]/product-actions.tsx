@@ -14,6 +14,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
+import { useCartOptions } from "@/hooks/use-cart-options";
 import { toast } from "sonner";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 import { calculateTotals } from "@/lib/utils/shipping";
@@ -25,6 +26,7 @@ interface ProductActionsProps {
 export function ProductActions({ product }: ProductActionsProps) {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient } = useCartOptions();
   
   // 수량 상태 (1부터 시작)
   const [quantity, setQuantity] = useState(product.moq);
@@ -61,22 +63,28 @@ export function ProductActions({ product }: ProductActionsProps) {
       quantity: quantityToAdd,
     });
 
-    addToCart({
-      product_id: product.id,
-      variant_id: null,
-      quantity: quantityToAdd, // Number로 보장
-      unit_price: product.price,
-      shipping_fee: product.shipping_fee,
-      delivery_method: product.delivery_method ?? "courier",
-      wholesaler_id: product.wholesaler_id,
-      product_name: product.standardized_name || product.name,
-      anonymous_seller_id: product.wholesaler_anonymous_code,
-      seller_region: product.wholesaler_region,
-      product_image: product.image_url,
-      specification: product.specification,
-      moq: product.moq || 1,
-      stock_quantity: product.stock_quantity,
-    });
+    addToCart(
+      {
+        product_id: product.id,
+        variant_id: null,
+        quantity: quantityToAdd, // Number로 보장
+        unit_price: product.price,
+        shipping_fee: product.shipping_fee,
+        delivery_method: product.delivery_method ?? "courier",
+        wholesaler_id: product.wholesaler_id,
+        product_name: product.standardized_name || product.name,
+        anonymous_seller_id: product.wholesaler_anonymous_code,
+        seller_region: product.wholesaler_region,
+        product_image: product.image_url,
+        specification: product.specification,
+        moq: product.moq || 1,
+        stock_quantity: product.stock_quantity,
+      },
+      {
+        retailerId: retailerId ?? undefined,
+        supabaseClient: supabaseClient ?? undefined,
+      }
+    );
 
     console.log("✅ [상품상세] 장바구니 담기 완료, quantity:", quantityToAdd);
     
@@ -100,22 +108,28 @@ export function ProductActions({ product }: ProductActionsProps) {
       quantity: quantityToAdd,
     });
 
-    addToCart({
-      product_id: product.id,
-      variant_id: null,
-      quantity: quantityToAdd, // Number로 보장
-      unit_price: product.price,
-      shipping_fee: product.shipping_fee,
-      delivery_method: product.delivery_method ?? "courier",
-      wholesaler_id: product.wholesaler_id,
-      product_name: product.standardized_name || product.name,
-      anonymous_seller_id: product.wholesaler_anonymous_code,
-      seller_region: product.wholesaler_region,
-      product_image: product.image_url,
-      specification: product.specification,
-      moq: product.moq || 1,
-      stock_quantity: product.stock_quantity,
-    });
+    addToCart(
+      {
+        product_id: product.id,
+        variant_id: null,
+        quantity: quantityToAdd, // Number로 보장
+        unit_price: product.price,
+        shipping_fee: product.shipping_fee,
+        delivery_method: product.delivery_method ?? "courier",
+        wholesaler_id: product.wholesaler_id,
+        product_name: product.standardized_name || product.name,
+        anonymous_seller_id: product.wholesaler_anonymous_code,
+        seller_region: product.wholesaler_region,
+        product_image: product.image_url,
+        specification: product.specification,
+        moq: product.moq || 1,
+        stock_quantity: product.stock_quantity,
+      },
+      {
+        retailerId: retailerId ?? undefined,
+        supabaseClient: supabaseClient ?? undefined,
+      }
+    );
 
     console.log("✅ [상품상세] 바로구매, quantity:", quantityToAdd);
     
