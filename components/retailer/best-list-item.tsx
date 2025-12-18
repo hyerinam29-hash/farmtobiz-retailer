@@ -11,6 +11,9 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
+import { useCartStore } from "@/stores/cart-store";
+import { useCartOptions } from "@/hooks/use-cart-options";
+import { toast } from "sonner";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 
 interface BestListItemProps {
@@ -20,16 +23,69 @@ interface BestListItemProps {
 
 export default function BestListItem({ product, rank }: BestListItemProps) {
   const router = useRouter();
+  const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient, isLoading } = useCartOptions();
 
-  const handleAddToCart = () => {
-    console.log("🛒 [베스트페이지] 장바구니 페이지로 이동:", {
+  const handleAddToCart = async () => {
+    // quantity를 명시적으로 Number로 변환하여 타입 보장
+    const quantityToAdd = Number(product.moq || 1);
+
+    if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
+      console.error("❌ [베스트페이지] 잘못된 수량:", quantityToAdd);
+      toast.error("올바른 수량을 선택해주세요");
+      return;
+    }
+
+    // 로딩 중이거나 retailerId가 없으면 중단
+    if (isLoading || !retailerId || !supabaseClient) {
+      console.warn("⚠️ [베스트페이지] 장바구니 담기 실패: 아직 준비되지 않음", {
+        isLoading,
+        hasRetailerId: !!retailerId,
+        hasSupabaseClient: !!supabaseClient,
+      });
+      toast.error("잠시 후 다시 시도해주세요");
+      return;
+    }
+
+    console.log("🛒 [베스트페이지] 장바구니 담기 시도:", {
       product_id: product.id,
       product_name: product.standardized_name || product.name,
       rank,
+      quantity: quantityToAdd,
     });
 
-    // 장바구니 페이지로 이동
-    router.push("/retailer/cart");
+    try {
+      await addToCart(
+        {
+          product_id: product.id,
+          variant_id: null,
+          quantity: quantityToAdd, // Number로 보장
+          unit_price: product.price,
+          shipping_fee: product.shipping_fee,
+          delivery_method: product.delivery_method ?? "courier",
+          wholesaler_id: product.wholesaler_id,
+          product_name: product.standardized_name || product.name,
+          anonymous_seller_id: product.wholesaler_anonymous_code,
+          seller_region: product.wholesaler_region,
+          product_image: product.image_url,
+          specification: product.specification,
+          moq: product.moq || 1,
+          stock_quantity: product.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        }
+      );
+
+      console.log("✅ [베스트페이지] 장바구니 담기 완료, quantity:", quantityToAdd);
+
+      // 장바구니 페이지로 이동
+      router.push("/retailer/cart");
+    } catch (error) {
+      console.error("❌ [베스트페이지] 장바구니 담기 실패:", error);
+      toast.error("장바구니 담기에 실패했습니다");
+    }
   };
 
   const handleImageClick = () => {
@@ -85,9 +141,9 @@ export default function BestListItem({ product, rank }: BestListItemProps) {
       {/* 장바구니 버튼 */}
       <button
         onClick={handleAddToCart}
-        disabled={product.stock_quantity === 0}
+        disabled={product.stock_quantity === 0 || isLoading || !retailerId || !supabaseClient}
         className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:border-purple-600 dark:hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors bg-white dark:bg-gray-800 shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed duration-200"
-        aria-label="장바구니 담기"
+        aria-label={isLoading ? "로딩 중..." : "장바구니 담기"}
       >
         <ShoppingCart size={18} className="md:w-5 md:h-5" />
       </button>
