@@ -77,7 +77,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* 가격 및 재고 */}
-        <div className="flex items-center justify-between mt-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-auto gap-2">
           <div>
             <p className="text-lg md:text-2xl font-bold text-green-600 dark:text-green-400 whitespace-nowrap">
               {product.price.toLocaleString()}원
@@ -94,7 +94,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
           {product.moq > 1 && (
-            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
               최소 {product.moq}개
             </p>
           )}
