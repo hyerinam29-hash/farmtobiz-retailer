@@ -79,7 +79,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* 가격 및 재고 */}
         <div className="flex items-center justify-between mt-auto">
           <div>
-            <p className="text-lg md:text-2xl font-bold text-green-600 dark:text-green-400">
+            <p className="text-lg md:text-2xl font-bold text-green-600 dark:text-green-400 whitespace-nowrap">
               {product.price.toLocaleString()}원
             </p>
             {product.stock_quantity > 0 && (
