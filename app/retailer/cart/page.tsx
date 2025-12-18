@@ -458,7 +458,7 @@ export default function CartPage() {
               {/* 쇼핑 계속하기 링크 */}
               <Link
                 href="/retailer/dashboard"
-                className="block text-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200"
+                className="block text-center text-sm text-gray-500 dark:text-white hover:text-gray-700 dark:hover:text-white transition-colors duration-200"
               >
                 쇼핑 계속하기
               </Link>
