@@ -8,15 +8,13 @@
     <img src="https://img.shields.io/badge/-Tailwind_v4-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="tailwind" />
     <img src="https://img.shields.io/badge/-Clerk-6C47FF?style=for-the-badge&logoColor=white&logo=clerk" alt="clerk" />
     <img src="https://img.shields.io/badge/-Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="supabase" />
-    <img src="https://img.shields.io/badge/-Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white" alt="gemini" />
-    <img src="https://img.shields.io/badge/-Toss_Payments-0066FF?style=for-the-badge&logoColor=white" alt="tosspayments" />
   </div>
 
   <h1 align="center">FarmToBiz Retailer</h1>
-  <h3 align="center">농산물 도매/소매 B2B 플랫폼</h3>
+  <h3 align="center">농산물 유통 플랫폼 소매업자 전용 페이지</h3>
 
   <p align="center">
-    AI 기반 농수산물 거래 플랫폼 - 소매상의 스마트한 도매 구매를 위한 올인원 솔루션
+    신선한 농산물을 공급받아 판매하는 소매업자를 위한 디지털 플랫폼
   </p>
 </div>
 
@@ -28,18 +26,18 @@
 4. [시작하기](#시작하기)
 5. [추가 설정 및 팁](#추가-설정-및-팁)
 6. [프로젝트 구조](#프로젝트-구조)
+7. [팀 협업](#팀-협업)
 
 ## 소개
 
-농수산물 소매상을 위한 AI 기반 B2B 도매 구매 플랫폼입니다. 도매상의 익명화와 AI 표준화를 통해 투명하고 안전한 거래 환경을 제공합니다.
+FarmToBiz 플랫폼의 소매업자 전용 웹 애플리케이션입니다. 도매상으로부터 신선한 농산물을 공급받아 효율적으로 판매할 수 있는 디지털 솔루션을 제공합니다.
 
 **핵심 특징:**
-- 🤖 **AI 기반 상품 추천**: Gemini AI가 구매 패턴과 시장 트렌드를 분석하여 최적의 상품 추천
-- 🔒 **안전한 거래 환경**: 도매상 정보 익명화로 개인정보 보호
-- 🚚 **스마트 배송 시스템**: 소매점 운영 시간에 맞춘 배송 시간 지정
-- 💳 **통합 결제 시스템**: Toss Payments 연동으로 안전한 결제 처리
-- 📊 **실시간 시장 가격**: KAMIS API 연동으로 실시간 시세 정보 제공
-- 🌙 **모던 UI/UX**: 다크모드 지원, 반응형 디자인, 접근성 준수
+- 🥕 **농산물 상품 관리**: 도매 상품 조회 및 주문
+- 📦 **배송 추적 시스템**: 실시간 배송 상태 모니터링
+- 🔐 **안전한 인증**: Clerk 기반 사용자 인증 및 권한 관리
+- 📊 **실시간 데이터**: Supabase를 통한 실시간 재고 및 주문 현황
+- 📱 **반응형 디자인**: 모바일 및 데스크톱 최적화 UI
 
 ## 기술 스택
 
@@ -51,14 +49,14 @@
 
 ### 인증 & 데이터베이스
 
-- **[Clerk](https://clerk.com/)** - 사용자 인증 및 관리
-  - Google, 이메일 등 다양한 로그인 방식 지원
+- **[Clerk](https://clerk.com/)** - 소매업자 인증 및 관리
+  - 안전한 로그인 시스템
   - 한국어 UI 지원
   - Supabase와 네이티브 통합
-- **[Supabase](https://supabase.com/)** - PostgreSQL 데이터베이스
-  - 실시간 데이터 동기화
-  - Row Level Security (RLS)
-  - 파일 스토리지
+- **[Supabase](https://supabase.com/)** - 농산물 데이터베이스
+  - 실시간 재고 및 주문 현황 동기화
+  - Row Level Security (RLS) 기반 데이터 보안
+  - 상품 이미지 및 문서 스토리지
 
 ### UI & 스타일링
 
@@ -67,60 +65,36 @@
 - **[Radix UI](https://www.radix-ui.com/)** - 접근성 높은 헤드리스 컴포넌트
 - **[lucide-react](https://lucide.dev/)** - 아이콘 라이브러리
 
-### AI & 외부 API
-
-- **[Google Gemini AI](https://ai.google.dev/)** - 상품 추천 및 챗봇 기능
-- **[KAMIS API](https://www.kamis.or.kr/)** - 실시간 농산물 시장 가격 정보
-- **[Toss Payments](https://toss.dev/)** - 안전한 결제 처리 시스템
-
 ### 폼 & 검증
 
 - **[React Hook Form](https://react-hook-form.com/)** - 폼 상태 관리
 - **[Zod](https://zod.dev/)** - 스키마 검증
 
-### 상태 관리 & 유틸리티
-
-- **[Zustand](https://zustand-demo.pmnd.rs/)** - 경량 상태 관리 (장바구니 등)
-- **[TanStack Query](https://tanstack.com/query/)** - 서버 상태 관리
-- **[date-fns](https://date-fns.org/)** - 날짜/시간 처리
-- **[es-toolkit](https://es-toolkit.slash.page/)** - 모던 JavaScript 유틸리티
-
 ## 주요 기능
 
-### 🔐 다중 역할 인증 시스템
-- **역할 기반 접근 제어**: 소매상(Retailer), 도매상(Wholesaler), 관리자(Admin) 역할별 맞춤 기능
-- **Clerk 통합**: 안전한 사용자 인증 및 권한 관리
-- **자동 동기화**: Clerk 사용자 정보를 Supabase에 자동 동기화
-- **한국어 UI**: Clerk 한국어 로컬라이제이션 지원
+### 🥕 농산물 상품 관리
+- **실시간 상품 조회**: 도매상 상품 목록 및 재고 현황 확인
+- **스마트 검색 및 필터링**: 품목, 가격, 품질 등으로 상품 검색
+- **즉시 주문 시스템**: 원클릭으로 상품 주문 및 수량 조정
+- **가격 변동 알림**: 관심 상품의 가격 변동 실시간 알림
 
-### 🤖 AI 기반 소매상 대시보드
-- **개인화 추천**: 구매 이력 기반 AI 상품 추천 시스템
-- **시장 트렌드 분석**: 실시간 농산물 가격 및 재고 예측
-- **스마트 알림**: 재고 부족, 가격 변동 등 긴급 알림
-- **Bento Grid 레이아웃**: 모듈형 대시보드로 효율적인 정보 배치
+### 📦 배송 및 물류 관리
+- **실시간 배송 추적**: 주문부터 배송완료까지 전 과정 모니터링
+- **배송 일정 관리**: 예상 도착 시간 및 배송 상태 확인
+- **품질 보증 시스템**: 상품 품질 검사 및 이상 시 즉시 대응
+- **자동 재주문**: 재고 부족 시 자동 알림 및 재주문 제안
 
-### 🛒 지능형 상품 검색 및 구매
-- **AI 상품명 표준화**: 혼란스러운 상품명을 AI가 일관된 형식으로 정제
-- **Command Palette**: `Cmd+K`로 상품, 카테고리, 주문 내역 통합 검색
-- **익명화된 도매 정보**: 보안을 위해 도매상 정보 익명 표시 (Partner #F2B-01)
-- **배송 필터링**: 새벽/일반 배송 옵션으로 운영 시간에 맞는 상품 필터링
+### 📊 비즈니스 인사이트
+- **판매 분석 대시보드**: 판매 현황 및 추이 분석
+- **고객 관리**: 단골 고객 정보 및 주문 패턴 분석
+- **재고 최적화**: 최적 재고량 추천 및 자동 발주 제안
+- **매출 리포트**: 일별/월별 매출 및 이익 분석
 
-### 💳 안전한 결제 및 배송 시스템
-- **Toss Payments 연동**: 안정적인 결제 처리 및 에스크로 기능
-- **플랫폼 수취**: 모든 결제는 FarmToBiz 플랫폼 명의로 진행
-- **스마트 배송 시간 지정**: 소매점 운영 시간에 맞춘 배송 스케줄링
-- **실시간 배송 추적**: 타임라인 기반 배송 상태 모니터링
-
-### 💬 AI 고객 지원 챗봇
-- **통합 인터페이스**: 모든 페이지에서 Floating Action Button으로 접근
-- **배송/상품 문의**: 도매 배송 정보, 상품 상세 정보 즉시 답변
-- **PII 마스킹**: 응답 생성 시 개인정보 자동 마스킹으로 보안 유지
-- **Command Palette 통합**: 검색과 AI 질의 동시 지원
-
-### 📊 실시간 시장 데이터
-- **KAMIS API 연동**: 농림축산식품부 공공 API로 실시간 시세 정보
-- **가격 예측**: AI 기반 미래 가격 트렌드 예측
-- **지역별 가격 비교**: 전국 주요 도매시장 가격 비교 기능
+### 🔐 보안 및 인증
+- **안전한 사용자 인증**: Clerk 기반 다중 인증 지원
+- **역할 기반 접근 제어**: 소매업자 권한별 기능 접근 제한
+- **데이터 암호화**: 민감한 거래 정보 보호
+- **실시간 감사 로그**: 모든 거래 및 시스템 접근 기록
 
 ## 시작하기
 
@@ -139,7 +113,7 @@ npm install -g pnpm
 
 ### 프로젝트 초기화
 
-FarmToBiz 플랫폼을 로컬 환경에서 실행하기 위한 설정입니다:
+다음 단계를 순서대로 진행하세요:
 
 #### 1. Supabase 프로젝트 생성
 
@@ -219,16 +193,8 @@ FarmToBiz 플랫폼을 로컬 환경에서 실행하기 위한 설정입니다:
 4. **"Run"** 클릭하여 실행
 5. 성공 메시지 확인 (`Success. No rows returned`)
 
-**주요 테이블:**
+**생성되는 테이블:**
 - `users`: Clerk 사용자와 동기화되는 사용자 정보 테이블
-- `retailers`: 소매상 프로필 및 사업자 정보
-- `wholesalers`: 도매상 정보 (익명화된 식별자와 지역 정보)
-- `products`: 농수산물 상품 정보 (AI 표준화된 상품명)
-- `orders`: 주문 및 결제 정보
-- `cart_items`: 장바구니 상품 정보
-- `inquiries`: 고객 문의 및 AI 챗봇 대화 기록
-- `delivery_addresses`: 배송 주소 관리
-- `market_prices`: 실시간 농산물 시세 데이터
 
 #### 6. 환경 변수 설정
 
@@ -315,14 +281,9 @@ pnpm dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인합니다.
 
-**주요 페이지:**
-- `/retailer/dashboard`: AI 기반 소매상 대시보드
-- `/retailer/products`: 상품 검색 및 구매
-- `/retailer/cart`: 장바구니 및 주문 관리
-- `/retailer/orders`: 주문 내역 및 배송 추적
-- `/retailer/cs`: 고객 문의 및 AI 챗봇
-- `/admin/dashboard`: 관리자 대시보드
-- `/wholesaler/*`: 도매상 전용 페이지들
+**테스트 페이지:**
+- `/auth-test`: Clerk + Supabase 인증 통합 테스트
+- `/storage-test`: Supabase Storage 업로드 테스트
 
 ### 개발 명령어
 
@@ -392,107 +353,67 @@ Clerk에서 추가 로그인 방식을 활성화하려면:
 ```
 farmtobiz-retailer/
 ├── app/                          # Next.js App Router
-│   ├── (auth)/                  # 인증 관련 페이지
-│   │   ├── sign-in/            # 로그인
-│   │   ├── sign-up/            # 회원가입
-│   │   └── role-selection/     # 역할 선택
-│   ├── admin/                   # 관리자 페이지
-│   │   ├── dashboard/          # 관리자 대시보드
-│   │   └── wholesalers/        # 도매상 관리
+│   ├── retailer/                 # 소매업자 전용 페이지
+│   │   ├── dashboard/           # 대시보드
+│   │   ├── products/            # 상품 목록
+│   │   ├── orders/              # 주문 관리
+│   │   ├── delivery-tracking/   # 배송 추적
+│   │   └── profile/             # 프로필 설정
 │   ├── api/                     # API Routes
-│   │   ├── ai/                 # Gemini AI API
-│   │   ├── market-prices/      # 실시간 시세 API
-│   │   ├── payments/           # Toss Payments API
-│   │   └── sync-user/          # 사용자 동기화
-│   ├── retailer/                # 소매상 페이지
-│   │   ├── dashboard/          # AI 대시보드
-│   │   ├── products/           # 상품 검색/구매
-│   │   ├── cart/               # 장바구니
-│   │   ├── orders/             # 주문 관리
-│   │   ├── cs/                 # 고객 문의
-│   │   └── profile/            # 프로필 관리
-│   └── globals.css             # Tailwind CSS 설정
+│   │   └── sync-user/          # Clerk → Supabase 사용자 동기화
+│   ├── layout.tsx               # Root Layout (Clerk Provider)
+│   ├── page.tsx                 # 홈페이지
+│   └── globals.css              # 전역 스타일 (Tailwind v4 설정)
 │
-├── components/                  # React 컴포넌트
-│   ├── admin/                  # 관리자 컴포넌트
-│   ├── common/                 # 공통 컴포넌트
-│   ├── retailer/               # 소매상 전용 컴포넌트
-│   ├── ui/                     # shadcn/ui 컴포넌트
-│   ├── providers/              # Context Providers
-│   │   ├── query-provider.tsx  # TanStack Query
-│   │   ├── sync-user-provider.tsx # 사용자 동기화
-│   │   └── theme-provider.tsx  # 다크모드
-│   └── role-selection-header.tsx
+├── components/                   # React 컴포넌트
+│   ├── ui/                      # shadcn/ui 컴포넌트 (자동 생성)
+│   ├── providers/               # Context Providers
+│   │   └── sync-user-provider.tsx
+│   ├── retailer/                # 소매업자 전용 컴포넌트
+│   │   ├── ProductCard.tsx      # 상품 카드
+│   │   ├── OrderList.tsx        # 주문 목록
+│   │   ├── DeliveryTracker.tsx  # 배송 추적기
+│   │   └── DashboardStats.tsx   # 대시보드 통계
+│   └── Navbar.tsx               # 네비게이션 바
 │
 ├── lib/                         # 유틸리티 및 설정
-│   ├── api/                    # 외부 API 클라이언트
-│   │   ├── ai-inquiry.ts       # AI 문의 처리
-│   │   ├── market-prices.ts    # 시세 API
-│   │   └── gemini.ts           # Gemini AI 설정
-│   ├── supabase/               # Supabase 클라이언트들
-│   │   ├── queries/            # 데이터베이스 쿼리들
-│   │   ├── clerk-client.ts     # Client Component용
-│   │   ├── server.ts           # Server Component용
-│   │   ├── service-role.ts     # 관리자용
-│   │   └── client.ts           # 공개 데이터용
-│   ├── payments/               # 결제 관련 유틸리티
-│   ├── utils/                  # 공통 유틸리티
-│   ├── validation/             # Zod 스키마 검증
-│   └── clerk/                  # Clerk 설정
-│
-├── actions/                     # Server Actions
-│   ├── admin/                  # 관리자 액션
-│   ├── retailer/               # 소매상 액션
-│   └── wholesaler/             # 도매상 액션
+│   ├── supabase/                # Supabase 클라이언트들
+│   │   ├── clerk-client.ts      # Client Component용
+│   │   ├── server.ts            # Server Component용
+│   │   ├── service-role.ts      # 관리자용
+│   │   ├── client.ts            # 공개 데이터용
+│   │   └── queries/             # 데이터베이스 쿼리
+│   │       └── retailer-products.ts # 소매 상품 쿼리
+│   └── utils.ts                 # 공통 유틸리티 (cn 함수 등)
 │
 ├── hooks/                       # Custom React Hooks
-│   ├── use-cart-data.ts        # 장바구니 데이터
-│   ├── use-market-prices.ts    # 시세 데이터
-│   ├── use-sync-user.ts        # 사용자 동기화
-│   └── use-toss-payment.ts     # Toss 결제
+│   ├── use-sync-user.ts         # 사용자 동기화 훅
+│   └── use-retailer-data.ts     # 소매업자 데이터 훅
 │
-├── stores/                      # Zustand 상태 관리
-│   └── cart-store.ts           # 장바구니 상태
-│
-├── types/                       # TypeScript 타입 정의
-│   ├── cart.ts                 # 장바구니 타입
-│   ├── order.ts                # 주문 타입
-│   ├── product.ts              # 상품 타입
-│   └── database.ts             # 데이터베이스 타입
-│
-├── supabase/                    # Supabase 설정
-│   ├── migrations/             # 데이터베이스 마이그레이션
-│   └── config.toml             # 프로젝트 설정
-│
-├── docs/                        # 문서 및 디자인
-│   ├── design-handoff/         # 디자인 파일들
-│   ├── retailer/               # 소매상 관련 문서
-│   │   ├── RE_PRD.md          # 요구사항 정의서
-│   │   ├── RE_TODO.md         # 작업 목록
-│   │   └── Payment_API.md     # 결제 API 문서
-│   └── PRD.md                  # 전체 PRD
+├── supabase/                    # Supabase 관련 파일
+│   ├── migrations/              # 데이터베이스 마이그레이션
+│   │   └── schema.sql          # 초기 스키마
+│   └── config.toml              # Supabase 프로젝트 설정
 │
 ├── .cursor/                     # Cursor AI 규칙
-│   └── rules/                  # 개발 컨벤션
+│   └── rules/                  # 개발 컨벤션 및 가이드
 │
-├── middleware.ts                # Next.js 미들웨어
-├── CLAUDE.md                    # AI 에이전트 가이드
-├── AGENTS.md                    # 프로젝트 가이드
-└── package.json                 # 의존성 관리
+├── middleware.ts                # Next.js 미들웨어 (Clerk)
+├── .env.example                # 환경 변수 예시
+├── RE_TODO.md                  # 작업 진행 상황
+└── AGENTS.md                   # AI 에이전트용 프로젝트 가이드
 ```
 
 ### 주요 파일 설명
 
-- **`middleware.ts`**: 역할 기반 라우팅 및 Clerk 인증 미들웨어
-- **`app/retailer/dashboard/page.tsx`**: AI 기반 소매상 대시보드 메인 페이지
-- **`lib/supabase/queries/retailer-products.ts`**: 상품 검색 및 구매 관련 데이터베이스 쿼리
-- **`actions/retailer/chat-with-gemini.ts`**: Gemini AI 챗봇과의 대화 처리
-- **`hooks/use-market-prices.ts`**: 실시간 농산물 시세 데이터 관리
-- **`components/retailer/ProductCard.tsx`**: 상품 표시 및 장바구니 담기 컴포넌트
-- **`stores/cart-store.ts`**: Zustand를 사용한 장바구니 상태 관리
-- **`lib/payments/process-payment.ts`**: Toss Payments 결제 처리 로직
-- **`CLAUDE.md`**: Claude Code를 위한 프로젝트 가이드
-- **`docs/retailer/RE_PRD.md`**: 소매상 기능 요구사항 정의서
+- **`middleware.ts`**: Clerk 인증 미들웨어 설정
+- **`app/retailer/`**: 소매업자 전용 페이지들 (대시보드, 상품, 주문, 배송 등)
+- **`app/layout.tsx`**: ClerkProvider와 SyncUserProvider 설정
+- **`lib/supabase/queries/retailer-products.ts`**: 소매 상품 데이터베이스 쿼리
+- **`components/retailer/`**: 소매업자 전용 컴포넌트들
+- **`hooks/use-sync-user.ts`**: Clerk 사용자를 Supabase에 자동 동기화
+- **`components/providers/sync-user-provider.tsx`**: 앱 전역에서 사용자 동기화 실행
+- **`AGENTS.md`**: AI 에이전트용 프로젝트 가이드
 
 ## 추가 리소스
 
@@ -502,50 +423,12 @@ farmtobiz-retailer/
 - [shadcn/ui 문서](https://ui.shadcn.com/)
 - [Tailwind CSS v4 문서](https://tailwindcss.com/docs)
 
-## 추가 설정 및 팁
+## 팀 협업
 
-### Gemini AI 설정
-
-프로젝트에서 Gemini AI를 사용하기 위해서는 Google AI Studio에서 API 키를 발급받아야 합니다:
-
-1. [Google AI Studio](https://makersuite.google.com/app/apikey) 접속
-2. 새로운 API 키 생성
-3. `.env` 파일에 `GOOGLE_AI_API_KEY` 추가
-
-### Toss Payments 설정
-
-실제 결제 기능을 사용하기 위해서는 Toss Payments에서 API 키를 발급받아야 합니다:
-
-1. [Toss Payments 개발자 센터](https://developers.tosspayments.com) 접속
-2. 테스트용 API 키 발급
-3. `.env` 파일에 관련 키들 추가
-
-### KAMIS API 설정
-
-농산물 시세 정보를 사용하기 위해서는 농림축산식품부 KAMIS API 키가 필요합니다:
-
-1. [KAMIS 개발자 포털](https://www.kamis.or.kr)에서 회원가입 및 API 키 발급
-2. `.env` 파일에 API 키 추가
-
-### Package.json 업데이트
-
-현재 `package.json`의 프로젝트 이름이 `saas-mini-course`로 되어 있습니다. 실제 프로젝트명에 맞게 변경하는 것을 권장합니다:
-
-```json
-{
-  "name": "farmtobiz-retailer",
-  "version": "0.1.0",
-  "private": true
-}
-```
+- **도매 페이지**: 현재 사용자 담당 영역
+- **소매 페이지**: 다른 팀원 담당 영역
+- **공통 작업**: README, 환경설정 등은 협의 후 진행
 
 ---
 
-**FarmToBiz Retailer** - AI 기반 농수산물 B2B 플랫폼 🚀
-#   l i n k m a r k e t 
- 
- #   f a r m t o b i z - r e t a i l e r 
- 
- #   f a r m t o b i z - r e t a i l e r 
- 
- 
+**FarmToBiz Retailer** - 신선한 농산물 유통의 미래를 만들어가는 소매업자 플랫폼
