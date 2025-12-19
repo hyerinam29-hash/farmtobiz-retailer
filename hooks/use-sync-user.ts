@@ -47,10 +47,12 @@ export function useSyncUser() {
       setError(null);
 
       try {
-        console.log(
-          `🔄 [use-sync-user] 동기화 시도 ${attempt}/${MAX_RETRIES}, userId:`,
-          userId,
-        );
+        if (process.env.NODE_ENV === 'development') {
+          console.log(
+            `🔄 [use-sync-user] 동기화 시도 ${attempt}/${MAX_RETRIES}, userId:`,
+            userId,
+          );
+        }
 
         const response = await fetch("/api/sync-user", {
           method: "POST",
@@ -67,24 +69,28 @@ export function useSyncUser() {
           const errorCode = data.code || "UNKNOWN";
           const errorHint = data.hint || "";
 
-          console.error("❌ [use-sync-user] 동기화 실패:", {
-            attempt,
-            error: errorMessage,
-            code: errorCode,
-            hint: errorHint,
-            response: data,
-          });
+          if (process.env.NODE_ENV === 'development') {
+            console.error("❌ [use-sync-user] 동기화 실패:", {
+              attempt,
+              error: errorMessage,
+              code: errorCode,
+              hint: errorHint,
+              response: data,
+            });
+          }
 
           // 재시도 가능한 경우 (401, 500 등)
           if (
             attempt < MAX_RETRIES &&
             (response.status === 500 || response.status === 401)
           ) {
-            console.log(
-              `⏳ [use-sync-user] ${RETRY_DELAY}ms 후 재시도 예정 (${
-                attempt + 1
-              }/${MAX_RETRIES})`,
-            );
+            if (process.env.NODE_ENV === 'development') {
+              console.log(
+                `⏳ [use-sync-user] ${RETRY_DELAY}ms 후 재시도 예정 (${
+                  attempt + 1
+                }/${MAX_RETRIES})`,
+              );
+            }
             setTimeout(() => {
               syncUser(attempt + 1);
             }, RETRY_DELAY);
@@ -97,11 +103,13 @@ export function useSyncUser() {
           return;
         }
 
-        console.log("✅ [use-sync-user] 동기화 성공:", {
-          profile: data.profile,
-          user: data.user,
-          message: data.message,
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.log("✅ [use-sync-user] 동기화 성공:", {
+            profile: data.profile,
+            user: data.user,
+            message: data.message,
+          });
+        }
 
         syncedRef.current = true;
         retryCountRef.current = 0;
@@ -113,19 +121,23 @@ export function useSyncUser() {
             ? error.message
             : "알 수 없는 오류가 발생했습니다.";
 
-        console.error("❌ [use-sync-user] 동기화 예외:", {
-          attempt,
-          error: errorMessage,
-          errorObject: error,
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.error("❌ [use-sync-user] 동기화 예외:", {
+            attempt,
+            error: errorMessage,
+            errorObject: error,
+          });
+        }
 
         // 네트워크 오류 등 재시도 가능한 경우
         if (attempt < MAX_RETRIES) {
-          console.log(
-            `⏳ [use-sync-user] ${RETRY_DELAY}ms 후 재시도 예정 (${
-              attempt + 1
-            }/${MAX_RETRIES})`,
-          );
+          if (process.env.NODE_ENV === 'development') {
+            console.log(
+              `⏳ [use-sync-user] ${RETRY_DELAY}ms 후 재시도 예정 (${
+                attempt + 1
+              }/${MAX_RETRIES})`,
+            );
+          }
           setTimeout(() => {
             syncUser(attempt + 1);
           }, RETRY_DELAY);

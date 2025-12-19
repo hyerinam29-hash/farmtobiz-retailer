@@ -17,14 +17,16 @@ export function SyncUserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (error) {
-      console.error("❌ [SyncUserProvider] 사용자 동기화 오류:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("❌ [SyncUserProvider] 사용자 동기화 오류:", error);
+      }
       // 필요시 사용자에게 알림 표시 (예: toast, alert 등)
       // 현재는 콘솔 로그만 남김
     }
   }, [error]);
 
   useEffect(() => {
-    if (isSyncing) {
+    if (isSyncing && process.env.NODE_ENV === 'development') {
       console.log("🔄 [SyncUserProvider] 사용자 동기화 진행 중...");
     }
   }, [isSyncing]);
