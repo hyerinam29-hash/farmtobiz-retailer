@@ -453,10 +453,10 @@ export async function getBestRetailerProducts(
 }
 
 /**
- * 전체 베스트 상품 조회 (인기순)
+ * 전체 베스트 상품 조회 (판매량 기준)
  *
- * 모든 카테고리의 베스트 상품을 조회합니다.
- * 현재는 최근 생성된 순서로 정렬하지만, 향후 판매량이나 추천 기준으로 변경 예정.
+ * 모든 카테고리의 베스트 상품을 판매량 기준으로 조회합니다.
+ * 완료된 주문의 판매량을 집계하여 실제 인기 상품을 표시합니다.
  *
  * @param limit 조회할 상품 개수 (기본값: 10)
  * @returns 베스트 상품 목록
@@ -464,13 +464,14 @@ export async function getBestRetailerProducts(
 export async function getAllBestRetailerProducts(
   limit: number = 10
 ): Promise<RetailerProduct[]> {
-  console.log("🏆 [retailer-products-query] 전체 베스트 상품 조회 시작", {
+  console.log("🏆 [retailer-products-query] 전체 베스트 상품 조회 시작 (판매량 기준)", {
     limit,
   });
 
   const supabase = createClerkSupabaseClient();
 
-  const { data, error } = await supabase
+  // 1. 모든 활성화된 상품 조회
+  const { data: productsData, error: productsError } = await supabase
     .from("products")
     .select(
       `
@@ -481,18 +482,35 @@ export async function getAllBestRetailerProducts(
       )
     `
     )
-    .eq("is_active", true)
-    // 현재는 최근 생성된 순서로 정렬 (향후 판매량/추천 기준으로 변경 예정)
-    .order("created_at", { ascending: false })
-    .limit(limit);
+    .eq("is_active", true);
 
-  if (error) {
-    console.error("❌ [retailer-products-query] 전체 베스트 상품 조회 오류:", error);
-    throw new Error(`전체 베스트 상품 조회 실패: ${error.message}`);
+  if (productsError) {
+    console.error("❌ [retailer-products-query] 상품 조회 오류:", productsError);
+    throw new Error(`베스트 상품 조회 실패: ${productsError.message}`);
   }
 
-  // 데이터 변환: 익명화된 도매 정보 포함
-  const products: RetailerProduct[] = (data ?? []).map((item: any) => {
+  // 2. 판매량 데이터 조회 (완료된 주문만)
+  console.log("📊 [retailer-products-query] 판매량 데이터 조회 시작");
+  const { data: ordersData, error: ordersError } = await supabase
+    .from("orders")
+    .select("product_id, quantity, status")
+    .in("status", ["completed", "shipped", "confirmed"]); // 완료/배송중/확인된 주문만 집계
+
+  const salesData: Map<string, number> = new Map();
+  if (!ordersError && ordersData) {
+    ordersData.forEach((order: any) => {
+      const currentSales = salesData.get(order.product_id) || 0;
+      salesData.set(order.product_id, currentSales + order.quantity);
+    });
+    console.log("✅ [retailer-products-query] 판매량 데이터 조회 완료", {
+      productsWithSales: salesData.size,
+    });
+  } else {
+    console.warn("⚠️ [retailer-products-query] 판매량 데이터 조회 실패:", ordersError);
+  }
+
+  // 3. 데이터 변환 및 판매량 추가
+  let products: (RetailerProduct & { _sales_count: number })[] = (productsData ?? []).map((item: any) => {
     const wholesaler = Array.isArray(item.wholesalers)
       ? item.wholesalers[0]
       : item.wholesalers;
@@ -510,7 +528,7 @@ export async function getAllBestRetailerProducts(
     // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
     const specifications = item.specifications || {};
     const originFromSpec = specifications.origin;
-    
+
     // 카테고리별 기본 원산지 매핑
     const categoryOriginMap: Record<string, string> = {
       과일: "제주도",
@@ -519,8 +537,10 @@ export async function getAllBestRetailerProducts(
       "곡물/견과류": "전라북도",
       기타: "국내",
     };
-    
+
     const origin = originFromSpec || categoryOriginMap[item.category] || "국내";
+
+    const salesCount = salesData.get(item.id) || 0;
 
     return {
       ...item,
@@ -528,13 +548,24 @@ export async function getAllBestRetailerProducts(
       wholesaler_region: region,
       delivery_dawn_available: dawnDeliveryAvailable,
       origin,
+      _sales_count: salesCount, // 판매량 추가
     };
   });
 
-  console.log("✅ [retailer-products-query] 전체 베스트 상품 조회 완료", {
-    count: products.length,
+  // 4. 판매량 기준으로 정렬 (내림차순)
+  products.sort((a, b) => b._sales_count - a._sales_count);
+
+  // 5. 상위 limit 개수만 선택
+  const topProducts = products.slice(0, limit);
+
+  // 6. 임시 판매량 필드 제거
+  const finalProducts: RetailerProduct[] = topProducts.map(({ _sales_count, ...product }) => product);
+
+  console.log("✅ [retailer-products-query] 전체 베스트 상품 조회 완료 (판매량 기준)", {
+    count: finalProducts.length,
+    topSalesCounts: finalProducts.slice(0, 3).map(p => salesData.get(p.id) || 0),
   });
 
-  return products;
+  return finalProducts;
 }
 
