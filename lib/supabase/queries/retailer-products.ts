@@ -510,7 +510,7 @@ export async function getAllBestRetailerProducts(
   }
 
   // 3. 데이터 변환 및 판매량 추가
-  let products: (RetailerProduct & { _sales_count: number })[] = (productsData ?? []).map((item: any) => {
+  const products: (RetailerProduct & { _sales_count: number })[] = (productsData ?? []).map((item: any) => {
     const wholesaler = Array.isArray(item.wholesalers)
       ? item.wholesalers[0]
       : item.wholesalers;
@@ -559,7 +559,11 @@ export async function getAllBestRetailerProducts(
   const topProducts = products.slice(0, limit);
 
   // 6. 임시 판매량 필드 제거
-  const finalProducts: RetailerProduct[] = topProducts.map(({ _sales_count, ...product }) => product);
+  const finalProducts: RetailerProduct[] = topProducts.map((product) => {
+    const cleanProduct = { ...product };
+    delete cleanProduct._sales_count;
+    return cleanProduct;
+  });
 
   console.log("✅ [retailer-products-query] 전체 베스트 상품 조회 완료 (판매량 기준)", {
     count: finalProducts.length,
