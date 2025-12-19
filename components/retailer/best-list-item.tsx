@@ -127,7 +127,10 @@ export default function BestListItem({ product, rank }: BestListItemProps) {
 
       {/* 상품 정보 */}
       <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-lg md:text-xl text-gray-900 dark:text-gray-100 mb-1 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors line-clamp-1 duration-200">
+        <h3 
+          onClick={handleImageClick}
+          className="font-bold text-lg md:text-xl text-gray-900 dark:text-gray-100 mb-1 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors line-clamp-1 duration-200 cursor-pointer"
+        >
           {product.standardized_name || product.name}
         </h3>
         <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-2 md:mb-3 line-clamp-2 transition-colors duration-200">
