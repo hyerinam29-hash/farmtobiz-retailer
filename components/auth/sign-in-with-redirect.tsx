@@ -565,21 +565,27 @@ export default function SignInWithRedirect({
       roleCheckStartedRef.current = true; // 중복 실행 방지
       setIsWholesalerChecking(true);
 
-      // 역할 확인 API 호출
+      // 역할 확인 API 호출 (소매점 존재 여부도 함께 확인)
       const checkUserRole = async () => {
         try {
           console.log("📡 [Wholesaler Block] /api/check-role API 호출");
           const response = await fetch("/api/check-role");
           const data = await response.json();
-          console.log("✅ [Wholesaler Block] 역할 확인 결과:", data.role);
-          return data.role; // 'retailer' | 'wholesaler' | 'admin' | null
+          console.log("✅ [Wholesaler Block] 역할 확인 결과:", {
+            role: data.role,
+            hasRetailer: data.hasRetailer,
+          });
+          return {
+            role: data.role, // 'retailer' | 'wholesaler' | 'admin' | null
+            hasRetailer: data.hasRetailer as boolean | undefined,
+          };
         } catch (error) {
           console.error("❌ [Wholesaler Block] 역할 확인 실패:", error);
-          return null;
+          return { role: null, hasRetailer: undefined };
         }
       };
 
-      checkUserRole().then((role) => {
+      checkUserRole().then(({ role, hasRetailer }) => {
         setRoleCheckComplete(true);
 
         if (role === "wholesaler" || role === "admin") {
@@ -589,17 +595,41 @@ export default function SignInWithRedirect({
           setBlockedRole(role);
           setShowWholesalerBlockModal(true);
           // signOut은 모달에서 확인 버튼 클릭 시 실행
-        } else {
-          console.log(
-            "✅ [Wholesaler Block] 소매점 계정 또는 역할 없음 - 정상 진행",
-          );
+        } else if (role === "retailer") {
+          // 소매점 역할인 경우
           setIsWholesalerChecking(false);
 
-          // 소매점 계정이면 수동으로 리다이렉트
-          const targetUrl =
-            forceRedirectUrl || fallbackRedirectUrl || "/retailer/dashboard";
+          if (hasRetailer === true) {
+            // 이미 등록된 소매점이 있으면 바로 대시보드로 (온보딩 페이지 우회)
+            console.log(
+              "✅ [Wholesaler Block] 등록된 소매점 확인 - 대시보드로 직접 이동",
+            );
+            window.location.href = "/retailer/dashboard";
+          } else {
+            // 소매점이 없으면 온보딩 페이지로
+            console.log(
+              "📝 [Wholesaler Block] 소매점 미등록 - 온보딩 페이지로 이동",
+            );
+            const targetUrl =
+              onboardingUrl ||
+              forceRedirectUrl ||
+              fallbackRedirectUrl ||
+              "/retailer-onboarding";
+            window.location.href = targetUrl;
+          }
+        } else {
+          // 역할이 null이거나 기타인 경우 온보딩 페이지로
           console.log(
-            "🔀 [Wholesaler Block] 소매점 계정 - 수동 리다이렉트:",
+            "📝 [Wholesaler Block] 역할 미설정 - 온보딩 페이지로 이동",
+          );
+          setIsWholesalerChecking(false);
+          const targetUrl =
+            onboardingUrl ||
+            forceRedirectUrl ||
+            fallbackRedirectUrl ||
+            "/retailer-onboarding";
+          console.log(
+            "🔀 [Wholesaler Block] 온보딩 페이지로 리다이렉트:",
             targetUrl,
           );
           window.location.href = targetUrl;
@@ -618,6 +648,7 @@ export default function SignInWithRedirect({
     path,
     forceRedirectUrl,
     fallbackRedirectUrl,
+    onboardingUrl,
   ]);
 
   // 도매 계정 확인 중일 때 페이지 이탈(리다이렉트) 방지
@@ -788,13 +819,15 @@ export default function SignInWithRedirect({
             <DialogDescription className="pt-2 text-base">
               {blockedRole === "admin" ? (
                 <>
-                  관리자 계정으로는 소매점 로그인 페이지에서 로그인할 수 없습니다.
+                  관리자 계정으로는 소매점 로그인 페이지에서 로그인할 수
+                  없습니다.
                   <br />
                   관리자 전용 로그인 페이지를 이용해주세요.
                 </>
               ) : (
                 <>
-                  도매점 계정으로는 소매점 로그인 페이지에서 로그인할 수 없습니다.
+                  도매점 계정으로는 소매점 로그인 페이지에서 로그인할 수
+                  없습니다.
                   <br />
                   도매점 로그인 페이지를 이용해주세요.
                 </>

@@ -28,7 +28,7 @@
  * @see {@link ../supabase/server.ts} - Supabase 클라이언트
  */
 
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/database";
@@ -43,10 +43,39 @@ export interface ProfileWithDetails extends Profile {
 }
 
 /**
+ * 인증 상태 확인 (효율적)
+ *
+ * Clerk의 auth()를 사용하여 인증 상태만 확인합니다.
+ * currentUser()와 달리 API 호출 없이 세션만 확인하므로 더 효율적입니다.
+ *
+ * @returns {Promise<{ userId: string } | null>} 사용자 ID 또는 null
+ *
+ * @example
+ * ```tsx
+ * const authState = await checkAuth();
+ * if (!authState) {
+ *   redirect('/sign-in');
+ * }
+ * ```
+ */
+export async function checkAuth(): Promise<{ userId: string } | null> {
+  try {
+    const { userId } = await auth();
+    if (!userId) return null;
+    return { userId };
+  } catch (error) {
+    console.error("❌ [auth] checkAuth 오류:", error);
+    return null;
+  }
+}
+
+/**
  * 현재 Clerk 사용자 정보 조회
  *
  * 서버 사이드에서 현재 로그인한 Clerk 사용자 정보를 가져옵니다.
  * 인증되지 않은 경우 null을 반환합니다.
+ *
+ * ⚠️ 주의: 이 함수는 Clerk API를 호출하므로, 가능하면 checkAuth()를 사용하세요.
  *
  * @returns {Promise<User | null>} Clerk 사용자 정보 또는 null
  *
@@ -69,10 +98,12 @@ export async function getCurrentUser() {
 }
 
 /**
- * 사용자 프로필 조회 (Supabase)
+ * 사용자 프로필 조회 (Supabase) - 최적화 버전
  *
  * 현재 로그인한 사용자의 Supabase 프로필 정보를 조회합니다.
  * profiles 테이블과 관련된 retailers/wholesalers 정보도 함께 가져옵니다.
+ *
+ * ⚠️ 개선: checkAuth()를 사용하여 불필요한 Clerk API 호출을 방지합니다.
  *
  * @returns {Promise<ProfileWithDetails | null>} 프로필 정보 또는 null
  *
@@ -91,9 +122,10 @@ export async function getCurrentUser() {
  */
 export async function getUserProfile(): Promise<ProfileWithDetails | null> {
   try {
-    const user = await getCurrentUser();
+    // auth()를 사용하여 인증 상태만 확인 (API 호출 없음)
+    const authState = await checkAuth();
 
-    if (!user) {
+    if (!authState) {
       console.log("⚠️ [auth] getUserProfile: 사용자 인증되지 않음");
       return null;
     }
@@ -104,7 +136,7 @@ export async function getUserProfile(): Promise<ProfileWithDetails | null> {
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("*, retailers(*)")
-      .eq("clerk_user_id", user.id)
+      .eq("clerk_user_id", authState.userId)
       .single();
 
     if (error) {
@@ -294,9 +326,7 @@ export async function requireRetailer(): Promise<ProfileWithDetails> {
     redirect("/");
   }
 
-  console.log(
-    `✅ [auth] requireRetailer: 권한 확인됨 (role: ${profile.role})`,
-  );
+  console.log(`✅ [auth] requireRetailer: 권한 확인됨 (role: ${profile.role})`);
   return profile;
 }
 
