@@ -34,12 +34,13 @@ export interface DashboardData {
   hotDeals: RetailerProduct[];
   recentOrders: DashboardRecentOrder[];
   shippingOrders: OrderDetail[];
+  recommendedProducts: RetailerProduct[];
 }
 
 /**
  * 대시보드 페이지의 모든 데이터를 한 번에 조회
  *
- * @returns {Promise<DashboardData>} HOT DEAL 상품, 최근 주문, 배송 조회용 주문 데이터
+ * @returns {Promise<DashboardData>} HOT DEAL 상품, 추천 상품, 최근 주문, 배송 조회용 주문 데이터
  */
 export async function getDashboardData(): Promise<DashboardData> {
   console.log("📊 [server-action] 대시보드 데이터 통합 조회 시작");
@@ -65,23 +66,37 @@ export async function getDashboardData(): Promise<DashboardData> {
     const retailerId = retailers[0].id;
     console.log("✅ [server-action] 소매점 ID 조회 완료:", retailerId);
 
-    // 🚀 우선순위 로딩: 페이지 최상단 HOT DEAL 상품을 먼저 조회
+    // 🚀 우선순위 로딩: 페이지 최상단 상품들을 병렬로 조회
     // ⚡ 성능 최적화:
     // 1. 대시보드에서는 total count가 필요 없으므로 includeCount: false
-    // 2. HOT DEAL 상품은 자주 변경되지 않으므로 캐싱 활성화 (5분)
+    // 2. unstable_cache()와 Clerk auth() 충돌로 인해 캐싱 비활성화
     console.log(
-      "🔥 [server-action] HOT DEAL 상품 조회 시작 (우선 로딩 + 캐싱)",
+      "🔥 [server-action] HOT DEAL 및 추천 상품 조회 시작 (병렬 로딩)",
     );
-    const hotDealsResult = await getRetailerProducts({
-      page: 1,
-      pageSize: 4,
-      sortBy: "created_at",
-      sortOrder: "desc",
-      includeCount: false, // ⚡ count 쿼리 생략으로 성능 향상
-      useCache: true, // 💾 캐싱 활성화
-      cacheRevalidate: 300, // 5분간 캐시 유지
-    });
-    console.log("✅ [server-action] HOT DEAL 상품 조회 완료");
+    const [hotDealsResult, recommendedProductsResult] = await Promise.all([
+      // HOT DEAL 상품 4개
+      getRetailerProducts({
+        page: 1,
+        pageSize: 4,
+        sortBy: "created_at",
+        sortOrder: "desc",
+        includeCount: false, // ⚡ count 쿼리 생략으로 성능 향상
+        useCache: false, // ⚠️ Clerk auth()와 unstable_cache() 충돌 방지
+      }),
+      // 추천 상품 4개 (과일 카테고리)
+      getRetailerProducts({
+        page: 1,
+        pageSize: 4,
+        sortBy: "created_at",
+        sortOrder: "desc",
+        filter: {
+          category: "과일",
+        },
+        includeCount: false,
+        useCache: false, // ⚠️ Clerk auth()와 unstable_cache() 충돌 방지
+      }),
+    ]);
+    console.log("✅ [server-action] HOT DEAL 및 추천 상품 조회 완료");
 
     // 📦 주문 데이터는 병렬로 조회 (페이지 하단 데이터이므로 HOT DEAL 이후 로딩)
     console.log("📦 [server-action] 주문 데이터 조회 시작 (병렬 처리)");
@@ -109,6 +124,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     // HOT DEAL 상품
     const hotDeals = hotDealsResult.products;
 
+    // 추천 상품 (과일 카테고리)
+    const recommendedProducts = recommendedProductsResult.products;
+
     // 최근 주문 3건 (대시보드용 포맷으로 변환)
     const recentOrders: DashboardRecentOrder[] = recentOrdersResult.orders.map(
       (order) => ({
@@ -132,12 +150,14 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     console.log("✅ [server-action] 대시보드 데이터 통합 조회 완료", {
       hotDeals: hotDeals.length,
+      recommendedProducts: recommendedProducts.length,
       recentOrders: recentOrders.length,
       shippingOrders: shippingOrders.length,
     });
 
     return {
       hotDeals,
+      recommendedProducts,
       recentOrders,
       shippingOrders,
     };
@@ -147,6 +167,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     // 에러 발생 시 빈 데이터 반환
     return {
       hotDeals: [],
+      recommendedProducts: [],
       recentOrders: [],
       shippingOrders: [],
     };
