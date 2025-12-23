@@ -34,7 +34,10 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
-import { CartOptionsProvider, useCartOptionsContext } from "@/contexts/cart-options-context";
+import {
+  CartOptionsProvider,
+  useCartOptionsContext,
+} from "@/contexts/cart-options-context";
 import ProductRecommendationSection from "@/components/retailer/product-recommendation-section";
 import type { RetailerProduct } from "@/lib/supabase/queries/retailer-products";
 import type { OrderDetail } from "@/types/order";
@@ -945,7 +948,6 @@ function DashboardContent() {
     </div>
   );
 }
-
 export default function RetailerDashboardPage() {
   return (
     <CartOptionsProvider>

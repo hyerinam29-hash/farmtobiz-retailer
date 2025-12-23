@@ -10,6 +10,7 @@
  * - types/product.ts
  */
 
+import { unstable_cache } from "next/cache";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import type { Product } from "@/types/product";
 
@@ -19,7 +20,12 @@ import type { Product } from "@/types/product";
 export interface GetRetailerProductsOptions {
   page?: number;
   pageSize?: number;
-  sortBy?: "created_at" | "price" | "standardized_name" | "sales_count" | "recommended_score";
+  sortBy?:
+    | "created_at"
+    | "price"
+    | "standardized_name"
+    | "sales_count"
+    | "recommended_score";
   sortOrder?: "asc" | "desc";
   filter?: {
     category?: string;
@@ -27,6 +33,24 @@ export interface GetRetailerProductsOptions {
     min_price?: number;
     max_price?: number;
   };
+  /**
+   * 전체 개수(count) 조회 여부
+   * false로 설정하면 count 쿼리를 생략하여 성능 향상
+   * @default true
+   */
+  includeCount?: boolean;
+  /**
+   * 캐시 사용 여부
+   * true로 설정하면 결과를 캐시하여 성능 향상
+   * @default false
+   */
+  useCache?: boolean;
+  /**
+   * 캐시 유지 시간 (초)
+   * useCache가 true일 때만 적용
+   * @default 300 (5분)
+   */
+  cacheRevalidate?: number;
 }
 
 /**
@@ -48,15 +72,16 @@ export interface GetRetailerProductsResult {
 }
 
 /**
- * 소매점용 상품 목록 조회
+ * 소매점용 상품 목록 조회 (내부 함수)
  *
- * 모든 도매점의 활성화된 상품을 조회하며, 도매 정보는 익명화됩니다.
+ * 실제 쿼리 로직을 수행하는 내부 함수입니다.
+ * 캐싱을 위해 분리되었습니다.
  *
  * @param options 조회 옵션
  * @returns 상품 목록 및 페이지네이션 정보
  */
-export async function getRetailerProducts(
-  options: GetRetailerProductsOptions = {}
+async function _getRetailerProductsInternal(
+  options: GetRetailerProductsOptions,
 ): Promise<GetRetailerProductsResult> {
   const {
     page = 1,
@@ -64,6 +89,7 @@ export async function getRetailerProducts(
     sortBy = "created_at",
     sortOrder = "desc",
     filter = {},
+    includeCount = true, // 기본값은 true (하위 호환성 유지)
   } = options;
 
   console.log("🔍 [retailer-products-query] 상품 목록 조회 시작", {
@@ -72,11 +98,13 @@ export async function getRetailerProducts(
     sortBy,
     sortOrder,
     filter,
+    includeCount,
   });
 
   const supabase = createClerkSupabaseClient();
 
   // products와 wholesalers를 조인하여 익명 정보 가져오기
+  // ⚡ 성능 최적화: count는 필요할 때만 조회
   let query = supabase
     .from("products")
     .select(
@@ -87,7 +115,7 @@ export async function getRetailerProducts(
         address
       )
     `,
-      { count: "exact" }
+      includeCount ? { count: "exact" } : {},
     )
     .eq("is_active", true); // 활성화된 상품만
 
@@ -104,7 +132,7 @@ export async function getRetailerProducts(
   if (filter.search) {
     // standardized_name, original_name, name, category에서 검색
     query = query.or(
-      `standardized_name.ilike.%${filter.search}%,original_name.ilike.%${filter.search}%,name.ilike.%${filter.search}%,category.ilike.%${filter.search}%`
+      `standardized_name.ilike.%${filter.search}%,original_name.ilike.%${filter.search}%,name.ilike.%${filter.search}%,category.ilike.%${filter.search}%`,
     );
   }
 
@@ -117,7 +145,8 @@ export async function getRetailerProducts(
   }
 
   // 판매량순 또는 추천순인 경우 특별 처리 필요
-  const needsSalesData = sortBy === "sales_count" || sortBy === "recommended_score";
+  const needsSalesData =
+    sortBy === "sales_count" || sortBy === "recommended_score";
 
   if (!needsSalesData) {
     // 일반 정렬 (created_at, price, standardized_name)
@@ -148,7 +177,7 @@ export async function getRetailerProducts(
   const salesData: Map<string, number> = new Map();
   if (needsSalesData) {
     console.log("📊 [retailer-products-query] 판매량 데이터 조회 시작");
-    
+
     // orders 테이블에서 완료된 주문의 판매량 집계
     const { data: ordersData, error: ordersError } = await supabase
       .from("orders")
@@ -164,7 +193,10 @@ export async function getRetailerProducts(
         productsWithSales: salesData.size,
       });
     } else {
-      console.warn("⚠️ [retailer-products-query] 판매량 데이터 조회 실패:", ordersError);
+      console.warn(
+        "⚠️ [retailer-products-query] 판매량 데이터 조회 실패:",
+        ordersError,
+      );
     }
   }
 
@@ -189,7 +221,7 @@ export async function getRetailerProducts(
     // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
     const specifications = item.specifications || {};
     const originFromSpec = specifications.origin;
-    
+
     // 카테고리별 기본 원산지 매핑
     const categoryOriginMap: Record<string, string> = {
       과일: "제주도",
@@ -198,16 +230,20 @@ export async function getRetailerProducts(
       "곡물/견과류": "전라북도",
       기타: "국내",
     };
-    
+
     const origin = originFromSpec || categoryOriginMap[item.category] || "국내";
 
     const salesCount = salesData.get(item.id) || 0;
-    
+
     // 추천 점수 계산 (판매량 + 최근성 가중치)
     // 판매량이 높을수록 높은 점수, 최근 등록된 상품에 가산점
-    const daysSinceCreated = Math.max(0, Math.floor(
-      (Date.now() - new Date(item.created_at).getTime()) / (1000 * 60 * 60 * 24)
-    ));
+    const daysSinceCreated = Math.max(
+      0,
+      Math.floor(
+        (Date.now() - new Date(item.created_at).getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    );
     const recencyScore = Math.max(0, 100 - daysSinceCreated); // 최근 100일 이내 상품에 가산점
     const recommendedScore = salesCount * 10 + recencyScore; // 판매량 10배 + 최근성 점수
 
@@ -273,13 +309,57 @@ export async function getRetailerProducts(
 }
 
 /**
+ * 소매점용 상품 목록 조회
+ *
+ * 모든 도매점의 활성화된 상품을 조회하며, 도매 정보는 익명화됩니다.
+ * useCache 옵션을 통해 캐싱을 활성화할 수 있습니다.
+ *
+ * @param options 조회 옵션
+ * @returns 상품 목록 및 페이지네이션 정보
+ */
+export async function getRetailerProducts(
+  options: GetRetailerProductsOptions = {},
+): Promise<GetRetailerProductsResult> {
+  const {
+    useCache = false,
+    cacheRevalidate = 300, // 기본값: 5분
+  } = options;
+
+  // 캐시가 활성화된 경우
+  if (useCache) {
+    // 캐시 키 생성: 옵션을 직렬화하여 고유한 키 생성
+    const cacheKey = `retailer-products-${JSON.stringify(options)}`;
+
+    // 캐시된 함수 생성
+    const cachedFunction = unstable_cache(
+      async () => {
+        console.log("💾 [retailer-products-query] 캐시 미스 - DB 조회 시작");
+        return await _getRetailerProductsInternal(options);
+      },
+      [cacheKey], // 캐시 키
+      {
+        revalidate: cacheRevalidate, // 캐시 유지 시간 (초)
+        tags: ["retailer-products"], // 캐시 태그 (나중에 무효화 가능)
+      },
+    );
+
+    console.log("💾 [retailer-products-query] 캐시 사용 - 조회 시작");
+    return await cachedFunction();
+  }
+
+  // 캐시 미사용: 직접 조회
+  console.log("🔍 [retailer-products-query] 캐시 미사용 - 직접 조회");
+  return await _getRetailerProductsInternal(options);
+}
+
+/**
  * 소매점용 상품 ID로 단일 상품 조회
  *
  * @param productId 상품 ID
  * @returns 상품 정보 또는 null
  */
 export async function getRetailerProductById(
-  productId: string
+  productId: string,
 ): Promise<RetailerProduct | null> {
   console.log("🔍 [retailer-products-query] 상품 조회 시작", { productId });
 
@@ -294,7 +374,7 @@ export async function getRetailerProductById(
         anonymous_code,
         address
       )
-    `
+    `,
     )
     .eq("id", productId)
     .eq("is_active", true)
@@ -322,12 +402,13 @@ export async function getRetailerProductById(
       : wholesaler?.address || "";
 
   const deliveryOptions = data.delivery_options || {};
-  const dawnDeliveryAvailable = deliveryOptions.dawn_delivery_available === true;
+  const dawnDeliveryAvailable =
+    deliveryOptions.dawn_delivery_available === true;
 
   // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
   const specifications = data.specifications || {};
   const originFromSpec = specifications.origin;
-  
+
   // 카테고리별 기본 원산지 매핑
   const categoryOriginMap: Record<string, string> = {
     과일: "제주도",
@@ -336,7 +417,7 @@ export async function getRetailerProductById(
     "곡물/견과류": "전라북도",
     기타: "국내",
   };
-  
+
   const origin = originFromSpec || categoryOriginMap[data.category] || "국내";
 
   const product: RetailerProduct = {
@@ -365,7 +446,7 @@ export async function getRetailerProductById(
  */
 export async function getBestRetailerProducts(
   category: string,
-  limit: number = 3
+  limit: number = 3,
 ): Promise<RetailerProduct[]> {
   console.log("🏆 [retailer-products-query] 베스트 상품 조회 시작", {
     category,
@@ -383,7 +464,7 @@ export async function getBestRetailerProducts(
         anonymous_code,
         address
       )
-    `
+    `,
     )
     .eq("is_active", true);
 
@@ -423,7 +504,7 @@ export async function getBestRetailerProducts(
     // specifications에서 origin 추출, 없으면 카테고리별 기본값 설정
     const specifications = item.specifications || {};
     const originFromSpec = specifications.origin;
-    
+
     // 카테고리별 기본 원산지 매핑
     const categoryOriginMap: Record<string, string> = {
       과일: "제주도",
@@ -432,7 +513,7 @@ export async function getBestRetailerProducts(
       "곡물/견과류": "전라북도",
       기타: "국내",
     };
-    
+
     const origin = originFromSpec || categoryOriginMap[item.category] || "국내";
 
     return {
@@ -462,11 +543,14 @@ export async function getBestRetailerProducts(
  * @returns 베스트 상품 목록
  */
 export async function getAllBestRetailerProducts(
-  limit: number = 10
+  limit: number = 10,
 ): Promise<RetailerProduct[]> {
-  console.log("🏆 [retailer-products-query] 전체 베스트 상품 조회 시작 (판매량 기준)", {
-    limit,
-  });
+  console.log(
+    "🏆 [retailer-products-query] 전체 베스트 상품 조회 시작 (판매량 기준)",
+    {
+      limit,
+    },
+  );
 
   const supabase = createClerkSupabaseClient();
 
@@ -480,12 +564,15 @@ export async function getAllBestRetailerProducts(
         anonymous_code,
         address
       )
-    `
+    `,
     )
     .eq("is_active", true);
 
   if (productsError) {
-    console.error("❌ [retailer-products-query] 상품 조회 오류:", productsError);
+    console.error(
+      "❌ [retailer-products-query] 상품 조회 오류:",
+      productsError,
+    );
     throw new Error(`베스트 상품 조회 실패: ${productsError.message}`);
   }
 
@@ -506,11 +593,16 @@ export async function getAllBestRetailerProducts(
       productsWithSales: salesData.size,
     });
   } else {
-    console.warn("⚠️ [retailer-products-query] 판매량 데이터 조회 실패:", ordersError);
+    console.warn(
+      "⚠️ [retailer-products-query] 판매량 데이터 조회 실패:",
+      ordersError,
+    );
   }
 
   // 3. 데이터 변환 및 판매량 추가
-  const products: (RetailerProduct & { _sales_count: number })[] = (productsData ?? []).map((item: any) => {
+  const products: (RetailerProduct & { _sales_count: number })[] = (
+    productsData ?? []
+  ).map((item: any) => {
     const wholesaler = Array.isArray(item.wholesalers)
       ? item.wholesalers[0]
       : item.wholesalers;
@@ -565,11 +657,15 @@ export async function getAllBestRetailerProducts(
     return cleanProduct;
   });
 
-  console.log("✅ [retailer-products-query] 전체 베스트 상품 조회 완료 (판매량 기준)", {
-    count: finalProducts.length,
-    topSalesCounts: finalProducts.slice(0, 3).map(p => salesData.get(p.id) || 0),
-  });
+  console.log(
+    "✅ [retailer-products-query] 전체 베스트 상품 조회 완료 (판매량 기준)",
+    {
+      count: finalProducts.length,
+      topSalesCounts: finalProducts
+        .slice(0, 3)
+        .map((p) => salesData.get(p.id) || 0),
+    },
+  );
 
   return finalProducts;
 }
-

@@ -34,6 +34,7 @@ export interface GetOrdersOptions {
   sortBy?: "created_at" | "total_amount"; // 정렬 기준
   sortOrder?: "asc" | "desc"; // 정렬 방향
   filter?: OrderFilter; // 필터 옵션
+  retailerId?: string; // 소매점 ID (전달되면 getUserProfile() 호출 생략)
 }
 
 /**
@@ -99,47 +100,65 @@ export async function getOrders(
     sortBy,
     sortOrder,
     filter,
+    hasRetailerId: !!options.retailerId,
   });
 
   // ⚠️ RLS 비활성화 환경 대응: 현재 소매점 ID 가져오기
-  console.log("🔍 [orders-query] 사용자 프로필 조회 시작");
-  const profile = await getUserProfile();
+  let currentRetailerId: string;
 
-  console.log("🔍 [orders-query] 프로필 조회 결과:", {
-    hasProfile: !!profile,
-    role: profile?.role,
-    hasRetailers: !!profile?.retailers,
-    retailersLength: profile?.retailers?.length ?? 0,
-  });
-
-  if (!profile) {
-    console.error(
-      "❌ [orders-query] 프로필 없음 - 인증되지 않았거나 프로필이 생성되지 않음",
+  if (options.retailerId) {
+    // retailerId가 전달되면 getUserProfile() 호출 생략 (성능 최적화)
+    currentRetailerId = options.retailerId;
+    console.log(
+      "✅ [orders-query] 전달받은 소매점 ID 사용:",
+      currentRetailerId,
     );
-    throw new Error(
-      "사용자 프로필을 찾을 수 없습니다. 로그인 상태를 확인해주세요.",
-    );
-  }
+  } else {
+    // retailerId가 없으면 기존 방식대로 프로필 조회
+    console.log("🔍 [orders-query] 사용자 프로필 조회 시작");
+    const profile = await getUserProfile();
 
-  if (profile.role !== "retailer") {
-    console.error("❌ [orders-query] 소매점 권한 없음", { role: profile.role });
-    throw new Error("소매점 권한이 없습니다.");
-  }
-
-  const retailers = profile.retailers as Array<{ id: string }> | null;
-  if (!retailers || retailers.length === 0) {
-    console.error("❌ [orders-query] 소매점 정보 없음", {
-      retailers,
-      profileId: profile.id,
-      role: profile.role,
+    console.log("🔍 [orders-query] 프로필 조회 결과:", {
+      hasProfile: !!profile,
+      role: profile?.role,
+      hasRetailers: !!profile?.retailers,
+      retailersLength: profile?.retailers?.length ?? 0,
     });
-    throw new Error(
-      "소매점 정보를 찾을 수 없습니다. 소매점 등록이 필요합니다.",
+
+    if (!profile) {
+      console.error(
+        "❌ [orders-query] 프로필 없음 - 인증되지 않았거나 프로필이 생성되지 않음",
+      );
+      throw new Error(
+        "사용자 프로필을 찾을 수 없습니다. 로그인 상태를 확인해주세요.",
+      );
+    }
+
+    if (profile.role !== "retailer") {
+      console.error("❌ [orders-query] 소매점 권한 없음", {
+        role: profile.role,
+      });
+      throw new Error("소매점 권한이 없습니다.");
+    }
+
+    const retailers = profile.retailers as Array<{ id: string }> | null;
+    if (!retailers || retailers.length === 0) {
+      console.error("❌ [orders-query] 소매점 정보 없음", {
+        retailers,
+        profileId: profile.id,
+        role: profile.role,
+      });
+      throw new Error(
+        "소매점 정보를 찾을 수 없습니다. 소매점 등록이 필요합니다.",
+      );
+    }
+
+    currentRetailerId = retailers[0].id;
+    console.log(
+      "✅ [orders-query] 프로필에서 소매점 ID 조회:",
+      currentRetailerId,
     );
   }
-
-  const currentRetailerId = retailers[0].id;
-  console.log("✅ [orders-query] 현재 소매점 ID:", currentRetailerId);
 
   const supabase = createClerkSupabaseClient();
 
@@ -192,12 +211,15 @@ export async function getOrders(
     // 에러 정보를 안전하게 로깅 (속성이 없을 수 있음)
     const errorCode = error?.code || "UNKNOWN";
     const errorMessage = error?.message || String(error) || "알 수 없는 오류";
-    
-    console.log("ℹ️ [orders-query] 주문 목록 조회 - 데이터 없음 또는 테이블 미생성", {
-      code: errorCode,
-      message: errorMessage,
-    });
-    
+
+    console.log(
+      "ℹ️ [orders-query] 주문 목록 조회 - 데이터 없음 또는 테이블 미생성",
+      {
+        code: errorCode,
+        message: errorMessage,
+      },
+    );
+
     // 개발 초기 단계: 모든 에러를 빈 배열로 반환 (데이터 없음으로 처리)
     return {
       orders: [],
