@@ -7,8 +7,18 @@
 
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Calendar as CalendarIcon, Plus, ChevronDown, X, ChevronLeft, ChevronRight, Edit, Trash2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import {
+  Search,
+  Calendar as CalendarIcon,
+  Plus,
+  ChevronDown,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import Link from "next/link";
@@ -46,12 +56,25 @@ interface InquiryHistoryPageProps {
 }
 
 const statusMap: Record<string, { label: string; className: string }> = {
-  open: { label: "접수완료", className: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300" },
-  answered: { label: "답변완료", className: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300" },
-  closed: { label: "종료", className: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300" },
+  open: {
+    label: "접수완료",
+    className: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
+  },
+  answered: {
+    label: "답변완료",
+    className:
+      "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300",
+  },
+  closed: {
+    label: "종료",
+    className: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
+  },
 };
 
-export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: InquiryHistoryPageProps) {
+export default function InquiryHistoryPage({
+  userId,
+  onOpenInquiryForm,
+}: InquiryHistoryPageProps) {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,6 +98,57 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
 
   const statusOptions = ["전체", "접수완료", "답변완료", "종료"];
 
+  // 문의 내역 새로고침 함수 (수정/삭제 후 사용)
+  const refetchInquiries = async () => {
+    const currentRequestId = ++requestIdRef.current;
+    setIsLoading(true);
+
+    const startDate = dateRange?.from
+      ? format(dateRange.from, "yyyy-MM-dd")
+      : undefined;
+    const endDate = dateRange?.to
+      ? format(dateRange.to, "yyyy-MM-dd")
+      : undefined;
+
+    console.log("🔄 [InquiryHistoryPage] 문의 내역 새로고침 시작");
+
+    try {
+      const result = await getInquiries({
+        search: searchTerm.trim() || undefined,
+        status: statusFilter !== "전체" ? statusFilter : undefined,
+        startDate,
+        endDate,
+      });
+
+      if (currentRequestId !== requestIdRef.current) {
+        console.log("🚫 [InquiryHistoryPage] 새로고침 요청 취소됨");
+        return;
+      }
+
+      if (result.success && result.data) {
+        setInquiries(result.data);
+        console.log("✅ [InquiryHistoryPage] 문의 내역 새로고침 완료", {
+          count: result.data.length,
+        });
+      } else {
+        console.error(
+          "❌ [InquiryHistoryPage] 문의 내역 새로고침 실패",
+          result.error,
+        );
+        setInquiries([]);
+      }
+    } catch (error) {
+      console.error("❌ [InquiryHistoryPage] 문의 내역 새로고침 예외:", error);
+      if (currentRequestId === requestIdRef.current) {
+        setInquiries([]);
+      }
+    } finally {
+      if (currentRequestId === requestIdRef.current) {
+        setIsLoading(false);
+      }
+    }
+  };
+
   // 달력 표시 범위: 2025년 10월 ~ 2026년 2월
   const fromDate = new Date(2025, 9, 1); // 2025년 10월 1일
   const toDate = new Date(2026, 1, 28); // 2026년 2월 28일
@@ -83,7 +157,7 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
   const goToPreviousMonth = () => {
     const prevMonth = new Date(currentMonth);
     prevMonth.setMonth(prevMonth.getMonth() - 1);
-    
+
     // 범위 체크: fromDate보다 이전으로 갈 수 없음
     if (prevMonth >= fromDate) {
       setCurrentMonth(prevMonth);
@@ -94,7 +168,7 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
   const goToNextMonth = () => {
     const nextMonth = new Date(currentMonth);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    
+
     // 범위 체크: toDate보다 이후로 갈 수 없음
     if (nextMonth <= toDate) {
       setCurrentMonth(nextMonth);
@@ -118,10 +192,16 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowStatusDropdown(false);
       }
-      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+      if (
+        datePickerRef.current &&
+        !datePickerRef.current.contains(event.target as Node)
+      ) {
         setShowDatePicker(false);
       }
     };
@@ -135,80 +215,78 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
     };
   }, [showStatusDropdown, showDatePicker]);
 
-  // 문의 내역 조회 함수 (useCallback으로 메모이제이션)
-  const fetchInquiries = useCallback(async () => {
-    // 요청 ID 증가 (최신 요청 추적용)
-    const currentRequestId = ++requestIdRef.current;
-
-    // 최신 요청인지 확인 (이전 요청이 있으면 무시)
-    if (currentRequestId !== requestIdRef.current) {
-      console.log("🚫 [InquiryHistoryPage] 오래된 요청 무시됨");
-      return;
-    }
-
-    setIsLoading(true); // 로딩 시작
-
-    const startDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined;
-    const endDate = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
-    
-    console.log("📋 [InquiryHistoryPage] 문의 내역 조회 시작", { 
-      userId, 
-      searchTerm, 
-      statusFilter,
-      startDate,
-      endDate,
-      requestId: currentRequestId,
-    });
-
-    try {
-      const result = await getInquiries({
-        search: searchTerm.trim() || undefined,
-        status: statusFilter !== "전체" ? statusFilter : undefined,
-        startDate,
-        endDate,
-      });
-
-      // 최신 요청인지 다시 확인
-      if (currentRequestId !== requestIdRef.current) {
-        console.log("🚫 [InquiryHistoryPage] 응답 수신 전 요청 취소됨");
-        return;
-      }
-
-      if (result.success && result.data) {
-        setInquiries(result.data);
-        console.log("✅ [InquiryHistoryPage] 문의 내역 조회 완료", { count: result.data.length });
-      } else {
-        console.error("❌ [InquiryHistoryPage] 문의 내역 조회 실패", result.error);
-        setInquiries([]);
-      }
-    } catch (error) {
-      console.error("❌ [InquiryHistoryPage] 문의 내역 조회 예외:", error);
-      // 최신 요청인 경우에만 에러 처리
-      if (currentRequestId === requestIdRef.current) {
-        setInquiries([]);
-      }
-    } finally {
-      // 로딩 완료
-      if (currentRequestId === requestIdRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [userId, searchTerm, statusFilter, dateRange]);
-
-  // 검색어 변경 시 디바운싱 적용 (10ms)
+  // 통합된 단일 useEffect: 모든 의존성 변경 시 처리
   useEffect(() => {
-    // 검색어가 변경되면 로딩 상태로 변경
-    setIsLoading(true);
-    
     // 이전 타이머가 있으면 취소
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // 10ms 후 검색 실행
-    searchTimeoutRef.current = setTimeout(() => {
-      fetchInquiries();
-    }, 10);
+    // 검색어 변경 시에만 디바운싱 적용 (300ms)
+    // 필터나 초기 로드 시에는 즉시 실행
+    const delay = searchTerm ? 300 : 0;
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      // 요청 ID 증가 (최신 요청 추적용)
+      const currentRequestId = ++requestIdRef.current;
+
+      setIsLoading(true); // 로딩 시작
+
+      const startDate = dateRange?.from
+        ? format(dateRange.from, "yyyy-MM-dd")
+        : undefined;
+      const endDate = dateRange?.to
+        ? format(dateRange.to, "yyyy-MM-dd")
+        : undefined;
+
+      console.log("📋 [InquiryHistoryPage] 문의 내역 조회 시작", {
+        userId,
+        searchTerm,
+        statusFilter,
+        startDate,
+        endDate,
+        requestId: currentRequestId,
+      });
+
+      try {
+        const result = await getInquiries({
+          search: searchTerm.trim() || undefined,
+          status: statusFilter !== "전체" ? statusFilter : undefined,
+          startDate,
+          endDate,
+        });
+
+        // 최신 요청인지 다시 확인
+        if (currentRequestId !== requestIdRef.current) {
+          console.log("🚫 [InquiryHistoryPage] 응답 수신 전 요청 취소됨");
+          return;
+        }
+
+        if (result.success && result.data) {
+          setInquiries(result.data);
+          console.log("✅ [InquiryHistoryPage] 문의 내역 조회 완료", {
+            count: result.data.length,
+          });
+        } else {
+          console.error(
+            "❌ [InquiryHistoryPage] 문의 내역 조회 실패",
+            result.error,
+          );
+          setInquiries([]);
+        }
+      } catch (error) {
+        console.error("❌ [InquiryHistoryPage] 문의 내역 조회 예외:", error);
+        // 최신 요청인 경우에만 에러 처리
+        if (currentRequestId === requestIdRef.current) {
+          setInquiries([]);
+        }
+      } finally {
+        // 로딩 완료
+        if (currentRequestId === requestIdRef.current) {
+          setIsLoading(false);
+        }
+      }
+    }, delay);
 
     // cleanup 함수: 타이머 정리
     return () => {
@@ -216,27 +294,7 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchTerm, fetchInquiries]);
-
-  // 상태 필터 또는 날짜 필터 변경 시 즉시 실행
-  useEffect(() => {
-    // 검색어 타이머가 실행 중이면 취소하고 즉시 실행
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-      searchTimeoutRef.current = null;
-    }
-    fetchInquiries();
-  }, [statusFilter, dateRange, fetchInquiries]);
-
-  // 초기 로드 시 실행 (userId 변경 시)
-  useEffect(() => {
-    // 검색어 타이머가 실행 중이면 취소하고 즉시 실행
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-      searchTimeoutRef.current = null;
-    }
-    fetchInquiries();
-  }, [userId, fetchInquiries]);
+  }, [userId, searchTerm, statusFilter, dateRange]);
 
   // 수정 모달 열기
   const handleEditClick = () => {
@@ -271,7 +329,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
     }
 
     setIsSubmitting(true);
-    console.log("✏️ [InquiryHistoryPage] 문의 수정 시작", { inquiryId: selectedInquiry.id });
+    console.log("✏️ [InquiryHistoryPage] 문의 수정 시작", {
+      inquiryId: selectedInquiry.id,
+    });
 
     try {
       const result = await updateInquiry({
@@ -289,9 +349,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
       toast.success("문의가 수정되었습니다.");
       setShowEditModal(false);
       setIsSubmitting(false);
-      
+
       // 문의 내역 새로고침
-      fetchInquiries();
+      refetchInquiries();
     } catch (error) {
       console.error("❌ [InquiryHistoryPage] 문의 수정 실패:", error);
       toast.error("문의 수정에 실패했습니다. 다시 시도해주세요.");
@@ -310,7 +370,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
     if (!selectedInquiry) return;
 
     setIsDeleting(true);
-    console.log("🗑️ [InquiryHistoryPage] 문의 삭제 시작", { inquiryId: selectedInquiry.id });
+    console.log("🗑️ [InquiryHistoryPage] 문의 삭제 시작", {
+      inquiryId: selectedInquiry.id,
+    });
 
     try {
       const result = await deleteInquiry({
@@ -326,9 +388,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
       toast.success("문의가 삭제되었습니다.");
       setShowDeleteDialog(false);
       setIsDeleting(false);
-      
+
       // 문의 내역 새로고침
-      fetchInquiries();
+      refetchInquiries();
     } catch (error) {
       console.error("❌ [InquiryHistoryPage] 문의 삭제 실패:", error);
       toast.error("문의 삭제에 실패했습니다. 다시 시도해주세요.");
@@ -357,7 +419,10 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
         <div className="flex flex-col sm:flex-row gap-3">
           {/* 검색 바 */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors duration-200" size={20} />
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors duration-200"
+              size={20}
+            />
             <Input
               type="text"
               placeholder="제목 또는 내용 검색..."
@@ -380,12 +445,17 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
               }}
               className="h-10 px-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
             >
-              <CalendarIcon size={18} className="mr-2 text-gray-600 dark:text-gray-400 transition-colors duration-200" />
+              <CalendarIcon
+                size={18}
+                className="mr-2 text-gray-600 dark:text-gray-400 transition-colors duration-200"
+              />
               조회 기간 설정
               {dateRange?.from && (
                 <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
                   ({format(dateRange.from, "yyyy-MM-dd", { locale: ko })}
-                  {dateRange?.to && ` ~ ${format(dateRange.to, "yyyy-MM-dd", { locale: ko })}`})
+                  {dateRange?.to &&
+                    ` ~ ${format(dateRange.to, "yyyy-MM-dd", { locale: ko })}`}
+                  )
                 </span>
               )}
             </Button>
@@ -412,11 +482,14 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                       onClick={() => setShowDatePicker(false)}
                       className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors duration-200"
                     >
-                      <X size={16} className="text-gray-500 dark:text-gray-400 transition-colors duration-200" />
+                      <X
+                        size={16}
+                        className="text-gray-500 dark:text-gray-400 transition-colors duration-200"
+                      />
                     </button>
                   </div>
                 </div>
-                
+
                 {/* 월 네비게이션 */}
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
                   <button
@@ -473,7 +546,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
               {statusFilter}
               <ChevronDown
                 size={18}
-                className={`ml-2 text-gray-600 dark:text-gray-400 transition-all duration-200 ${showStatusDropdown ? "rotate-180" : ""}`}
+                className={`ml-2 text-gray-600 dark:text-gray-400 transition-all duration-200 ${
+                  showStatusDropdown ? "rotate-180" : ""
+                }`}
               />
             </Button>
             {showStatusDropdown && (
@@ -486,7 +561,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                       setShowStatusDropdown(false);
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors duration-200 ${
-                      statusFilter === option ? "bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400" : "text-gray-900 dark:text-gray-100"
+                      statusFilter === option
+                        ? "bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400"
+                        : "text-gray-900 dark:text-gray-100"
                     }`}
                   >
                     {option}
@@ -542,7 +619,9 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                       {inquiries.length - index}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {format(new Date(inquiry.created_at), "yyyy-MM-dd", { locale: ko })}
+                      {format(new Date(inquiry.created_at), "yyyy-MM-dd", {
+                        locale: ko,
+                      })}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">
                       {inquiry.title}
@@ -572,17 +651,23 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                   {selectedInquiry.title}
                 </DialogTitle>
               </DialogHeader>
-              
+
               <div className="flex flex-col gap-4 mt-4 flex-1 overflow-y-auto min-h-0">
                 {/* 문의 정보 */}
                 <div className="flex flex-col gap-4 flex-1">
                   <div className="flex items-center justify-between flex-shrink-0">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      작성일: {format(new Date(selectedInquiry.created_at), "yyyy년 MM월 dd일 HH:mm", { locale: ko })}
+                      작성일:{" "}
+                      {format(
+                        new Date(selectedInquiry.created_at),
+                        "yyyy년 MM월 dd일 HH:mm",
+                        { locale: ko },
+                      )}
                     </span>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
-                        statusMap[selectedInquiry.status]?.className || statusMap.open.className
+                        statusMap[selectedInquiry.status]?.className ||
+                        statusMap.open.className
                       }`}
                     >
                       {statusMap[selectedInquiry.status]?.label || "접수완료"}
@@ -608,7 +693,13 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                         관리자 답변
                         {selectedInquiry.replied_at && (
                           <span className="text-xs text-green-600 dark:text-green-400 font-normal">
-                            ({format(new Date(selectedInquiry.replied_at), "yyyy년 MM월 dd일 HH:mm", { locale: ko })})
+                            (
+                            {format(
+                              new Date(selectedInquiry.replied_at),
+                              "yyyy년 MM월 dd일 HH:mm",
+                              { locale: ko },
+                            )}
+                            )
                           </span>
                         )}
                       </h4>
@@ -640,11 +731,16 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
                       <CardContent>
                         <div className="flex items-center gap-4">
                           {/* 상품 이미지 */}
-                          {(selectedInquiry.product.image_urls || selectedInquiry.product.images) &&
-                            (selectedInquiry.product.image_urls || selectedInquiry.product.images)!.length > 0 && (
+                          {(selectedInquiry.product.image_urls ||
+                            selectedInquiry.product.images) &&
+                            (selectedInquiry.product.image_urls ||
+                              selectedInquiry.product.images)!.length > 0 && (
                               <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
                                 <Image
-                                  src={(selectedInquiry.product.image_urls || selectedInquiry.product.images)![0]}
+                                  src={
+                                    (selectedInquiry.product.image_urls ||
+                                      selectedInquiry.product.images)![0]
+                                  }
                                   alt={selectedInquiry.product.name}
                                   fill
                                   className="object-cover"
@@ -707,11 +803,14 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
               문의 제목과 내용을 수정할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex flex-col gap-4 mt-4">
             {/* 제목 */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-title" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+              <Label
+                htmlFor="edit-title"
+                className="text-sm font-semibold text-gray-800 dark:text-gray-200"
+              >
                 제목
               </Label>
               <Input
@@ -730,16 +829,21 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
             {/* 내용 */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="edit-content" className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                <Label
+                  htmlFor="edit-content"
+                  className="text-sm font-semibold text-gray-800 dark:text-gray-200"
+                >
                   내용
                 </Label>
-                <span className={`text-xs ${
-                  editContent.length > 3000 
-                    ? "text-red-500" 
-                    : editContent.length > 2800 
-                    ? "text-orange-500" 
-                    : "text-gray-500 dark:text-gray-400"
-                }`}>
+                <span
+                  className={`text-xs ${
+                    editContent.length > 3000
+                      ? "text-red-500"
+                      : editContent.length > 2800
+                      ? "text-orange-500"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
                   {editContent.length}/3000자
                 </span>
               </div>
@@ -783,7 +887,8 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
               문의 삭제
             </DialogTitle>
             <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-              정말로 이 문의를 삭제하시겠습니까? 삭제된 문의는 복구할 수 없습니다.
+              정말로 이 문의를 삭제하시겠습니까? 삭제된 문의는 복구할 수
+              없습니다.
             </DialogDescription>
           </DialogHeader>
 
@@ -809,4 +914,3 @@ export default function InquiryHistoryPage({ userId, onOpenInquiryForm }: Inquir
     </div>
   );
 }
-
