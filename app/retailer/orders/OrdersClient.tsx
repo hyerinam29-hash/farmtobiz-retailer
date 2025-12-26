@@ -21,6 +21,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import OrderListItemActions from "@/components/retailer/order-list-item-actions";
+import { useCartOptions } from "@/hooks/use-cart-options";
 
 // 타입 정의
 type OrderStatus = "preparing" | "shipping" | "delivered" | "cancelled";
@@ -56,6 +57,7 @@ const statusColors = {
 export default function OrdersClient({ orders }: OrdersClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "all">("all");
+  const cartOptions = useCartOptions();
 
   console.log("[OrdersClient] 검색 기능 초기화", { ordersCount: orders.length });
 
@@ -322,6 +324,7 @@ export default function OrdersClient({ orders }: OrdersClientProps) {
                     status={order.status}
                     totalPrice={order.total_price}
                     products={order.products}
+                    cartOptions={cartOptions}
                   />
                 </div>
               </div>

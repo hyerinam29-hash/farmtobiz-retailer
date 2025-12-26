@@ -20,6 +20,7 @@ import ConfirmPurchaseModal from "@/components/retailer/confirm-purchase-modal";
 import CancelOrderModal from "@/components/retailer/cancel-order-modal";
 import { useCartStore } from "@/stores/cart-store";
 import { getReorderProducts } from "@/actions/retailer/reorder";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface OrderProduct {
   id: string;
@@ -33,6 +34,11 @@ interface OrderListItemActionsProps {
   status: "preparing" | "shipping" | "delivered" | "cancelled";
   totalPrice: number;
   products: OrderProduct[];
+  cartOptions: {
+    retailerId: string | null;
+    supabaseClient: SupabaseClient | null;
+    isLoading: boolean;
+  };
 }
 
 export default function OrderListItemActions({
@@ -41,12 +47,15 @@ export default function OrderListItemActions({
   status,
   totalPrice,
   products,
+  cartOptions,
 }: OrderListItemActionsProps) {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient, isLoading } = cartOptions;
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
+  const isCartReady = !isLoading && !!retailerId && !!supabaseClient;
 
   // 재주문 핸들러
   const handleReorder = async () => {
@@ -55,9 +64,24 @@ export default function OrderListItemActions({
       orderId,
       orderNumber,
       productsCount: products.length,
+      isLoading,
+      hasRetailerId: !!retailerId,
+      hasSupabaseClient: !!supabaseClient,
     });
 
     try {
+      // 장바구니 단일 진실의 원천을 DB(cart_items)로 통일:
+      // retailerId/supabaseClient가 준비되지 않으면 재주문 장바구니 담기를 진행하지 않음
+      if (isLoading || !retailerId || !supabaseClient) {
+        console.warn("⚠️ [주문 목록] 재주문 실패: 장바구니 옵션 준비되지 않음", {
+          isLoading,
+          hasRetailerId: !!retailerId,
+          hasSupabaseClient: !!supabaseClient,
+        });
+        alert("잠시 후 다시 시도해주세요.");
+        return;
+      }
+
       // 상품 ID 배열 추출
       const productIds = products.map((p) => p.id);
 
@@ -88,22 +112,28 @@ export default function OrderListItemActions({
         });
 
         // 장바구니에 추가
-        addToCart({
-          product_id: productDetail.id,
-          variant_id: null,
-          quantity: originalProduct.quantity,
-          unit_price: productDetail.price,
-          shipping_fee: productDetail.shipping_fee,
-          delivery_method: productDetail.delivery_method ?? "courier",
-          wholesaler_id: productDetail.wholesaler_id,
-          product_name: productDetail.standardized_name || productDetail.name,
-          anonymous_seller_id: productDetail.wholesaler_anonymous_code,
-          seller_region: productDetail.wholesaler_region,
-          product_image: productDetail.image_url,
-          specification: productDetail.specification,
-          moq: productDetail.moq || 1,
-          stock_quantity: productDetail.stock_quantity,
-        });
+        await addToCart(
+          {
+            product_id: productDetail.id,
+            variant_id: null,
+            quantity: originalProduct.quantity,
+            unit_price: productDetail.price,
+            shipping_fee: productDetail.shipping_fee,
+            delivery_method: productDetail.delivery_method ?? "courier",
+            wholesaler_id: productDetail.wholesaler_id,
+            product_name: productDetail.standardized_name || productDetail.name,
+            anonymous_seller_id: productDetail.wholesaler_anonymous_code,
+            seller_region: productDetail.wholesaler_region,
+            product_image: productDetail.image_url,
+            specification: productDetail.specification,
+            moq: productDetail.moq || 1,
+            stock_quantity: productDetail.stock_quantity,
+          },
+          {
+            retailerId,
+            supabaseClient,
+          },
+        );
 
         console.log("✅ [주문 목록] 장바구니 담기 완료:", originalProduct.name);
       }
@@ -138,10 +168,10 @@ export default function OrderListItemActions({
         ) : null}
         <button
           onClick={handleReorder}
-          disabled={isReordering}
+          disabled={isReordering || !isCartReady}
           className="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm sm:text-base md:text-lg font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isReordering ? "처리 중..." : "재주문"}
+          {isReordering ? "처리 중..." : !isCartReady ? "준비 중..." : "재주문"}
         </button>
       </div>
 
