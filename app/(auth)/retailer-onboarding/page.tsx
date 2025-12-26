@@ -74,7 +74,7 @@ export default async function RetailerOnboardingPage() {
   console.log("📝 [retailer-onboarding] 신규 사용자, 온보딩 폼 표시");
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-2xl mx-auto">
         <RetailerOnboardingForm />
       </div>

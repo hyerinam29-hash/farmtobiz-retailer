@@ -78,15 +78,21 @@ export default function RetailerOnboardingClient() {
   // 로딩 중이거나 폼을 표시할 준비가 되지 않았으면 로딩 표시
   if (!isLoaded || !userId || !showForm) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center transition-colors">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">잠시만 기다려주세요...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">잠시만 기다려주세요...</p>
         </div>
       </div>
     );
   }
 
-  return <RetailerOnboardingForm />;
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+      <div className="max-w-2xl mx-auto">
+        <RetailerOnboardingForm />
+      </div>
+    </div>
+  );
 }
 
