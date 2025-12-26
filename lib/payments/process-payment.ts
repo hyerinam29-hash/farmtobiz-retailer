@@ -64,7 +64,7 @@ export async function processPaymentAfterApproval(
     // 먼저 정확한 order_number로 조회 (단일 상품)
     const exactMatch = await supabase
       .from("orders")
-      .select("id, order_number, wholesaler_id, total_amount, payment_key")
+      .select("id, order_number, retailer_id, wholesaler_id, total_amount, payment_key, product_id")
       .eq("order_number", params.orderId);
 
     if (exactMatch.data && exactMatch.data.length > 0) {
@@ -74,7 +74,7 @@ export async function processPaymentAfterApproval(
       // 정확한 매치가 없으면 패턴으로 조회 (여러 상품: ORD-xxx-1, ORD-xxx-2 ...)
       const patternMatch = await supabase
         .from("orders")
-        .select("id, order_number, wholesaler_id, total_amount, payment_key")
+        .select("id, order_number, retailer_id, wholesaler_id, total_amount, payment_key, product_id")
         .like("order_number", `${params.orderId}-%`);
 
       orders = patternMatch.data;
@@ -222,6 +222,38 @@ export async function processPaymentAfterApproval(
       method: params.method || "카드",
       amount: params.totalAmount,
     });
+
+    // 5. 결제 완료된 상품을 장바구니에서 삭제
+    // 주문에 포함된 모든 상품(product_id)을 해당 소매점의 장바구니에서 제거
+    if (order.retailer_id && orders.length > 0) {
+      try {
+        console.log("🛒 [결제 처리] 장바구니에서 결제 완료 상품 삭제 시작");
+        
+        // 주문에 포함된 모든 상품 ID 추출
+        const productIds = orders.map((o: { product_id: string }) => o.product_id);
+        
+        // 해당 소매점의 장바구니에서 결제 완료된 상품들 삭제
+        const { error: cartDeleteError } = await supabase
+          .from("cart_items")
+          .delete()
+          .eq("retailer_id", order.retailer_id)
+          .in("product_id", productIds);
+
+        if (cartDeleteError) {
+          console.error("❌ [결제 처리] 장바구니 삭제 실패:", cartDeleteError);
+          // 장바구니 삭제 실패해도 결제는 성공으로 처리 (로깅만)
+        } else {
+          console.log("✅ [결제 처리] 장바구니에서 결제 완료 상품 삭제 완료:", {
+            retailerId: order.retailer_id,
+            deletedProductIds: productIds,
+            deletedCount: productIds.length,
+          });
+        }
+      } catch (cartError) {
+        console.error("❌ [결제 처리] 장바구니 삭제 예외:", cartError);
+        // 예외 발생해도 결제는 성공으로 처리
+      }
+    }
 
     console.log("✅ [결제 처리] 모든 DB 저장 완료");
     console.groupEnd();
