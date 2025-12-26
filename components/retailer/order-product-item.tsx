@@ -10,6 +10,10 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
+import { useState } from "react";
+import { useCartStore } from "@/stores/cart-store";
+import { useCartOptions } from "@/hooks/use-cart-options";
+import { getReorderProducts } from "@/actions/retailer/reorder";
 
 interface OrderProductItemProps {
   id: string;
@@ -27,15 +31,83 @@ export default function OrderProductItem({
   unit_price,
 }: OrderProductItemProps) {
   const router = useRouter();
+  const addToCart = useCartStore((state) => state.addToCart);
+  const { retailerId, supabaseClient, isLoading } = useCartOptions();
+  const [isRebuying, setIsRebuying] = useState(false);
+  const isCartReady = !isLoading && !!retailerId && !!supabaseClient;
 
-  const handleRebuy = () => {
+  const handleRebuy = async () => {
     console.log("🔄 [주문 상세] 재구매 클릭", {
       productId: id,
       productName: name,
+      quantity,
+      isLoading,
+      hasRetailerId: !!retailerId,
+      hasSupabaseClient: !!supabaseClient,
     });
-    
-    // 상품 상세 페이지로 이동
-    router.push(`/retailer/products/${id}`);
+
+    if (isLoading || !retailerId || !supabaseClient) {
+      console.warn("⚠️ [주문 상세] 재구매 실패: 장바구니 옵션 준비되지 않음", {
+        isLoading,
+        hasRetailerId: !!retailerId,
+        hasSupabaseClient: !!supabaseClient,
+      });
+      alert("잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    setIsRebuying(true);
+
+    try {
+      const result = await getReorderProducts({ productIds: [id] });
+
+      if (!result.success || !result.products || result.products.length === 0) {
+        console.error("❌ [주문 상세] 상품 정보 조회 실패:", result.error);
+        alert(result.error || "상품 정보를 조회할 수 없습니다.");
+        return;
+      }
+
+      const productDetail = result.products[0];
+
+      console.log("✅ [주문 상세] 상품 정보 조회 완료:", {
+        productId: productDetail.id,
+        productName: productDetail.name,
+        price: productDetail.price,
+      });
+
+      await addToCart(
+        {
+          product_id: productDetail.id,
+          variant_id: null,
+          quantity,
+          unit_price: productDetail.price,
+          shipping_fee: productDetail.shipping_fee,
+          delivery_method: productDetail.delivery_method ?? "courier",
+          wholesaler_id: productDetail.wholesaler_id,
+          product_name: productDetail.standardized_name || productDetail.name,
+          anonymous_seller_id: productDetail.wholesaler_anonymous_code,
+          seller_region: productDetail.wholesaler_region,
+          product_image: productDetail.image_url,
+          specification: productDetail.specification,
+          moq: productDetail.moq || 1,
+          stock_quantity: productDetail.stock_quantity,
+        },
+        {
+          retailerId,
+          supabaseClient,
+        },
+      );
+
+      console.log("✅ [주문 상세] 재구매 장바구니 담기 완료, 장바구니 페이지로 이동", {
+        productId: productDetail.id,
+      });
+      router.push("/retailer/cart");
+    } catch (error) {
+      console.error("❌ [주문 상세] 재구매 중 오류:", error);
+      alert("재구매 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsRebuying(false);
+    }
   };
 
   return (
@@ -69,9 +141,10 @@ export default function OrderProductItem({
         <div className="flex gap-2">
           <button
             onClick={handleRebuy}
-            className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-gray-100"
+            disabled={isRebuying || !isCartReady}
+            className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            재구매
+            {isRebuying ? "처리 중..." : !isCartReady ? "준비 중..." : "재구매"}
           </button>
         </div>
       </div>
