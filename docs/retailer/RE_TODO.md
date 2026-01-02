@@ -1,8 +1,8 @@
 # TODO - 소매점(Retailer) 기능 개발
 
  프로젝트 MarketLink 소매점 사이트
- 업데이트 2024-12-XX (PRD 기반 재정비)
- 문서 [RE_PRD.md](docsretailerRE_PRD.md) 참조
+ 업데이트 2025-01-27 (PRD 기반 재정비)
+ 문서 [RE_PRD.md](docs/retailer/RE_PRD.md) 참조
 
 ---
 
@@ -11,8 +11,8 @@
 ```
 Phase 1 인증 & 기본 구조 (완료)
 Phase 2 상품 탐색 & 장바구니 (완료)
-Phase 3 주문 & 결제 (진행 중)
-Phase 4 거래 관리 & 마이페이지 (진행 중)
+Phase 3 주문 & 결제 (완료)
+Phase 4 거래 관리 & 마이페이지 (완료)
 Phase 5 AI & 최적화 (예정)
 ```
 
@@ -93,11 +93,8 @@ PRD 3.1, 3.2, 3.3 섹션 참조.
   - [X] 반응형 헤더 네비게이션 구현 (데스크톱: 가로 메뉴, 모바일: 햄버거 메뉴)
 - [X] HOT DEAL 섹션 실데이터 연동 (Supabase 최신순 4개 노출)
 - [X] 최근 주문 섹션 실데이터 연동 및 목데이터 제거 (프로필과 동일)
-- [X] Gemini 챗봇 플로팅 위젯 (우측 하단, 대시보드 전용)
-  - [X] 서버 프록시(API) → Gemini Flash 2.x 호출 (env: `GEMINI_API_KEY`, 선택 `GEMINI_MODEL_NAME`)
-  - [X] 다크/라이트 대응, 전송/응답 로그 최소 노출
-  - 위치: `/retailer/dashboard` 화면 오른쪽 하단 원형 버튼 → 패널
-  - [X] 관리자 문의 전송 지원 (제목/내용, 주문 ID 옵션) → Supabase `inquiries` 저장
+- [X] AI 챗봇 위젯 (Phase 5.1 참조)
+  - [X] 대시보드 전용 플로팅 위젯 구현 완료
 
 ### 2.2 상품 검색 (R.SEARCH)
 
@@ -437,21 +434,29 @@ PRD 3.6 섹션 참조.
 
 ### 5.1 AI 인터페이스 (R.AI)
 
-- [ ] AI 챗봇 (R.AI.01, R.AI.02)
-  - [ ] Floating Action Button (FAB)
-  - [ ] Command Palette 통합 질의
+- [X] AI 챗봇 기본 기능 (R.AI.01 부분 완료)
+  - [X] Floating Action Button (FAB) - 대시보드에 구현됨
+    - [X] 서버 프록시(API) → Gemini Flash 2.x 호출 (env: `GEMINI_API_KEY`, 선택 `GEMINI_MODEL_NAME`)
+    - [X] 다크/라이트 대응, 전송/응답 로그 최소 노출
+    - [X] 위치: `/retailer/dashboard` 화면 오른쪽 하단 원형 버튼 → 패널
+    - [X] 관리자 문의 전송 지원 (제목/내용, 주문 ID 옵션) → Supabase `inquiries` 저장
+  - [ ] Command Palette 통합 질의 (R.AI.02)
+    - [ ] Cmd+K에서 AI 질의 모드 추가
+    - [ ] Command Palette에서 챗봇 연동 기능 구현
 - [ ] 지능형 응답 (R.AI.03, R.AI.04)
   - [ ] 배송 가능 여부 질의 처리
   - [ ] 응답 내 PII 마스킹 처리
 
 ### 5.2 최적화 및 테스트
 
-- [ ] 성능 최적화
-  - [ ] 이미지 최적화 및 Lazy Loading
-  - [ ] Supabase Storage 이미지 도메인 설정
-    - [ ] `next.config.ts`의 `images.remotePatterns`에 Supabase Storage 도메인 추가
-    - [ ] 예 `{ hostname .supabase.co, protocol https }` 또는 특정 프로젝트 도메인
-    - [ ] Next.js Image 컴포넌트에서 Supabase Storage 이미지 사용 시 필수 설정
+- [X] 성능 최적화
+  - [X] 이미지 최적화 및 Lazy Loading
+    - [X] Next.js Image 컴포넌트 사용 (기본 lazy loading 지원)
+    - [X] 여러 컴포넌트에서 `next/image`의 `Image` 컴포넌트 적용
+  - [X] Supabase Storage 이미지 도메인 설정
+    - [X] `next.config.ts`의 `images.remotePatterns`에 Supabase Storage 도메인 추가 완료
+    - [X] 도메인: `fmqaxnuemcmcjjgodath.supabase.co` 설정됨
+    - [X] Next.js Image 컴포넌트에서 Supabase Storage 이미지 사용 가능
 - [ ] 테스트
   - [ ] 주요 시나리오 E2E 테스트
 
